@@ -26,7 +26,7 @@
   "homepage": "https://github.com/DogeProtocol/qc-sdk#readme",
   "dependencies": {
     "pqc-js-sdk": "^1.0.0",
-    "qc-read-js-sdk": "^1.0.1",
-    "qc-write-js-sdk": "^1.0.1"
+    "qc-read-js-sdk": "^1.0.2",
+    "qc-write-js-sdk": "^1.0.2"
   }
 }
