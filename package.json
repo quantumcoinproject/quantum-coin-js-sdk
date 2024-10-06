@@ -1,6 +1,6 @@
 {
   "name": "qc-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "DP Quantum Coin SDK in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,8 @@
   "keywords": [
     "pqc",
     "cryptography",
-    "quantum coins"
+    "quantum coins",
+    "quantum coin"
   ],
   "author": "Doge Protocol Community",
   "license": "MIT",
@@ -25,8 +26,6 @@
   },
   "homepage": "https://github.com/DogeProtocol/qc-sdk#readme",
   "dependencies": {
-    "pqc-js-sdk": "^1.0.0",
-    "qc-read-js-sdk": "^1.0.2",
-    "qc-write-js-sdk": "^1.0.2"
+    "pqc-js-sdk": "^1.0.0"
   }
 }
