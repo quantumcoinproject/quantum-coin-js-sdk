@@ -1,7 +1,7 @@
 {
   "name": "qc-sdk",
-  "version": "1.0.1",
-  "description": "DP Quantum Coin SDK in JavaScript",
+  "version": "1.0.2",
+  "description": "Quantum Coin SDK in JavaScript",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,9 +17,10 @@
     "pqc",
     "cryptography",
     "quantum coins",
-    "quantum coin"
+    "quantum coin",
+    "quantumcoin"
   ],
-  "author": "Doge Protocol Community",
+  "author": "Quantum Coin Community",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/DogeProtocol/qc-sdk/issues"
