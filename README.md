@@ -1,7 +1,7 @@
 <a name="module_qc-sdk"></a>
 
 ## qc-sdk
-Quantum Coin SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project: https://github.com/DogeProtocol/qc-sdk/example](https://github.com/DogeProtocol/qc-sdk/example)
+Quantum Coin SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project](https://github.com/DogeProtocol/qc-sdk/example)
 
 **Example**  
 ```js
