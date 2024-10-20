@@ -58,7 +58,21 @@ Installation:npm install qc-sdk --saveAdding reference:var qcsdk = require('
         * [.nonce](#module_qc-sdk..TransactionDetails+nonce) : <code>number</code>
         * [.to](#module_qc-sdk..TransactionDetails+to) : <code>string</code>
         * [.value](#module_qc-sdk..TransactionDetails+value) : <code>string</code>
-    * [~initialize()](#module_qc-sdk..initialize)
+        * [.receipt](#module_qc-sdk..TransactionDetails+receipt) : <code>TransactionReceipt</code>
+    * [~TransactionDetailsResult](#module_qc-sdk..TransactionDetailsResult)
+        * [.resultCode](#module_qc-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
+        * [.transactionDetails](#module_qc-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
+        * [.response](#module_qc-sdk..TransactionDetailsResult+response) : <code>Object</code>
+    * [~initialize(clientConfig)](#module_qc-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isAddressValid(address)](#module_qc-sdk..isAddressValid) ⇒ <code>boolean</code>
+    * [~newWallet()](#module_qc-sdk..newWallet) ⇒ <code>Wallet</code>
+    * [~verifyWallet(wallet)](#module_qc-sdk..verifyWallet) ⇒ <code>boolean</code>
+    * [~serializeWallet(wallet)](#module_qc-sdk..serializeWallet) ⇒ <code>string</code>
+    * [~deserializeWallet(walletJson)](#module_qc-sdk..deserializeWallet) ⇒ <code>Wallet</code>
+    * [~getLatestBlockDetails()](#module_qc-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;BlockDetailsResult&gt;</code>
+    * [~getAccountDetails(address)](#module_qc-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
+    * [~getTransactionDetails(txnHash)](#module_qc-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
+    * [~sendCoins(wallet, toAddress, coinsInWei, nonce)](#module_qc-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
 
 <a name="module_qc-sdk..Config"></a>
 
@@ -333,7 +347,7 @@ An object of representing the raw Response returned by the service. For details,
 <a name="module_qc-sdk..TransactionReceipt"></a>
 
 ### qc-sdk~TransactionReceipt
-This class represents a Receipt of a transaction that was registered in the blockchain.
+This class represents a Receipt of a transaction that was registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
 
 **Kind**: inner class of [<code>qc-sdk</code>](#module_qc-sdk)  
 **Access**: public  
@@ -370,7 +384,7 @@ A hexadecimal string representing the amount of gas used by this specific transa
 <a name="module_qc-sdk..TransactionReceipt+status"></a>
 
 #### transactionReceipt.status : <code>string</code>
-A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee.
+A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
 
 **Kind**: instance property of [<code>TransactionReceipt</code>](#module_qc-sdk..TransactionReceipt)  
 **Access**: public  
@@ -391,7 +405,7 @@ A hexadecimal string representing the transaction type. 0x0 is DefaultFeeTxType.
 <a name="module_qc-sdk..TransactionDetails"></a>
 
 ### qc-sdk~TransactionDetails
-This class represents a result from invoking the getTransactionDetails function.
+This class represents a result from invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the receipt object is 0x1 (success).
 
 **Kind**: inner class of [<code>qc-sdk</code>](#module_qc-sdk)  
 **Access**: public  
@@ -407,6 +421,7 @@ This class represents a result from invoking the getTransactionDetails function.
     * [.nonce](#module_qc-sdk..TransactionDetails+nonce) : <code>number</code>
     * [.to](#module_qc-sdk..TransactionDetails+to) : <code>string</code>
     * [.value](#module_qc-sdk..TransactionDetails+value) : <code>string</code>
+    * [.receipt](#module_qc-sdk..TransactionDetails+receipt) : <code>TransactionReceipt</code>
 
 <a name="module_qc-sdk..TransactionDetails+blockHash"></a>
 
@@ -478,9 +493,157 @@ A hexadecimal string representing the value sent with this transaction. The valu
 
 **Kind**: instance property of [<code>TransactionDetails</code>](#module_qc-sdk..TransactionDetails)  
 **Access**: public  
+<a name="module_qc-sdk..TransactionDetails+receipt"></a>
+
+#### transactionDetails.receipt : <code>TransactionReceipt</code>
+The receipt of the transaction. This field will be null while the transaction is pending (not yet registered in the blockchain).
+
+**Kind**: instance property of [<code>TransactionDetails</code>](#module_qc-sdk..TransactionDetails)  
+**Access**: public  
+<a name="module_qc-sdk..TransactionDetailsResult"></a>
+
+### qc-sdk~TransactionDetailsResult
+This class represents a result from invoking the getTransactionDetails function. If transactions get discarded by the blockchain, for reasons such as due to lower than minimum gas fees or invalid nonce, the resultCode will always contain a non-zero value (failure).
+
+**Kind**: inner class of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Access**: public  
+
+* [~TransactionDetailsResult](#module_qc-sdk..TransactionDetailsResult)
+    * [.resultCode](#module_qc-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
+    * [.transactionDetails](#module_qc-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
+    * [.response](#module_qc-sdk..TransactionDetailsResult+response) : <code>Object</code>
+
+<a name="module_qc-sdk..TransactionDetailsResult+resultCode"></a>
+
+#### transactionDetailsResult.resultCode : <code>number</code>
+Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
+
+**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_qc-sdk..TransactionDetailsResult)  
+**Access**: public  
+<a name="module_qc-sdk..TransactionDetailsResult+transactionDetails"></a>
+
+#### transactionDetailsResult.transactionDetails : <code>TransactionDetails</code>
+An object of type TransactionDetails representing the block. This value is null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_qc-sdk..TransactionDetailsResult)  
+**Access**: public  
+<a name="module_qc-sdk..TransactionDetailsResult+response"></a>
+
+#### transactionDetailsResult.response : <code>Object</code>
+An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_qc-sdk..TransactionDetailsResult)  
+**Access**: public  
 <a name="module_qc-sdk..initialize"></a>
 
-### qc-sdk~initialize()
-This is a description of the initialize function.
+### qc-sdk~initialize(clientConfig) ⇒ <code>Promise.&lt;boolean&gt;</code>
+The initialize function has to be called before attempting to invoke any other function. This function should be called only once.
 
 **Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - Returns a promise of type boolean; true if the initialization succeeded, else false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| clientConfig | <code>Config</code> | A configuration represented by the Config class |
+
+<a name="module_qc-sdk..isAddressValid"></a>
+
+### qc-sdk~isAddressValid(address) ⇒ <code>boolean</code>
+The isAddressValid function validates whether an address is valid or not. An address is of length 66 characters including 0x.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>boolean</code> - Returns true if the address validation succeeded, else returns false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| address | <code>string</code> | A string representing the address to validate. |
+
+<a name="module_qc-sdk..newWallet"></a>
+
+### qc-sdk~newWallet() ⇒ <code>Wallet</code>
+The newWallet function creates a new Wallet.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Wallet</code> - Returns a Wallet object.  
+<a name="module_qc-sdk..verifyWallet"></a>
+
+### qc-sdk~verifyWallet(wallet) ⇒ <code>boolean</code>
+The verifyWallet function verifies whether a Wallet is valid or not. To mitigate spoofing and other attachs, it is highly recommended to verify a wallet, especially if it is from an untrusted source.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>boolean</code> - Returns true if the Wallet verification succeeded, else returns false.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | A Wallet object representing the wallet to verify. |
+
+<a name="module_qc-sdk..serializeWallet"></a>
+
+### qc-sdk~serializeWallet(wallet) ⇒ <code>string</code>
+The serializeWallet function serializes a Wallet object to a JSON string. You should encrypt the string before saving it to disk or a database.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>string</code> - Returns the Wallet in JSON string format. If the wallet is invalid, null is returned.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | A Wallet object representing the wallet to serialize. |
+
+<a name="module_qc-sdk..deserializeWallet"></a>
+
+### qc-sdk~deserializeWallet(walletJson) ⇒ <code>Wallet</code>
+The deserializeWallet function creates a Wallet object from a JSON string.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Wallet</code> - Returns the Wallet corresponding to the walletJson. If the wallet is invalid, null is returned.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| walletJson | <code>string</code> | A Wallet object representing the wallet to deserialize. |
+
+<a name="module_qc-sdk..getLatestBlockDetails"></a>
+
+### qc-sdk~getLatestBlockDetails() ⇒ <code>Promise.&lt;BlockDetailsResult&gt;</code>
+The getLatestBlockDetails function returns details of the latest block of the blockchain.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;BlockDetailsResult&gt;</code> - Returns a promise of an object of type BlockDetailsResult.  
+<a name="module_qc-sdk..getAccountDetails"></a>
+
+### qc-sdk~getAccountDetails(address) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
+The getAccountDetails function returns details of an account corresponding to the address.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;AccountDetailsResult&gt;</code> - Returns a probmise of type AccountDetailsResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| address | <code>string</code> | The address of the account of which the details have to be retrieved. |
+
+<a name="module_qc-sdk..getTransactionDetails"></a>
+
+### qc-sdk~getTransactionDetails(txnHash) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
+The getTransactionDetails function returns details of a transaction posted to the blockchain. Transactions may take a while to get registered in the blockchain. Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). The transactionReceipt field can be null unless the transaction is registered with the blockchain.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a probmise of type type TransactionDetailsResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txnHash | <code>string</code> | The hash of the transaction to retrieve. |
+
+<a name="module_qc-sdk..sendCoins"></a>
+
+### qc-sdk~sendCoins(wallet, toAddress, coinsInWei, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+The sendCoins function posts a send-coin transaction to the blockchain.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a probmise of type SendResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
+| toAddress | <code>string</code> | The address to which the coins should be sent. |
+| coinsInWei | <code>string</code> | The string representing the number of coins (in wei) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
+| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+
