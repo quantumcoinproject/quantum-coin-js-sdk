@@ -1,118 +1,26 @@
-# qc-sdk
+<a name="module_qc-sdk"></a>
 
-QcSdk - JavaScript client for qc-sdk
+## qc-sdk
+Quantum Coin SDK Module
 
-## Installation
-
-### For [Node.js](https://nodejs.org/)
-
-#### npm
-
-To publish the library as a [npm](https://www.npmjs.com/), please follow the procedure in ["Publishing npm packages"](https://docs.npmjs.com/getting-started/publishing-npm-packages).
-
-Then install it via:
-
-```shell
-npm install qc-sdk --save
+**Example**  
+```js
+var qcsdk = require('qc-sdk');
 ```
 
-Finally, you need to build the module:
+* [qc-sdk](#module_qc-sdk)
+    * [~Config](#module_qc-sdk..Config)
+    * [~initialize()](#module_qc-sdk..initialize)
 
-```shell
-npm run build
-```
+<a name="module_qc-sdk..Config"></a>
 
-##### Local development
+### qc-sdk~Config
+This is the configuration class required to initialize and interact with Quantum Coin blockchain
 
-To use the library locally without publishing to a remote npm registry, first install the dependencies by changing into the directory containing `package.json` (and this README). Let's call this `JAVASCRIPT_CLIENT_DIR`. Then run:
+**Kind**: inner class of [<code>qc-sdk</code>](#module_qc-sdk)  
+<a name="module_qc-sdk..initialize"></a>
 
-```shell
-npm install
-```
+### qc-sdk~initialize()
+This is a description of the initialize function.
 
-Next, [link](https://docs.npmjs.com/cli/link) it globally in npm with the following, also from `JAVASCRIPT_CLIENT_DIR`:
-
-```shell
-npm link
-```
-
-To use the link you just defined in your project, switch to the directory you want to use your qc_read_api from, and run:
-
-```shell
-npm link /path/to/<JAVASCRIPT_CLIENT_DIR>
-```
-
-Finally, you need to build the module:
-
-```shell
-npm run build
-```
-
-#### git
-
-If the library is hosted at a git repository, e.g.https://github.com/GIT_USER_ID/GIT_REPO_ID
-then install it via:
-
-```shell
-    npm install GIT_USER_ID/GIT_REPO_ID --save
-```
-
-### For browser
-
-The library also works in the browser environment via npm and [browserify](http://browserify.org/). After following
-the above steps with Node.js and installing browserify with `npm install -g browserify`,
-perform the following (assuming *main.js* is your entry file):
-
-```shell
-browserify main.js > bundle.js
-```
-
-Then include *bundle.js* in the HTML pages.
-
-### Webpack Configuration
-
-Using Webpack you may encounter the following error: "Module not found: Error:
-Cannot resolve module", most certainly you should disable AMD loader. Add/merge
-the following section to your webpack config:
-
-```javascript
-module: {
-  rules: [
-    {
-      parser: {
-        amd: false
-      }
-    }
-  ]
-}
-```
-
-## Getting Started
-
-Please follow the [installation](#installation) instruction and execute the following JS code:
-
-```javascript
-var qcSdk = require('qc-sdk');
-
-initialize().then((initResult) => {
-    if (initResult) {
-        console.log("Initialize succeeded");
-
-        var wal = qcSdk.newWallet();
-
-        let jsonWal = JSON.stringify(wal); //serialize
-        let wal2 = JSON.parse(jsonVal); //deserialize
-
-        console.log(wal.address);
-        //console.log(wal.privateKey); //do not uncomment
-        //console.log(wal.publicKey);
-
-    } else {
-        console.error("Initialize failed");
-    }
-});
-```
-
-## Documentation for Authorization
-
-Endpoints do not require authorization.
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
