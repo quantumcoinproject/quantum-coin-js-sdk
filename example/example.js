@@ -1,4 +1,4 @@
-const qcsdk = require('qc-sdk');
+const qcsdk = require('quantum-coin-js-sdk');
 const ethers = require('ethers');
 
 //Initialize the client configuration
