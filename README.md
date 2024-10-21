@@ -1,7 +1,7 @@
 <a name="module_qc-sdk"></a>
 
 ## qc-sdk
-Quantum Coin SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project: https://github.com/DogeProtocol/qc-sdk/example](https://github.com/DogeProtocol/qc-sdk/example)
+Quantum Coin SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project](https://github.com/DogeProtocol/qc-sdk/example)
 
 **Example**  
 ```js
@@ -98,8 +98,8 @@ Creates a config class
 
 | Param | Type | Description |
 | --- | --- | --- |
-| readUrl | <code>string</code> | The Read API URL pointing to a read relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relayread.dpapi.org Testnet T4: https://t4-relayread.dpapi.org |
-| writeUrl | <code>string</code> | The Write API URL pointing to a write relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relaywrite.dpapi.org Testnet T4: https://t4-relaywrite.dpapi.org |
+| readUrl | <code>string</code> | The Read API URL pointing to a read relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relayread.quantumcoin.org Testnet T4: https://t4-relayread.quantumcoin.org |
+| writeUrl | <code>string</code> | The Write API URL pointing to a write relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relaywrite.quantumcoin.org Testnet T4: https://t4-relaywrite.quantumcoin.org |
 | chainId | <code>number</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. |
 | readApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
 | writeApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
