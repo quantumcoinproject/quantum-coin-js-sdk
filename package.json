@@ -1,6 +1,7 @@
+
 {
-  "name": "qc-sdk",
-  "version": "1.0.4",
+  "name": "quantum-coin-js-sdk",
+  "version": "1.0.5",
   "description": "Quantum Coin SDK in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -8,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DogeProtocol/qc-sdk.git"
+    "url": "git+https://github.com/QuantumCoin/quantum-coin-js-sdk.git"
   },
   "files": [
     "**"
@@ -18,14 +19,15 @@
     "cryptography",
     "quantum coins",
     "quantum coin",
-    "quantumcoin"
+    "quantumcoin",
+    "blockchain"
   ],
   "author": "Quantum Coin Community",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DogeProtocol/qc-sdk/issues"
+    "url": "https://github.com/QuantumCoin/quantum-coin-js-sdk/issues"
   },
-  "homepage": "https://github.com/DogeProtocol/qc-sdk#readme",
+  "homepage": "https://github.com/QuantumCoin/quantum-coin-js-sdk#readme",
   "dependencies": {
     "pqc-js-sdk": "^1.0.0"
   }
