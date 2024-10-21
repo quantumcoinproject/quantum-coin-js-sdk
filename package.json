@@ -1,4 +1,3 @@
-
 {
   "name": "quantum-coin-js-sdk",
   "version": "1.0.5",
@@ -9,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuantumCoin/quantum-coin-js-sdk.git"
+    "url": "git+https://github.com/QuantumCoinProject/quantum-coin-js-sdk.git"
   },
   "files": [
     "**"
@@ -25,9 +24,9 @@
   "author": "Quantum Coin Community",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/QuantumCoin/quantum-coin-js-sdk/issues"
+    "url": "https://github.com/QuantumCoinProject/quantum-coin-js-sdk/issues"
   },
-  "homepage": "https://github.com/QuantumCoin/quantum-coin-js-sdk#readme",
+  "homepage": "https://github.com/QuantumCoinProject/quantum-coin-js-sdk#readme",
   "dependencies": {
     "pqc-js-sdk": "^1.0.0"
   }

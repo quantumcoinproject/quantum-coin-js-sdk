@@ -1,11 +1,11 @@
 <a name="module_quantum-coin-js-sdk"></a>
 
 ## quantum-coin-js-sdk
-Quantum Coin JS SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project](https://github.com/QuantumCoin/quantum-coin-js-sdk/example)
+Quantum Coin JS SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project](https://github.com/QuantumCoinProject/quantum-coin-js-sdk/example)
 
 **Example**  
 ```js
-Installation:npm install quantum-coin-js-sdk --saveAdding reference:var qcsdk = require('quantum-coin-js-sdk');Example Project: https://github.com/QuantumCoin/quantum-coin-js-sdk/example
+Installation:npm install quantum-coin-js-sdk --saveAdding reference:var qcsdk = require('quantum-coin-js-sdk');Example Project: https://github.com/QuantumCoinProject/quantum-coin-js-sdk/example
 ```
 
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
