@@ -5,7 +5,7 @@ Quantum Coin SDK provides functionality to interact with the Quantum Coin Blockc
 
 **Example**  
 ```js
-Installation:npm install qc-sdk --saveAdding reference:var qcsdk = require('qc-sdk');
+Installation:npm install qc-sdk --saveAdding reference:var qcsdk = require('qc-sdk');Example Project: https://github.com/DogeProtocol/qc-sdk/example
 ```
 
 * [qc-sdk](#module_qc-sdk)
@@ -36,6 +36,10 @@ Installation:npm install qc-sdk --saveAdding reference:var qcsdk = require('
         * [.resultCode](#module_qc-sdk..AccountDetailsResult+resultCode) : <code>number</code>
         * [.accountDetails](#module_qc-sdk..AccountDetailsResult+accountDetails) : <code>AccountDetails</code>
         * [.response](#module_qc-sdk..AccountDetailsResult+response) : <code>Object</code>
+    * [~SignResult](#module_qc-sdk..SignResult)
+        * [.resultCode](#module_qc-sdk..SignResult+resultCode) : <code>number</code>
+        * [.txnHash](#module_qc-sdk..SignResult+txnHash) : <code>string</code>
+        * [.txnData](#module_qc-sdk..SignResult+txnData) : <code>string</code>
     * [~SendResult](#module_qc-sdk..SendResult)
         * [.resultCode](#module_qc-sdk..SendResult+resultCode) : <code>number</code>
         * [.txnHash](#module_qc-sdk..SendResult+txnHash) : <code>string</code>
@@ -69,9 +73,11 @@ Installation:npm install qc-sdk --saveAdding reference:var qcsdk = require('
     * [~verifyWallet(wallet)](#module_qc-sdk..verifyWallet) ⇒ <code>boolean</code>
     * [~serializeWallet(wallet)](#module_qc-sdk..serializeWallet) ⇒ <code>string</code>
     * [~deserializeWallet(walletJson)](#module_qc-sdk..deserializeWallet) ⇒ <code>Wallet</code>
+    * [~postTransaction(txnData)](#module_qc-sdk..postTransaction) ⇒ <code>Promise.&lt;SendResult&gt;</code>
     * [~getLatestBlockDetails()](#module_qc-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;BlockDetailsResult&gt;</code>
     * [~getAccountDetails(address)](#module_qc-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
     * [~getTransactionDetails(txnHash)](#module_qc-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
+    * [~signSendCoinTransaction(wallet, toAddress, coinsInWei, nonce)](#module_qc-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
     * [~sendCoins(wallet, toAddress, coinsInWei, nonce)](#module_qc-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
 
 <a name="module_qc-sdk..Config"></a>
@@ -309,6 +315,40 @@ An object of type AccountDetails representing the block. This value is null if t
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
 
 **Kind**: instance property of [<code>AccountDetailsResult</code>](#module_qc-sdk..AccountDetailsResult)  
+**Access**: public  
+<a name="module_qc-sdk..SignResult"></a>
+
+### qc-sdk~SignResult
+This class represents a result from invoking the signSendCoinTransaction function.
+
+**Kind**: inner class of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Access**: public  
+
+* [~SignResult](#module_qc-sdk..SignResult)
+    * [.resultCode](#module_qc-sdk..SignResult+resultCode) : <code>number</code>
+    * [.txnHash](#module_qc-sdk..SignResult+txnHash) : <code>string</code>
+    * [.txnData](#module_qc-sdk..SignResult+txnData) : <code>string</code>
+
+<a name="module_qc-sdk..SignResult+resultCode"></a>
+
+#### signResult.resultCode : <code>number</code>
+Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
+
+**Kind**: instance property of [<code>SignResult</code>](#module_qc-sdk..SignResult)  
+**Access**: public  
+<a name="module_qc-sdk..SignResult+txnHash"></a>
+
+#### signResult.txnHash : <code>string</code>
+Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x. This value is null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>SignResult</code>](#module_qc-sdk..SignResult)  
+**Access**: public  
+<a name="module_qc-sdk..SignResult+txnData"></a>
+
+#### signResult.txnData : <code>string</code>
+A payload representing the signed transaction. To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. This value is null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>SignResult</code>](#module_qc-sdk..SignResult)  
 **Access**: public  
 <a name="module_qc-sdk..SendResult"></a>
 
@@ -601,6 +641,18 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 | --- | --- | --- |
 | walletJson | <code>string</code> | A Wallet object representing the wallet to deserialize. |
 
+<a name="module_qc-sdk..postTransaction"></a>
+
+### qc-sdk~postTransaction(txnData) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+The postTransaction function posts a signed transaction to the blockchain. This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| txnData | <code>string</code> | A signed transaction string returned by the signSendCoinTransaction function. |
+
 <a name="module_qc-sdk..getLatestBlockDetails"></a>
 
 ### qc-sdk~getLatestBlockDetails() ⇒ <code>Promise.&lt;BlockDetailsResult&gt;</code>
@@ -614,7 +666,7 @@ The getLatestBlockDetails function returns details of the latest block of the bl
 The getAccountDetails function returns details of an account corresponding to the address.
 
 **Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
-**Returns**: <code>Promise.&lt;AccountDetailsResult&gt;</code> - Returns a probmise of type AccountDetailsResult.  
+**Returns**: <code>Promise.&lt;AccountDetailsResult&gt;</code> - Returns a promise of type AccountDetailsResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -626,11 +678,26 @@ The getAccountDetails function returns details of an account corresponding to th
 The getTransactionDetails function returns details of a transaction posted to the blockchain. Transactions may take a while to get registered in the blockchain. Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). The transactionReceipt field can be null unless the transaction is registered with the blockchain.
 
 **Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
-**Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a probmise of type type TransactionDetailsResult.  
+**Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a promise of type type TransactionDetailsResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | txnHash | <code>string</code> | The hash of the transaction to retrieve. |
+
+<a name="module_qc-sdk..signSendCoinTransaction"></a>
+
+### qc-sdk~signSendCoinTransaction(wallet, toAddress, coinsInWei, nonce) ⇒ <code>SignResult</code>
+The signSendCoinTransaction function returns a signed transaction. This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
+
+**Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
+**Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
+| toAddress | <code>string</code> | The address to which the coins should be sent. |
+| coinsInWei | <code>string</code> | The string representing the number of coins (in wei) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
+| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
 
 <a name="module_qc-sdk..sendCoins"></a>
 
@@ -638,7 +705,7 @@ The getTransactionDetails function returns details of a transaction posted to th
 The sendCoins function posts a send-coin transaction to the blockchain.
 
 **Kind**: inner method of [<code>qc-sdk</code>](#module_qc-sdk)  
-**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a probmise of type SendResult.  
+**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
