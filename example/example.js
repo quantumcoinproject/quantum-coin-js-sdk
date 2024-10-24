@@ -17,7 +17,6 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     }
     console.log("Initialize succeeded");
 
-
     //Get the account details
     let address = "0x0000000000000000000000000000000000000000000000000000000000001000"; //Just an example address https://t4.scan.quantumcoin.org/account/0x0000000000000000000000000000000000000000000000000000000000001000
 

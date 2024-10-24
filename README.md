@@ -647,7 +647,7 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 The postTransaction function posts a signed transaction to the blockchain. This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
+**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult. txnHash will be null in SendResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
