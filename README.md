@@ -77,8 +77,8 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
     * [~getLatestBlockDetails()](#module_quantum-coin-js-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;BlockDetailsResult&gt;</code>
     * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
     * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-    * [~signSendCoinTransaction(wallet, toAddress, coinsInWei, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
-    * [~sendCoins(wallet, toAddress, coinsInWei, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+    * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
+    * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -686,7 +686,7 @@ The getTransactionDetails function returns details of a transaction posted to th
 
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
-### quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coinsInWei, nonce) ⇒ <code>SignResult</code>
+### quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>
 The signSendCoinTransaction function returns a signed transaction. This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -696,12 +696,12 @@ The signSendCoinTransaction function returns a signed transaction. This functio
 | --- | --- | --- |
 | wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
-| coinsInWei | <code>string</code> | The string representing the number of coins (in wei) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
+| coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
 | nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
 
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 
-### quantum-coin-js-sdk~sendCoins(wallet, toAddress, coinsInWei, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+### quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
 The sendCoins function posts a send-coin transaction to the blockchain. It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -711,6 +711,6 @@ The sendCoins function posts a send-coin transaction to the blockchain. It may 
 | --- | --- | --- |
 | wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
-| coinsInWei | <code>string</code> | The string representing the number of coins (in wei) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
+| coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
 | nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
 
