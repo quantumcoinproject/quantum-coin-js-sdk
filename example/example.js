@@ -171,9 +171,10 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
 
         var toAddress = "0x8293cd9b6ac502d2fe077b0c157dad39f36a5e546525b053151dced633634612";
         var nonce = accountDetailsResult.accountDetails.nonce;
-        var coinsInWei = "1000";
+        var coins = "10"; //in ethers and not in wei
 
-        qcsdk.sendCoins(wallet2, toAddress, coinsInWei, nonce).then((sendResult) => {
+        console.log("Sending coins (wei) " + coins);
+        qcsdk.sendCoins(wallet2, toAddress, coins, nonce).then((sendResult) => { //carefully manage state of nonce when retrying on errors
             if (sendResult === null) {
                 console.error("     sendCoins failed : sendResult is null");
                 return;

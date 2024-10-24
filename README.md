@@ -5,7 +5,7 @@ Quantum Coin JS SDK provides functionality to interact with the Quantum Coin Blo
 
 **Example**  
 ```js
-Installation:npm install quantum-coin-js-sdk --saveAdding reference:var qcsdk = require('quantum-coin-js-sdk');Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
+Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qcsdk = require('quantum-coin-js-sdk');//Initialize the SDK first before invoking any other functionvar clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "https://t4-relaywrite.quantumcoin.org", 310324, "", ""); //Testnet T4 Block Explorer: https://t4.scan.quantumcoin.org qcsdk.initialize(clientConfigVal).then((initResult) => {  }Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
 ```
 
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
