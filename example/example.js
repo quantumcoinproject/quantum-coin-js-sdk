@@ -193,7 +193,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     });
 
     //List transactions of an account
-    let address = "0x0000000000000000000000000000000000000000000000000000000000002000";
+    address = "0x0000000000000000000000000000000000000000000000000000000000002000";
     let pageNumber = 0; //zero is default for latest page
     qcsdk.listAccountTransactions(address, pageNumber).then((accountTransactionsResult) => {
         if (accountTransactionsResult === null) {

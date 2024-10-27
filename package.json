@@ -1,6 +1,6 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Quantum Coin SDK in JavaScript",
   "main": "index.js",
   "scripts": {
