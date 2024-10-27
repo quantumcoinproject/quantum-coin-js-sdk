@@ -191,5 +191,50 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
             console.log("     sendCoin succeeded. This does not necessarily mean that the transaction has succeded. txnHash " + sendResult.txnHash);
         });
     });
+
+    //List transactions of an account
+    let address = "0x0000000000000000000000000000000000000000000000000000000000002000";
+    let pageNumber = 0; //zero is default for latest page
+    qcsdk.listAccountTransactions(address, pageNumber).then((accountTransactionsResult) => {
+        if (accountTransactionsResult === null) {
+            console.error("     listAccountTransactions failed : accountTransactionsResult is null");
+            return;
+        }
+
+        if (accountTransactionsResult.resultCode !== 0) {
+            console.log("       listAccountTransactions failed. resultCode is " + accountTransactionsResult.resultCode);
+            console.log(accountTransactionsResult.response.status);
+            return;
+        }
+
+        if (accountTransactionsResult.listAccountTransactionsResponse === null) {
+            console.error("      listAccountTransactions failed : listAccountTransactionsResponse is null");
+            return;
+        }
+
+        if (accountTransactionsResult.listAccountTransactionsResponse.pageCount === null) {
+            console.error("      listAccountTransactions failed : pageCount is null");
+            return;
+        }
+
+        if (accountTransactionsResult.listAccountTransactionsResponse.items === null) {
+            console.error("      listAccountTransactions : items is null, no items to list");
+            return;
+        }
+
+        let txnList = accountTransactionsResult.listAccountTransactionsResponse.items;
+
+        console.log("     Account address: " + address);
+        console.log("     Page Count: " + accountTransactionsResult.listAccountTransactionsResponse.pageCount);
+        console.log("     Number of transactions returned: " + txnList.length);
+        for (const txn of txnList) {
+            console.log("     Transaction Hash: " + txn.hash);
+            console.log("          From Address: " + txn.from);
+            console.log("          To Address: " + txn.to);
+            console.log("          Value: " + txn.value);
+            console.log("          Status: " + txn.status);
+            console.log("          Block Number: " + txn.blockNumber);
+        }
+    });
 });
 
