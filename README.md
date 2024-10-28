@@ -27,6 +27,7 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
         * [.resultCode](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode) : <code>number</code>
         * [.blockDetails](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+blockDetails) : <code>BlockDetails</code>
         * [.response](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+response) : <code>Object</code>
+        * [.requestId](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId) : <code>string</code>
     * [~AccountDetails](#module_quantum-coin-js-sdk..AccountDetails)
         * [.address](#module_quantum-coin-js-sdk..AccountDetails+address) : <code>string</code>
         * [.balance](#module_quantum-coin-js-sdk..AccountDetails+balance) : <code>string</code>
@@ -36,6 +37,7 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
         * [.resultCode](#module_quantum-coin-js-sdk..AccountDetailsResult+resultCode) : <code>number</code>
         * [.accountDetails](#module_quantum-coin-js-sdk..AccountDetailsResult+accountDetails) : <code>AccountDetails</code>
         * [.response](#module_quantum-coin-js-sdk..AccountDetailsResult+response) : <code>Object</code>
+        * [.requestId](#module_quantum-coin-js-sdk..AccountDetailsResult+requestId) : <code>string</code>
     * [~SignResult](#module_quantum-coin-js-sdk..SignResult)
         * [.resultCode](#module_quantum-coin-js-sdk..SignResult+resultCode) : <code>number</code>
         * [.txnHash](#module_quantum-coin-js-sdk..SignResult+txnHash) : <code>string</code>
@@ -44,6 +46,7 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
         * [.resultCode](#module_quantum-coin-js-sdk..SendResult+resultCode) : <code>number</code>
         * [.txnHash](#module_quantum-coin-js-sdk..SendResult+txnHash) : <code>string</code>
         * [.response](#module_quantum-coin-js-sdk..SendResult+response) : <code>Object</code>
+        * [.requestId](#module_quantum-coin-js-sdk..SendResult+requestId) : <code>string</code>
     * [~TransactionReceipt](#module_quantum-coin-js-sdk..TransactionReceipt)
         * [.cumulativeGasUsed](#module_quantum-coin-js-sdk..TransactionReceipt+cumulativeGasUsed) : <code>string</code>
         * [.effectiveGasPrice](#module_quantum-coin-js-sdk..TransactionReceipt+effectiveGasPrice) : <code>string</code>
@@ -67,6 +70,7 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
         * [.resultCode](#module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
         * [.transactionDetails](#module_quantum-coin-js-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
         * [.response](#module_quantum-coin-js-sdk..TransactionDetailsResult+response) : <code>Object</code>
+        * [.requestId](#module_quantum-coin-js-sdk..TransactionDetailsResult+requestId) : <code>string</code>
     * [~AccountTransactionCompact](#module_quantum-coin-js-sdk..AccountTransactionCompact)
         * [.blockNumber](#module_quantum-coin-js-sdk..AccountTransactionCompact+blockNumber) : <code>number</code>
         * [.from](#module_quantum-coin-js-sdk..AccountTransactionCompact+from) : <code>string</code>
@@ -81,6 +85,7 @@ Installation:npm install quantum-coin-js-sdk --save//Adding reference:var qc
         * [.resultCode](#module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode) : <code>number</code>
         * [.listAccountTransactionsResponse](#module_quantum-coin-js-sdk..AccountTransactionsResult+listAccountTransactionsResponse) : <code>ListAccountTransactionsResponse</code>
         * [.response](#module_quantum-coin-js-sdk..AccountTransactionsResult+response) : <code>Object</code>
+        * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
     * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) ⇒ <code>boolean</code>
     * [~newWallet()](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code>
@@ -233,6 +238,7 @@ This class represents a result from invoking the getLatestBlock function.
     * [.resultCode](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode) : <code>number</code>
     * [.blockDetails](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+blockDetails) : <code>BlockDetails</code>
     * [.response](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+response) : <code>Object</code>
+    * [.requestId](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId) : <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode"></a>
 
@@ -252,6 +258,13 @@ An object of type BlockDetails representing the block. This value is null if the
 
 #### latestBlockDetailsResult.response : <code>Object</code>
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId"></a>
+
+#### latestBlockDetailsResult.requestId : <code>string</code>
+An unique id to represent the request. This can be null if request failed before it could be sent.
 
 **Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
 **Access**: public  
@@ -309,6 +322,7 @@ This class represents a result from invoking the getAccountDetails function.
     * [.resultCode](#module_quantum-coin-js-sdk..AccountDetailsResult+resultCode) : <code>number</code>
     * [.accountDetails](#module_quantum-coin-js-sdk..AccountDetailsResult+accountDetails) : <code>AccountDetails</code>
     * [.response](#module_quantum-coin-js-sdk..AccountDetailsResult+response) : <code>Object</code>
+    * [.requestId](#module_quantum-coin-js-sdk..AccountDetailsResult+requestId) : <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..AccountDetailsResult+resultCode"></a>
 
@@ -328,6 +342,13 @@ An object of type AccountDetails representing the block. This value is null if t
 
 #### accountDetailsResult.response : <code>Object</code>
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..AccountDetailsResult+requestId"></a>
+
+#### accountDetailsResult.requestId : <code>string</code>
+An unique id to represent the request. This can be null if request failed before it could be sent.
 
 **Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
 **Access**: public  
@@ -377,6 +398,7 @@ This class represents a result from invoking the sendCoins function.
     * [.resultCode](#module_quantum-coin-js-sdk..SendResult+resultCode) : <code>number</code>
     * [.txnHash](#module_quantum-coin-js-sdk..SendResult+txnHash) : <code>string</code>
     * [.response](#module_quantum-coin-js-sdk..SendResult+response) : <code>Object</code>
+    * [.requestId](#module_quantum-coin-js-sdk..SendResult+requestId) : <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..SendResult+resultCode"></a>
 
@@ -396,6 +418,13 @@ Hash of the Transaction, to uniquely identify it. Is 66 bytes in length includin
 
 #### sendResult.response : <code>Object</code>
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..SendResult+requestId"></a>
+
+#### sendResult.requestId : <code>string</code>
+An unique id to represent the request. This can be null if request failed before it could be sent.
 
 **Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
 **Access**: public  
@@ -567,6 +596,7 @@ This class represents a result from invoking the getTransactionDetails function.
     * [.resultCode](#module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
     * [.transactionDetails](#module_quantum-coin-js-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
     * [.response](#module_quantum-coin-js-sdk..TransactionDetailsResult+response) : <code>Object</code>
+    * [.requestId](#module_quantum-coin-js-sdk..TransactionDetailsResult+requestId) : <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode"></a>
 
@@ -586,6 +616,13 @@ An object of type TransactionDetails representing the transaction. This value is
 
 #### transactionDetailsResult.response : <code>Object</code>
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+requestId"></a>
+
+#### transactionDetailsResult.requestId : <code>string</code>
+An unique id to represent the request. This can be null if request failed before it could be sent.
 
 **Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
 **Access**: public  
@@ -685,6 +722,7 @@ This class represents a result from invoking the listAccountTransactionDetails f
     * [.resultCode](#module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode) : <code>number</code>
     * [.listAccountTransactionsResponse](#module_quantum-coin-js-sdk..AccountTransactionsResult+listAccountTransactionsResponse) : <code>ListAccountTransactionsResponse</code>
     * [.response](#module_quantum-coin-js-sdk..AccountTransactionsResult+response) : <code>Object</code>
+    * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode"></a>
 
@@ -704,6 +742,13 @@ An object of type ListAccountTransactionsResponse representing the list of trans
 
 #### accountTransactionsResult.response : <code>Object</code>
 An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
+
+**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+requestId"></a>
+
+#### accountTransactionsResult.requestId : <code>string</code>
+An unique id to represent the request. This can be null if request failed before it could be sent.
 
 **Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
 **Access**: public  
