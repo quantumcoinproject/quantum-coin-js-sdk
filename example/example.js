@@ -40,7 +40,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (accountDetailsResult.resultCode !== 0) {
-            console.log("getAccountDetails failed. resultCode is " + accountDetailsResult.resultCode);
+            console.log("getAccountDetails failed. resultCode is " + accountDetailsResult.resultCode + " , requestId is " + accountDetailsResult.requestId);
             return;
         }
 
@@ -73,7 +73,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (transactionDetailsResult.resultCode !== 0) {
-            console.log("getTransactionDetails failed. resultCode is " + transactionDetailsResult.resultCode);
+            console.log("getTransactionDetails failed. resultCode is " + transactionDetailsResult.resultCode + " , requestId is " + transactionDetailsResult.requestId);
             if (transactionDetailsResult.response !== null && transactionDetailsResult.response.status === 404) {
                 console.log("this transaction does not exist or has been discarded");
             }
@@ -124,7 +124,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (latestBlockDetailsResult.resultCode !== 0) {
-            console.log("     getLatestBlockDetails failed. resultCode is " + latestBlockDetailsResult.resultCode);
+            console.log("     getLatestBlockDetails failed. resultCode is " + latestBlockDetailsResult.resultCode + " , requestId is " + latestBlockDetailsResult.requestId);
             return;
         }
 
@@ -171,7 +171,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (accountDetailsResult.resultCode !== 0) {
-            console.log("     sendCoins getAccountDetails failed. resultCode is " + accountDetailsResult.resultCode);
+            console.log("     sendCoins getAccountDetails failed. resultCode is " + accountDetailsResult.resultCode + " , requestId is " + accountDetailsResult.requestId);
             return;
         }
 
@@ -214,7 +214,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (accountTransactionsResult.resultCode !== 0) {
-            console.log("       listAccountTransactions failed. resultCode is " + accountTransactionsResult.resultCode);
+            console.log("       listAccountTransactions failed. resultCode is " + accountTransactionsResult.resultCode + " , requestId is " + accountTransactionsResult.requestId);
             console.log(accountTransactionsResult.response.status);
             return;
         }
@@ -276,7 +276,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         }
 
         if (sendResult.resultCode !== 0) {
-            console.log("     postTransaction failed. resultCode is " + sendResult.resultCode);
+            console.log("     postTransaction failed. resultCode is " + sendResult.resultCode + " , requestId is " + sendResult.requestId);
             if (sendResult.response !== null) {
                 console.log("     postTransaction response statusText " + JSON.stringify(sendResult.response.statusText));
                 console.log("     postTransaction ensure account has adequate gas and nonce is correct");
