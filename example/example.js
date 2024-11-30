@@ -117,7 +117,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
 
     //Get the latest block details
     console.log("getLatestBlockDetails");
-    qcsdk.getLatestBlockDetails(address).then((latestBlockDetailsResult) => {
+    qcsdk.getLatestBlockDetails().then((latestBlockDetailsResult) => {
         if (latestBlockDetailsResult === null) {
             console.error("     getLatestBlockDetails failed : latestBlockDetailsResult is null");
             return;
