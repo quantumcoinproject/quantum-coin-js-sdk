@@ -239,6 +239,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         console.log("     Account address: " + address);
         console.log("     Page Count: " + accountTransactionsResult.listAccountTransactionsResponse.pageCount);
         console.log("     Number of transactions returned: " + txnList.length);
+
         for (const txn of txnList) {
             console.log("     Transaction Hash: " + txn.hash);
             console.log("          From Address: " + txn.from);
@@ -250,6 +251,19 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
 
             console.log("          Status: " + txn.status);
             console.log("          Block Number: " + txn.blockNumber);
+        }
+
+        let pageCount = accountTransactionsResult.listAccountTransactionsResponse.pageCount;
+
+        //Enumerate and list all the pages
+        for (i = 1; i <= pageCount; i++) {
+            let pageNumber = i;
+            qcsdk.listAccountTransactions(address, pageNumber).then((txnListResult) => {
+                let txnList = txnListResult.listAccountTransactionsResponse.items;
+                for (const txn of txnList) {
+                    console.log("     Transaction Hash: " + txn.hash + " pageNumber = " + pageNumber);
+                }
+            });
         }
     });
 

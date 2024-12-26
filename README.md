@@ -918,7 +918,7 @@ The listAccountTransactions function returns a list of transactions for a specif
 | Param | Type | Description |
 | --- | --- | --- |
 | address | <code>string</code> | The address for which the transactions have to be listed. |
-| pageNumber | <code>number</code> | The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). |
+| pageNumber | <code>number</code> | The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page. |
 
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
