@@ -6,7 +6,11 @@ var clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "
 //Testnet T4 Block Explorer: https://t4.scan.quantumcoin.org
 
 //For mainnet, use the following configuration
-//var clientConfigVal = new qcsdk.Config("https://relayread.quantumcoin.org", "https://relaywrite.quantumcoin.org", 123123, "", ""); //Mainnet
+//var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
+//Mainnet Block Explorer: https://scan.quantumcoin.org
+
+//Local testing configuration
+//var clientConfigVal = new qcsdk.Config("http://127.0.0.1:9090", "http://127.0.0.1:9091", 123123, "", ""); //local testing
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
 
