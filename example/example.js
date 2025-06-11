@@ -1,8 +1,11 @@
 const qcsdk = require('quantum-coin-js-sdk');
 const ethers = require('ethers');
 
+var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
+
+
 //Initialize the client configuration
-var clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "https://t4-relaywrite.quantumcoin.org", 310324, "", ""); //Testnet T4
+//var clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "https://t4-relaywrite.quantumcoin.org", 310324, "", ""); //Testnet T4
 //Testnet T4 Block Explorer: https://t4.scan.quantumcoin.org
 
 //For mainnet, use the following configuration
@@ -32,6 +35,11 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         return;
     }
     console.log("Initialize succeeded");  
+
+
+    console.log("isAddressValid (expected true)" + qcsdk.isAddressValid("0x6f605c4142f1cb037f967101a5b28ccd00b27cce4516190356baaf284d20e667")); //should print true
+    console.log("isAddressValid (expected true)" + qcsdk.isAddressValid("0X6F605C4142F1CB037F967101A5B28CCD00B27CCE4516190356BAAF284D20E667")); //should print true
+
 
     //Get the account details
     let address = "0x0000000000000000000000000000000000000000000000000000000000001000"; //Just an example address https://t4.scan.quantumcoin.org/account/0x0000000000000000000000000000000000000000000000000000000000001000
