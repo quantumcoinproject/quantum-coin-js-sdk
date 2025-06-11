@@ -1,27 +1,11 @@
 <a name="module_quantum-coin-js-sdk"></a>
 
 ## quantum-coin-js-sdk
-Quantum Coin JS SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.
-[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
+Quantum Coin JS SDK provides functionality to interact with the Quantum Coin Blockchain using the Relay APIs.[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
 
 **Example**  
 ```js
-Requires Node.js version v20.18.1 or higher
-
-Installation:
-npm install quantum-coin-js-sdk --save
-
-//Adding reference:
-var qcsdk = require('quantum-coin-js-sdk');
-
-//Initialize the SDK first before invoking any other function
-var clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "https://t4-relaywrite.quantumcoin.org", 310324, "", ""); //Testnet T4 Block Explorer: https://t4.scan.quantumcoin.org
- 
-qcsdk.initialize(clientConfigVal).then((initResult) => {
-  
-}
-
-Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
+Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-coin-js-sdk --save//Adding reference:var qcsdk = require('quantum-coin-js-sdk');//Initialize the SDK first before invoking any other functionvar clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //TMainnet Block Explorer: https://QuantumScan.com qcsdk.initialize(clientConfigVal).then((initResult) => {  }Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
 ```
 
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
@@ -145,8 +129,8 @@ Creates a config class
 
 | Param | Type | Description |
 | --- | --- | --- |
-| readUrl | <code>string</code> | The Read API URL pointing to a read relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relayread.quantumcoin.org Testnet T4: https://t4-relayread.quantumcoin.org |
-| writeUrl | <code>string</code> | The Write API URL pointing to a write relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://relaywrite.quantumcoin.org Testnet T4: https://t4-relaywrite.quantumcoin.org |
+| readUrl | <code>string</code> | The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.readrelay.quantumcoinapi.com |
+| writeUrl | <code>string</code> | The Write API URL pointing to a write relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/dogep/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.writerelay.quantumcoinapi.com |
 | chainId | <code>number</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. |
 | readApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
 | writeApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
@@ -154,14 +138,14 @@ Creates a config class
 <a name="module_quantum-coin-js-sdk..Config+readUrl"></a>
 
 #### config.readUrl : <code>string</code>
-The Read API URL pointing to a read relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay
+The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/dogep/relay
 
 **Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
 **Access**: public  
 <a name="module_quantum-coin-js-sdk..Config+writeUrl"></a>
 
 #### config.writeUrl : <code>string</code>
-The Read API URL pointing to a read relay. See https://github.com/DogeProtocol/go-dp/tree/dogep/relay
+The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/dogep/relay
 
 **Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
 **Access**: public  
@@ -189,7 +173,7 @@ API Key for authorization if authorization is enabled for the relay service. Def
 <a name="module_quantum-coin-js-sdk..Wallet"></a>
 
 ### quantum-coin-js-sdk~Wallet
-This class represents a Wallet. Use the verifyWallet function to verify if a wallet is valid. Verifying the wallet is highly recommended, especially if it comes from an untrusted source. For more details on the underlying cryptography of the Wallet, see https://github.com/DogeProtocol/hybrid-pqc
+This class represents a Wallet. Use the verifyWallet function to verify if a wallet is valid. Verifying the wallet is highly recommended, especially if it comes from an untrusted source. For more details on the underlying cryptography of the Wallet, see https://github.com/QuantumCoinProject/hybrid-pqc
 
 **Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Access**: public  
@@ -419,9 +403,7 @@ Hash of the Transaction, to uniquely identify it. Is 66 bytes in length includin
 <a name="module_quantum-coin-js-sdk..SignResult+txnData"></a>
 
 #### signResult.txnData : <code>string</code>
-A payload representing the signed transaction. 
-To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. 
-This value is null if the value of resultCode is not 0.
+A payload representing the signed transaction. To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. This value is null if the value of resultCode is not 0.
 
 **Kind**: instance property of [<code>SignResult</code>](#module_quantum-coin-js-sdk..SignResult)  
 **Access**: public  
@@ -478,8 +460,7 @@ An error object if the operation resulted in an error and there was no response.
 <a name="module_quantum-coin-js-sdk..TransactionReceipt"></a>
 
 ### quantum-coin-js-sdk~TransactionReceipt
-This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. 
-While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
+This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
 
 **Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Access**: public  
@@ -886,8 +867,7 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 <a name="module_quantum-coin-js-sdk..postTransaction"></a>
 
 ### quantum-coin-js-sdk~postTransaction(txnData) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The postTransaction function posts a signed transaction to the blockchain. 
-This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
+The postTransaction function posts a signed transaction to the blockchain. This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult. txnHash will be null in SendResult.  
@@ -918,12 +898,7 @@ The getAccountDetails function returns details of an account corresponding to th
 <a name="module_quantum-coin-js-sdk..getTransactionDetails"></a>
 
 ### quantum-coin-js-sdk~getTransactionDetails(txnHash) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-The getTransactionDetails function returns details of a transaction posted to the blockchain. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the getTransactionDetails function. 
-You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). 
-The transactionReceipt field can be null unless the transaction is registered with the blockchain.
+The getTransactionDetails function returns details of a transaction posted to the blockchain. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). The transactionReceipt field can be null unless the transaction is registered with the blockchain.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a promise of type type TransactionDetailsResult.  
@@ -935,13 +910,7 @@ The transactionReceipt field can be null unless the transaction is registered wi
 <a name="module_quantum-coin-js-sdk..listAccountTransactions"></a>
 
 ### quantum-coin-js-sdk~listAccountTransactions(address, pageNumber) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
-The listAccountTransactions function returns a list of transactions for a specific account. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
-You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). 
-Both transactions from and transactions to the address will be returned in the list.
-Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
+The listAccountTransactions function returns a list of transactions for a specific account. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the listAccountTransactions function. You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). Both transactions from and transactions to the address will be returned in the list.Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code> - Returns a promise of type type ListAccountTransactionsResponse.  
@@ -954,10 +923,7 @@ Use the getTransactionDetails function, passing the hash of the transaction to g
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
 ### quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>
-The signSendCoinTransaction function returns a signed transaction. 
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signSendCoinTransaction function returns a signed transaction. Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -972,10 +938,7 @@ Another usecase for this function is when you want to first store a signed trans
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 
 ### quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The sendCoins function posts a send-coin transaction to the blockchain. 
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
-Transactions are usually committed in less than 30 seconds.
+The sendCoins function posts a send-coin transaction to the blockchain. Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
