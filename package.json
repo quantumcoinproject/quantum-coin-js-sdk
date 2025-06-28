@@ -1,6 +1,6 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/quantumcoinproject/quantum-coin-js-sdk#readme",
   "dependencies": {
-    "quantum-coin-pqc-js-sdk": "^1.0.0"
+    "quantum-coin-pqc-js-sdk": "^1.0.0",
+    "seed-words": "^1.0.1"
   }
 }

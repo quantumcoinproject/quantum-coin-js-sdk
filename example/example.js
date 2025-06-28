@@ -356,5 +356,42 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         console.log("signSendCoinTransaction walletObj3 hash: " + signResult.txnHash);
         console.log("signSendCoinTransaction walletObj3 txnData: " + signResult.txnData); //txnData is to be sent to postTransaction
     });
+
+    //Create a new seed word list
+    let seedWords = qcsdk.newWalletSeed();
+    if (seedWords === null) {
+        console.error("newWalletSeed failed");
+        return;
+    }
+    console.log ("SeedWords: " + seedWords);
+
+    //Open a wallet from seed words
+    let seedWallet = qcsdk.openWalletFromSeedWords(seedWords);
+    if (seedWallet === null) {
+        console.error("openWalletFromSeedWords failed");
+        return;
+    }
+    console.log("seedWallet address: " + seedWallet.address);
+
+    //Open a wallet from seed words static
+    let seedWordList = "servetize,redmation,suaveton,dreadtolk,rondial,pondicle,miscoil,teaguery,dylodecid,portnel,mantical,slapware,sluthike,tactise,crierial,tajluvki,pranicum,sockcup,stacksong,duerling,genogram,peasate,pulubly,skimpop,feldtail,saprostal,crabrock,radiment,dolocsin,strigemen,juryeuk,fextial,merunized,tangienti,stylocyte,plumvieve,bobstike,nosecrown,acudemy,gripstick,lacreous,marculade,sporculum,outslope,bioburden,trompong,sidelay,finchage";
+    let seedWordArray = seedWordList.split(",");
+    let seedWallet2 = qcsdk.openWalletFromSeedWords(seedWordArray);
+    if (seedWallet2 === null) {
+        console.error("openWalletFromSeedWords failed");
+        return;
+    }
+    if (seedWallet2.address !== "0xc7C24aE0Db614F1638C5161e823A539a0293238366d4EaF29A63316D631e964F") {
+        console.error("seedWallet2 check failed");
+        return;
+    }
+    console.log("seedWallet2 address: " + seedWallet2.address);
+
+    //Sign a transaction from a wallet created from seed words
+    qcsdk.signSendCoinTransaction(seedWallet, toAddressExample, coinsExample, nonceExample).then((signResult) => {
+        console.log("signSendCoinTransaction seedWallet resultCode: " + signResult.resultCode);
+        console.log("signSendCoinTransaction seedWallet hash: " + signResult.txnHash);
+        console.log("signSendCoinTransaction seedWallet txnData: " + signResult.txnData); //txnData is to be sent to postTransaction
+    });
 });
 
