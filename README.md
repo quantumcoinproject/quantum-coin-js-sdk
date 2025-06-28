@@ -94,6 +94,8 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) ⇒ <code>boolean</code>
     * [~newWallet()](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code>
+    * [~newWalletSeed()](#module_quantum-coin-js-sdk..newWalletSeed) ⇒ <code>array</code>
+    * [~openWalletFromSeedWords(seedWordList)](#module_quantum-coin-js-sdk..openWalletFromSeedWords) ⇒ <code>Wallet</code>
     * [~deserializeEncryptedWallet(walletJsonString, passphrase)](#module_quantum-coin-js-sdk..deserializeEncryptedWallet) ⇒ <code>Wallet</code>
     * [~serializeEncryptedWallet(wallet, passphrase)](#module_quantum-coin-js-sdk..serializeEncryptedWallet) ⇒ <code>string</code>
     * [~verifyWallet(wallet)](#module_quantum-coin-js-sdk..verifyWallet) ⇒ <code>boolean</code>
@@ -830,6 +832,25 @@ The newWallet function creates a new Wallet.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Wallet</code> - Returns a Wallet object.  
+<a name="module_quantum-coin-js-sdk..newWalletSeed"></a>
+
+### quantum-coin-js-sdk~newWalletSeed() ⇒ <code>array</code>
+The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>array</code> - Returns an array of seed words (48 words in total). Returns null if the operation failed.  
+<a name="module_quantum-coin-js-sdk..openWalletFromSeedWords"></a>
+
+### quantum-coin-js-sdk~openWalletFromSeedWords(seedWordList) ⇒ <code>Wallet</code>
+The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Wallet</code> - Returns a Wallet object. Returns null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| seedWordList | <code>array</code> | An array of seed words. There should be 48 words in total. |
+
 <a name="module_quantum-coin-js-sdk..deserializeEncryptedWallet"></a>
 
 ### quantum-coin-js-sdk~deserializeEncryptedWallet(walletJsonString, passphrase) ⇒ <code>Wallet</code>
