@@ -74,7 +74,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     });
 
     //Get the transaction details
-    let txnHash = "0x710cc145eea254c3db9857b42f0b576f4159ac48a23bfc0c480c341e90a40376"; //Just an example transaction hash https://t4.scan.quantumcoin.org/txn/0x710cc145eea254c3db9857b42f0b576f4159ac48a23bfc0c480c341e90a40376
+    let txnHash = "0xe6fbabc178adaaab6b9dbda086de53deaced1d6fe40e7db9539fe9e85695d1be"; //Just an example transaction hash https://quantumscan.com/txn/0xe6fbabc178adaaab6b9dbda086de53deaced1d6fe40e7db9539fe9e85695d1be
 
     console.log("getTransactionDetails " + txnHash);
     qcsdk.getTransactionDetails(txnHash).then((transactionDetailsResult) => {
