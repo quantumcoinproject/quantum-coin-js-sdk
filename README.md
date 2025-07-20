@@ -19,8 +19,8 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~Wallet](#module_quantum-coin-js-sdk..Wallet)
         * [new Wallet(address, privateKey, publicKey)](#new_module_quantum-coin-js-sdk..Wallet_new)
         * [.address](#module_quantum-coin-js-sdk..Wallet+address) : <code>string</code>
-        * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey)
-        * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey)
+        * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey) : <code>Array.&lt;number&gt;</code>
+        * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey) : <code>Array.&lt;number&gt;</code>
     * [~BlockDetails](#module_quantum-coin-js-sdk..BlockDetails)
         * [.blockNumber](#module_quantum-coin-js-sdk..BlockDetails+blockNumber) : <code>number</code>
     * [~LatestBlockDetailsResult](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)
@@ -108,6 +108,8 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
     * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
     * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+    * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>Array.&lt;number&gt;</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -185,8 +187,8 @@ This class represents a Wallet. Use the verifyWallet function to verify if a wal
 * [~Wallet](#module_quantum-coin-js-sdk..Wallet)
     * [new Wallet(address, privateKey, publicKey)](#new_module_quantum-coin-js-sdk..Wallet_new)
     * [.address](#module_quantum-coin-js-sdk..Wallet+address) : <code>string</code>
-    * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey)
-    * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey)
+    * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey) : <code>Array.&lt;number&gt;</code>
+    * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey) : <code>Array.&lt;number&gt;</code>
 
 <a name="new_module_quantum-coin-js-sdk..Wallet_new"></a>
 
@@ -209,14 +211,14 @@ Address of the wallet. Is 66 bytes in length including 0x (if the wallet is vali
 **Access**: public  
 <a name="module_quantum-coin-js-sdk..Wallet+privateKey"></a>
 
-#### wallet.privateKey
+#### wallet.privateKey : <code>Array.&lt;number&gt;</code>
 Private Key byte array of the wallet. Is 4064 bytes in length (if the wallet is valid).
 
 **Kind**: instance property of [<code>Wallet</code>](#module_quantum-coin-js-sdk..Wallet)  
 **Access**: public  
 <a name="module_quantum-coin-js-sdk..Wallet+publicKey"></a>
 
-#### wallet.publicKey
+#### wallet.publicKey : <code>Array.&lt;number&gt;</code>
 Public Key byte array of the wallet. Is 1408 bytes in length (if the wallet is valid).
 
 **Kind**: instance property of [<code>Wallet</code>](#module_quantum-coin-js-sdk..Wallet)  
@@ -998,4 +1000,29 @@ The sendCoins function posts a send-coin transaction to the blockchain. Since t
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
 | coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
 | nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+
+<a name="module_quantum-coin-js-sdk..publicKeyFromSignature"></a>
+
+### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) ⇒ <code>Array.&lt;number&gt;</code>
+The publicKeyFromSignature extracts the public key from a signature.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - Returns a byte array containing the public key. Returns null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| digest | <code>Array.&lt;number&gt;</code> | An array of bytes containing the digestHash. Should be of length 32. |
+| signature | <code>Array.&lt;number&gt;</code> | An array of bytes containing the signature. |
+
+<a name="module_quantum-coin-js-sdk..publicKeyFromPrivateKey"></a>
+
+### quantum-coin-js-sdk~publicKeyFromPrivateKey(privateKey) ⇒ <code>Array.&lt;number&gt;</code>
+The publicKeyFromPrivateKey extracts the public key from a private key.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - Returns a byte array containing the public key. Returns null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| privateKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the privateKey. |
 

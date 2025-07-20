@@ -217,16 +217,16 @@ export class Wallet {
     public address: string;
     /**
      * Private Key byte array of the wallet. Is 4064 bytes in length (if the wallet is valid).
-     * @type {{number[]}
+     * @type {number[]}
      * @public
     */
-    public privateKey: {};
+    public privateKey: number[];
     /**
      * Public Key byte array of the wallet. Is 1408 bytes in length (if the wallet is valid).
-     * @type {{number[]}
+     * @type {number[]}
      * @public
     */
-    public publicKey: {};
+    public publicKey: number[];
 }
 /**
  * @class
@@ -669,6 +669,23 @@ export function newWalletSeed(): any[];
  * @return {Wallet} Returns a Wallet object. Returns null if the operation failed.
  */
 export function openWalletFromSeedWords(seedWordList: any[]): Wallet;
+/**
+ * The publicKeyFromSignature extracts the public key from a signature.
+ *
+ * @function publicKeyFromSignature
+ * @param {number[]} digest - An array of bytes containing the digestHash. Should be of length 32.
+ * @param {number[]} signature - An array of bytes containing the signature.
+ * @return {number[]} - Returns a byte array containing the public key. Returns null if the operation failed.
+ */
+export function publicKeyFromSignature(digest: number[], signature: number[]): number[];
+/**
+ * The publicKeyFromPrivateKey extracts the public key from a private key.
+ *
+ * @function publicKeyFromPrivateKey
+ * @param {number[]} privateKey - An array of bytes containing the privateKey.
+ * @return {number[]} - Returns a byte array containing the public key. Returns null if the operation failed.
+ */
+export function publicKeyFromPrivateKey(privateKey: number[]): number[];
 /**
  * @class
  * @constructor
