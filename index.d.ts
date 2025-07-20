@@ -687,6 +687,14 @@ export function publicKeyFromSignature(digest: number[], signature: number[]): n
  */
 export function publicKeyFromPrivateKey(privateKey: number[]): number[];
 /**
+ * The addressFromPublicKey returns the address corresponding to the public key.
+ *
+ * @function addressFromPublicKey
+ * @param {number[]} publicKey - An array of bytes containing the public key.
+ * @return {string} - Returns a hex string corresponding to the public key. Returns null if the operation failed.
+ */
+export function addressFromPublicKey(publicKey: number[]): string;
+/**
  * @class
  * @constructor
  * @public
