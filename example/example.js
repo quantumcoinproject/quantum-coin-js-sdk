@@ -172,6 +172,14 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     console.log("isAddressValid (expected true)" + qcsdk.isAddressValid(wallet1.address)); //should print true
     console.log("isAddressValid (expected false)" + qcsdk.isAddressValid("asfasdfasdfs")); //should print false
 
+    //Retrieve address from public key
+    let addressTemp = qcsdk.addressFromPublicKey(wallet2.publicKey);
+    console.log("addressFromPublicKey: " + addressTemp);
+    if (addressTemp !== wallet2.address) {
+        throw new Error("addressFromPublicKey doesn't match: " + addressTemp + " " + wallet2.publicKey);
+    }
+    return;
+
     //Send coins
     //First get account details nonce
     console.log("sendCoins getAccountDetails " + address);

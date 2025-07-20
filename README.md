@@ -110,6 +110,7 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>Array.&lt;number&gt;</code>
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -1025,4 +1026,16 @@ The publicKeyFromPrivateKey extracts the public key from a private key.
 | Param | Type | Description |
 | --- | --- | --- |
 | privateKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the privateKey. |
+
+<a name="module_quantum-coin-js-sdk..addressFromPublicKey"></a>
+
+### quantum-coin-js-sdk~addressFromPublicKey(publicKey) ⇒ <code>string</code>
+The addressFromPublicKey returns the address corresponding to the public key.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>string</code> - - Returns a hex string corresponding to the public key. Returns null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| publicKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the public key. |
 
