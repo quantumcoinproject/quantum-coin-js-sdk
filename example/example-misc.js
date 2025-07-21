@@ -1,5 +1,6 @@
 const qcsdk = require('quantum-coin-js-sdk');
 const ethers = require('ethers');
+const pqc = require("quantum-coin-pqc-js-sdk");
 
 var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
 
@@ -39,12 +40,33 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     console.log("walletExample.privateKey length " + walletExample.privateKey.length);
     let publicKey2 = qcsdk.publicKeyFromPrivateKey(walletExample.privateKey);
     console.log("publicKeyFromPrivateKey publicKey length: " + publicKey2.length);
-    if (publicKey2.length !== walletExample.publicKey.length) {
-        throw new Error("public key length compare failed");
+    let publicKey2Bytes = hexToBytes(publicKey2);
+    if (publicKey2Bytes.length !== walletExample.publicKey.length) {
+        throw new Error("public key length compare failed S");
     }
-    for (i = 0; i < publicKey2.length; i++) {
-        if (publicKey2[i] !== walletExample.publicKey[i]) {
-            throw new Error("public key compare failed");
+    for (let i = 0; i < publicKey2Bytes.length; i++) {
+        if (publicKey2Bytes[i] !== walletExample.publicKey[i]) {
+            throw new Error("public key compare failed A");
+        }
+    }
+
+    let utf8Encode = new TextEncoder();
+    let message = utf8Encode.encode("verifyverifyverifyverifyverifyok");
+
+    let quantumSig = pqc.cryptoSign(message, walletExample.privateKey);
+    let combinedSignatureHex =  qcsdk.combinePublicKeySignature(walletExample.publicKey, quantumSig);
+    if (combinedSignatureHex === null) {
+        throw new Error("combinePublicKeySignature combine failed");
+    }
+    let combinedSignatureBytes = hexToBytes(combinedSignatureHex);
+    let publicKeySigHex = qcsdk.publicKeyFromSignature(message, combinedSignatureBytes);
+    let publicKeySigBytes = hexToBytes(publicKeySigHex);
+    if (publicKeySigBytes.length !== walletExample.publicKey.length) {
+        throw new Error("public key length compare failed B");
+    }
+    for (let i = 0; i < publicKeySigBytes.length; i++) {
+        if (publicKeySigBytes[i] !== walletExample.publicKey[i]) {
+            throw new Error("public key compare failed B");
         }
     }
    
@@ -55,3 +77,21 @@ function base64ToBytes(base64) {
     return Uint8Array.from(binString, (m) => m.codePointAt(0));
 }
 
+// Convert a hex string to a byte array
+function hexToBytes(hex) {
+    let bytes = [];
+    for (let c = 0; c < hex.length; c += 2)
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+    return bytes;
+}
+
+// Convert a byte array to a hex string
+function bytesToHex(bytes) {
+    let hex = [];
+    for (let i = 0; i < bytes.length; i++) {
+        let current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
+        hex.push((current >>> 4).toString(16));
+        hex.push((current & 0xF).toString(16));
+    }
+    return hex.join("");
+}

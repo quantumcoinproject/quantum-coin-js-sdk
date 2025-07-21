@@ -108,9 +108,10 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
     * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
     * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-    * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>Array.&lt;number&gt;</code>
-    * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
+    * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
     * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
+    * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) ⇒ <code>string</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -1004,11 +1005,11 @@ The sendCoins function posts a send-coin transaction to the blockchain. Since t
 
 <a name="module_quantum-coin-js-sdk..publicKeyFromSignature"></a>
 
-### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) ⇒ <code>Array.&lt;number&gt;</code>
+### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) ⇒ <code>string</code>
 The publicKeyFromSignature extracts the public key from a signature.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Array.&lt;number&gt;</code> - - Returns a byte array containing the public key. Returns null if the operation failed.  
+**Returns**: <code>string</code> - - Returns the public key as a hex string. Returns null if the operation failed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1017,11 +1018,11 @@ The publicKeyFromSignature extracts the public key from a signature.
 
 <a name="module_quantum-coin-js-sdk..publicKeyFromPrivateKey"></a>
 
-### quantum-coin-js-sdk~publicKeyFromPrivateKey(privateKey) ⇒ <code>Array.&lt;number&gt;</code>
+### quantum-coin-js-sdk~publicKeyFromPrivateKey(privateKey) ⇒ <code>string</code>
 The publicKeyFromPrivateKey extracts the public key from a private key.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Array.&lt;number&gt;</code> - - Returns a byte array containing the public key. Returns null if the operation failed.  
+**Returns**: <code>string</code> - - Returns the public key as a hex string. Returns null if the operation failed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1033,9 +1034,22 @@ The publicKeyFromPrivateKey extracts the public key from a private key.
 The addressFromPublicKey returns the address corresponding to the public key.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>string</code> - - Returns a hex string corresponding to the public key. Returns null if the operation failed.  
+**Returns**: <code>string</code> - - Returns the address corresponding to the public key as a hex string. Returns null if the operation failed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | publicKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the public key. |
+
+<a name="module_quantum-coin-js-sdk..combinePublicKeySignature"></a>
+
+### quantum-coin-js-sdk~combinePublicKeySignature(publicKey, signature) ⇒ <code>string</code>
+The combinePublicKeySignature combines the public key and signature.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>string</code> - - Returns a hex string corresponding to combined signature. Returns null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| publicKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the public key. |
+| signature | <code>Array.&lt;number&gt;</code> | An array of bytes containing the signature. |
 
