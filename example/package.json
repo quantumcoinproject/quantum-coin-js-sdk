@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "ethers": "^6.13.4",
-    "quantum-coin-js-sdk": "^1.0.19"
+    "quantum-coin-js-sdk": "file:..",
+    "quantum-coin-pqc-js-sdk": "^1.0.5"
   }
 }
