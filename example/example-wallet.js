@@ -1,6 +1,6 @@
 const qcsdk = require('quantum-coin-js-sdk');
 
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
+//var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
 
 
 //Initialize the client configuration
@@ -17,7 +17,7 @@ var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com
 
 
 //Initialize the SDK
-qcsdk.initialize(clientConfigVal).then((initResult) => {
+qcsdk.initialize(undefined).then((initResult) => {
     if (initResult === false) {
         console.error("Initialize failed");
         return;
