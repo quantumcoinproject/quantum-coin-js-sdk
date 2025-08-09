@@ -3,10 +3,10 @@
  *
  * @async
  * @function initialize
- * @param {Config} clientConfig - A configuration represented by the Config class. A default configuration is used, if not specified.
+ * @param {Config|undefined} clientConfig - A configuration represented by the Config class. A default configuration is used, if not specified.
  * @return {Promise<boolean>} Returns a promise of type boolean; true if the initialization succeeded, else false.
  */
-export function initialize(clientConfig: Config): Promise<boolean>;
+export function initialize(clientConfig: Config | undefined): Promise<boolean>;
 /**
  * The serializeWallet function serializes a Wallet object to a JSON string. You should encrypt the string before saving it to disk or a database.
  *
