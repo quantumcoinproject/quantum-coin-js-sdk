@@ -8,7 +8,7 @@ var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet
 
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
-const rpcEndpointUrl = 'https://px.rpc.quantumcoinapi.com'; // Example RPC endpoint
+const rpcEndpointUrl = 'https://dummy.rpc.quantumcoinapi.com'; // Example RPC endpoint
 
 async function getTransactionCount(address) {
     try {
