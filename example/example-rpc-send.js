@@ -8,7 +8,36 @@ var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet
 
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
-const rpcEndpointUrl = 'https://dummy.rpc.quantumcoinapi.com'; // Example RPC endpoint
+const rpcEndpointUrl = 'https://px.rpc.quantumcoinapi.com'; // Example RPC endpoint
+
+async function getTransactionCount(address) {
+    try {
+        const params =  [address, "latest"];
+        const response = await fetch(rpcEndpointUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1, // Request ID
+                method: 'eth_getTransactionCount',
+                params: params,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        return result;
+    } catch (error) {
+        console.error('Could not invoke RPC endpoint:', error);
+        return error;
+    }
+}
 
 async function sendRawTx(signedTxData) {
     try {
@@ -55,23 +84,31 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     let walletExample = qcsdk.deserializeEncryptedWallet(walletEncryptedJson, examplePassphrase);
 
     var toAddressExample = "0x8293cd9b6ac502d2fe077b0c157dad39f36a5e546525b053151dced633634612";
-    var nonceExample = 0; //use the latest nonce for the address as shown in Block Explorer.
+    //var nonceExample = 0; //use the latest nonce for the address as shown in Block Explorer.
     var coinsExample = "10"; //in ethers and not in wei
 
-    //Sign a transaction
-    qcsdk.signSendCoinTransaction(walletExample, toAddressExample, coinsExample, nonceExample).then((signResult) => {
-        console.log("signSendCoinTransaction resultCode: " + signResult.resultCode);
-        console.log("signSendCoinTransaction hash: " + signResult.txnHash);
-        console.log("signSendCoinTransaction txnData: " + signResult.txnData); //txnData is to be sent to postTransaction
+    //Get transaction count
+    getTransactionCount(walletExample.address).then((txnCountResult) => {
+        let nonce = parseInt(txnCountResult.result, 16);
+        console.log("nonce (transaction count) is: " + nonce);
 
-        //Send transaction via RPC node
-        sendRawTx(signResult.txnData).then((result) => {
-            console.log('RPC Response:', result);
-            if (result.error) {
-                console.error('RPC Error:', result.error.message);
-            } else {
-                console.log('Balance:', result.result.value / 1e9, 'SOL'); // Adjust for correct units
-            }
+        //Sign a transaction
+        qcsdk.signSendCoinTransaction(walletExample, toAddressExample, coinsExample, nonce).then((signResult) => {
+            console.log("signSendCoinTransaction from wallet address: " + walletExample.address);
+            console.log("signSendCoinTransaction resultCode: " + signResult.resultCode);
+            console.log("signSendCoinTransaction hash: " + signResult.txnHash);
+            //console.log("signSendCoinTransaction txnData: " + signResult.txnData); //txnData is to be sent to postTransaction
+
+            //Send transaction via RPC node
+            sendRawTx(signResult.txnData).then((result) => {
+                console.log('RPC Response:', result);
+                if (result.error) {
+                    console.error('RPC Error:', result.error.message);
+                } else {
+                    console.log('Balance:', result.result.value / 1e9, 'SOL'); // Adjust for correct units
+                }
+            });
+
         });
 
     });
