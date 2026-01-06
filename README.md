@@ -91,6 +91,15 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
         * [.response](#module_quantum-coin-js-sdk..AccountTransactionsResult+response) : <code>Object</code>
         * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
         * [.err](#module_quantum-coin-js-sdk..AccountTransactionsResult+err) : <code>Error</code>
+    * [~TransactionSigningRequest](#module_quantum-coin-js-sdk..TransactionSigningRequest)
+        * [new TransactionSigningRequest(wallet, toAddress, valueInWeiHex, nonce, data, gasLimit, remarks)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
+        * [.wallet](#module_quantum-coin-js-sdk..TransactionSigningRequest+wallet) : <code>Wallet</code>
+        * [.toAddress](#module_quantum-coin-js-sdk..TransactionSigningRequest+toAddress) : <code>string</code>
+        * [.valueInWeiHex](#module_quantum-coin-js-sdk..TransactionSigningRequest+valueInWeiHex) : <code>string</code>
+        * [.nonce](#module_quantum-coin-js-sdk..TransactionSigningRequest+nonce) : <code>number</code>
+        * [.data](#module_quantum-coin-js-sdk..TransactionSigningRequest+data) : <code>string</code>
+        * [.gasLimit](#module_quantum-coin-js-sdk..TransactionSigningRequest+gasLimit) : <code>number</code>
+        * [.remarks](#module_quantum-coin-js-sdk..TransactionSigningRequest+remarks) : <code>string</code>
     * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) ⇒ <code>boolean</code>
     * [~newWallet()](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code>
@@ -107,6 +116,8 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
     * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
     * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
+    * [~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>SignResult</code>
+    * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) ⇒ <code>SignResult</code>
     * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
@@ -805,6 +816,89 @@ An error object if the operation resulted in an error and there was no response.
 
 **Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
 **Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest"></a>
+
+### quantum-coin-js-sdk~TransactionSigningRequest
+This class represents a signing request that can be passed to signTransaction.
+
+**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Access**: public  
+
+* [~TransactionSigningRequest](#module_quantum-coin-js-sdk..TransactionSigningRequest)
+    * [new TransactionSigningRequest(wallet, toAddress, valueInWeiHex, nonce, data, gasLimit, remarks)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
+    * [.wallet](#module_quantum-coin-js-sdk..TransactionSigningRequest+wallet) : <code>Wallet</code>
+    * [.toAddress](#module_quantum-coin-js-sdk..TransactionSigningRequest+toAddress) : <code>string</code>
+    * [.valueInWeiHex](#module_quantum-coin-js-sdk..TransactionSigningRequest+valueInWeiHex) : <code>string</code>
+    * [.nonce](#module_quantum-coin-js-sdk..TransactionSigningRequest+nonce) : <code>number</code>
+    * [.data](#module_quantum-coin-js-sdk..TransactionSigningRequest+data) : <code>string</code>
+    * [.gasLimit](#module_quantum-coin-js-sdk..TransactionSigningRequest+gasLimit) : <code>number</code>
+    * [.remarks](#module_quantum-coin-js-sdk..TransactionSigningRequest+remarks) : <code>string</code>
+
+<a name="new_module_quantum-coin-js-sdk..TransactionSigningRequest_new"></a>
+
+#### new TransactionSigningRequest(wallet, toAddress, valueInWeiHex, nonce, data, gasLimit, remarks)
+Creates a TransactionSigningRequest class.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | The wallet with which the transaction has to be signed. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly. |
+| toAddress | <code>string</code> | The address to which the transaction request is made. Can be null (for example, for contract creation). |
+| valueInWeiHex | <code>string</code> | The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. [Conversion Examples](/example/conversion-example.js) |
+| nonce | <code>number</code> | A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1. |
+| data | <code>string</code> | An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract. |
+| gasLimit | <code>number</code> | A limit of gas to be used. Set 21000 for basic non smart contract transactions. |
+| remarks | <code>string</code> | An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field. |
+
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+wallet"></a>
+
+#### transactionSigningRequest.wallet : <code>Wallet</code>
+The wallet that should be used to sign the transaction.
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+toAddress"></a>
+
+#### transactionSigningRequest.toAddress : <code>string</code>
+The address to which the transaction request is made. Can be null (for example, for contract creation).
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+valueInWeiHex"></a>
+
+#### transactionSigningRequest.valueInWeiHex : <code>string</code>
+The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. [Conversion Examples](/example/conversion-example.js)
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+nonce"></a>
+
+#### transactionSigningRequest.nonce : <code>number</code>
+A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+data"></a>
+
+#### transactionSigningRequest.data : <code>string</code>
+An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+gasLimit"></a>
+
+#### transactionSigningRequest.gasLimit : <code>number</code>
+A limit of gas to be used. Set 21000 for basic non smart contract transactions.
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..TransactionSigningRequest+remarks"></a>
+
+#### transactionSigningRequest.remarks : <code>string</code>
+An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+
+**Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
+**Access**: public  
 <a name="module_quantum-coin-js-sdk..initialize"></a>
 
 ### quantum-coin-js-sdk~initialize(clientConfig) ⇒ <code>Promise.&lt;boolean&gt;</code>
@@ -987,6 +1081,34 @@ The signSendCoinTransaction function returns a signed transaction. Since the ga
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
 | coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
 | nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+
+<a name="module_quantum-coin-js-sdk..signTransaction"></a>
+
+### quantum-coin-js-sdk~signTransaction(wallet, toAddress, coins, nonce, data) ⇒ <code>SignResult</code>
+The signTransaction function returns a signed transaction.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
+| toAddress | <code>string</code> | The address to which the coins should be sent. |
+| coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
+| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+| data | <code>number</code> | The data to be signed. |
+
+<a name="module_quantum-coin-js-sdk..signRawTransaction"></a>
+
+### quantum-coin-js-sdk~signRawTransaction(transactionSigningRequest) ⇒ <code>SignResult</code>
+The signRawTransaction function returns a signed transaction.With this function, you can set the gasLimit explicitly compared to signTransaction.You can also pass data to be signed, such as when creating or invoking a smart contract.Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| transactionSigningRequest | <code>TransactionSigningRequest</code> | An object of type TransactionSigningRequest with the transaction signing details. |
 
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 

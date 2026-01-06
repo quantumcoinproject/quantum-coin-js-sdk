@@ -707,6 +707,80 @@ export function combinePublicKeySignature(publicKey: number[], signature: number
  * @class
  * @constructor
  * @public
+ * @classdesc This class represents a signing request that can be passed to signTransaction.
+ */
+export class TransactionSigningRequest {
+    /**
+     * Creates a TransactionSigningRequest class.
+     * @param {Wallet} wallet - The wallet with which the transaction has to be signed. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
+     * @param {string} toAddress - The address to which the transaction request is made. Can be null (for example, for contract creation).
+     * @param {string} valueInWeiHex -The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. {@link /example/conversion-example.js|Conversion Examples}
+     * @param {number} nonce - A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
+     * @param {string} data - An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
+     * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
+     * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     */
+    constructor(wallet: Wallet, toAddress: string, valueInWeiHex: string, nonce: number, data: string, gasLimit: number, remarks: string);
+    /**
+     * The wallet that should be used to sign the transaction.
+     * @type {Wallet}
+     * @public
+     */
+    public wallet: Wallet;
+    /**
+     * The address to which the transaction request is made. Can be null (for example, for contract creation).
+     * @type {string}
+     * @public
+     */
+    public toAddress: string;
+    /**
+     * The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. {@link /example/conversion-example.js|Conversion Examples}
+     * @type {string}
+     * @public
+     */
+    public valueInWeiHex: string;
+    /**
+     * A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
+     * @type {number}
+     * @public
+     */
+    public nonce: number;
+    /**
+     * An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
+     * @type {string}
+     * @public
+     */
+    public data: string;
+    /**
+     * A limit of gas to be used. Set 21000 for basic non smart contract transactions.
+     * @type {number}
+     * @public
+     */
+    public gasLimit: number;
+    /**
+     * An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     * @type {string}
+     * @public
+     */
+    public remarks: string;
+}
+/**
+ * The signRawTransaction function returns a signed transaction.
+ * With this function, you can set the gasLimit explicitly compared to signTransaction.
+ * You can also pass data to be signed, such as when creating or invoking a smart contract.
+ * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ *
+ * @function signRawTransaction
+ * @param {TransactionSigningRequest} transactionSigningRequest - An object of type TransactionSigningRequest with the transaction signing details.
+ * @return {SignResult}  Returns a promise of type SignResult.
+ */
+export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
+/**
+ * @class
+ * @constructor
+ * @public
  * @classdesc This class represents a result from invoking the signSendCoinTransaction function.
  */
 declare class SignResult {
