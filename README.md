@@ -121,6 +121,7 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
     * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
     * [~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>SignResult</code>
+    * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) ⇒ <code>Uint8Array</code>
     * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) ⇒ <code>SignResult</code>
     * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
@@ -1141,6 +1142,18 @@ The signTransaction function returns a signed transaction. The chainId used for 
 | coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
 | nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
 | data | <code>number</code> | The data to be signed. |
+
+<a name="module_quantum-coin-js-sdk..hexStringToUint8Array"></a>
+
+### quantum-coin-js-sdk~hexStringToUint8Array(hex) ⇒ <code>Uint8Array</code>
+Helper function to convert a hex string to Uint8Array
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Uint8Array</code> - Uint8Array representation of the hex string, or empty array if null/undefined  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| hex | <code>string</code> | Hex string with or without 0x prefix |
 
 <a name="module_quantum-coin-js-sdk..signRawTransaction"></a>
 
