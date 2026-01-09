@@ -5,7 +5,7 @@ const ethers = require('ethers');
  * Example: Token Pack/Unpack Operations
  * 
  * This example demonstrates how to use packMethodData and unpackMethodData
- * to interact with ERC20 tokens and UniswapV2 Router contracts.
+ * to interact with ERC20 tokens and Router contracts.
  */
 
 // Configuration
@@ -81,8 +81,8 @@ const erc20ABI = [
     }
 ];
 
-// UniswapV2 Router ABI
-const uniswapV2RouterABI = [
+// QuantumSwap Router ABI
+const quantumswapV2RouterABI = [
     {
         "name": "getAmountsIn",
         "type": "function",
@@ -241,8 +241,11 @@ async function example1_GetTokenBalance() {
     
     // Parse the JSON result
     const balance = JSON.parse(unpackResult.result)[0];
+    console.log("Token Contract Address:", TOKEN_A_ADDRESS);
+    console.log("ACCOUNT_HOLDER_ADDRESS:", ACCOUNT_HOLDER_ADDRESS);
     console.log("Token balance (hex):", balance);
-    console.log("Token balance (decimal):", BigInt(balance).toString());
+    console.log("Token balance (decimal wei):", BigInt(balance).toString());
+    console.log("Token balance (decimal coins):", ethers.formatEther(BigInt(balance).toString()));
 }
 
 /**
@@ -326,14 +329,14 @@ async function example2_GetTokenInfo() {
 }
 
 /**
- * Example 3a: Get amount in using UniswapV2 Router
+ * Example 3a: Get amount in using QuantumSwap Router
  */
 async function example3a_GetAmountIn() {
-    console.log('\n=== Example 3a: Get Amount In (UniswapV2 Router) ===\n');
+    console.log('\n=== Example 3a: Get Amount In (QuantumSwapV2 Router) ===\n');
     
-    // UniswapV2 Router contract address
+    // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
-    const abiJSON = JSON.stringify(uniswapV2RouterABI);
+    const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Example: Want 1 token out, calculate how much token in needed
     // amountOut: 1 token (with 18 decimals) = 0xDE0B6B3A7640000 (1000000000000000000 wei)
@@ -377,25 +380,46 @@ async function example3a_GetAmountIn() {
     }
     
     // Parse the JSON result (array of amounts)
-    const amounts = JSON.parse(unpackResult.result)[0];
+    const parsed = JSON.parse(unpackResult.result);
+    console.log("Parsed result:", parsed);
+    const amounts = parsed[0];
     console.log("Amounts array:", amounts);
-    console.log("Amount in needed (hex):", amounts[0]);
-    console.log("Amount in needed (decimal):", BigInt(amounts[0]).toString());
-    console.log("Amount out (hex):", amounts[1]);
-    console.log("Amount out (decimal):", BigInt(amounts[1]).toString());
+    console.log("Amounts array type:", typeof amounts, Array.isArray(amounts));
+    
+    // Handle case where amounts might be a string or already an array
+    let amountsArray;
+    if (typeof amounts === 'string') {
+        // If it's a string, try to parse it again
+        try {
+            amountsArray = JSON.parse(amounts);
+        } catch (e) {
+            console.error("Failed to parse amounts string:", amounts);
+            return;
+        }
+    } else if (Array.isArray(amounts)) {
+        amountsArray = amounts;
+    } else {
+        console.error("Unexpected amounts type:", typeof amounts, amounts);
+        return;
+    }
+    
+    console.log("Amount in needed (hex):", amountsArray[0]);
+    console.log("Amount in needed (decimal):", BigInt(amountsArray[0]).toString());
+    console.log("Amount out (hex):", amountsArray[1]);
+    console.log("Amount out (decimal):", BigInt(amountsArray[1]).toString());
     
     return amounts;
 }
 
 /**
- * Example 3b: Get amount out using UniswapV2 Router
+ * Example 3b: Get amount out using QuantumSwapV2 Router
  */
 async function example3b_GetAmountOut() {
-    console.log('\n=== Example 3b: Get Amount Out (UniswapV2 Router) ===\n');
+    console.log('\n=== Example 3b: Get Amount Out (QuantumSwapV2 Router) ===\n');
     
-    // UniswapV2 Router contract address
+    // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
-    const abiJSON = JSON.stringify(uniswapV2RouterABI);
+    const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Example: Put in 1 token, calculate how much token out received
     // amountIn: 1 token (with 18 decimals) = 0xDE0B6B3A7640000 (1000000000000000000 wei)
@@ -439,14 +463,35 @@ async function example3b_GetAmountOut() {
     }
     
     // Parse the JSON result (array of amounts)
-    const amounts = JSON.parse(unpackResult.result)[0];
+    const parsed = JSON.parse(unpackResult.result);
+    console.log("Parsed result:", parsed);
+    const amounts = parsed[0];
     console.log("Amounts array:", amounts);
-    console.log("Amount in (hex):", amounts[0]);
-    console.log("Amount in (decimal):", BigInt(amounts[0]).toString());
-    console.log("Amount out received (hex):", amounts[1]);
-    console.log("Amount out received (decimal):", BigInt(amounts[1]).toString());
+    console.log("Amounts array type:", typeof amounts, Array.isArray(amounts));
     
-    return amounts;
+    // Handle case where amounts might be a string or already an array
+    let amountsArray;
+    if (typeof amounts === 'string') {
+        // If it's a string, try to parse it again
+        try {
+            amountsArray = JSON.parse(amounts);
+        } catch (e) {
+            console.error("Failed to parse amounts string:", amounts);
+            return;
+        }
+    } else if (Array.isArray(amounts)) {
+        amountsArray = amounts;
+    } else {
+        console.error("Unexpected amounts type:", typeof amounts, amounts);
+        return;
+    }
+    
+    console.log("Amount in (hex):", amountsArray[0]);
+    console.log("Amount in (decimal):", BigInt(amountsArray[0]).toString());
+    console.log("Amount out received (hex):", amountsArray[1]);
+    console.log("Amount out received (decimal):", BigInt(amountsArray[1]).toString());
+    
+    return amountsArray;
 }
 
 /**
@@ -486,9 +531,9 @@ async function example4a_SwapExactTokensForTokens() {
     console.log("Expected amount out:", amountsOut[1]);
     console.log("Minimum amount out (with 1% slippage):", amountOutMinWithSlippage);
     
-    // UniswapV2 Router contract address
+    // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
-    const abiJSON = JSON.stringify(uniswapV2RouterABI);
+    const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Swap path
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -604,9 +649,9 @@ async function example4b_SwapTokensForExactTokens() {
     console.log("Required amount in:", amountsIn[0]);
     console.log("Maximum amount in (with 2% slippage):", amountInMaxWithSlippage);
     
-    // UniswapV2 Router contract address
+    // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
-    const abiJSON = JSON.stringify(uniswapV2RouterABI);
+    const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Swap path
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -709,10 +754,10 @@ async function main() {
         
         // Example 3b: Get amount out
         await example3b_GetAmountOut();
-        
+
         // Note: Swap examples (4a and 4b) create wallets, sign transactions, and send them
         // Uncomment below to test swap examples:
-        // await example4a_SwapExactTokensForTokens();
+         await example4a_SwapExactTokensForTokens();
         // await example4b_SwapTokensForExactTokens();
         
     } catch (error) {
