@@ -57,7 +57,7 @@ export function verifyWallet(wallet: Wallet): boolean;
  */
 export function newWallet(): Wallet;
 /**
- * The sendCoins function posts a send-coin transaction to the blockchain.
+ * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function.
  * Transactions are usually committed in less than 30 seconds.
@@ -110,7 +110,7 @@ export function isAddressValid(address: string): boolean;
  */
 export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
 /**
- * The signSendCoinTransaction function returns a signed transaction.
+ * The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
  * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
@@ -765,7 +765,7 @@ export class TransactionSigningRequest {
     public remarks: string;
 }
 /**
- * The signRawTransaction function returns a signed transaction.
+ * The signRawTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * With this function, you can set the gasLimit explicitly compared to signTransaction.
  * You can also pass data to be signed, such as when creating or invoking a smart contract.
  * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
@@ -777,6 +777,54 @@ export class TransactionSigningRequest {
  * @return {SignResult}  Returns a promise of type SignResult.
  */
 export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
+/**
+ * The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.
+ * It returns the transaction data as a hex string that can be included in a transaction.
+ *
+ * @function packMethodData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} methodName - The name of the method to call
+ * @param {...*} args - The parameters to pass to the method (variable arguments)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the packed transaction data as a hex string.
+ */
+export function packMethodData(abiJSON: string, methodName: string, ...args: any[]): PackUnpackResult;
+/**
+ * The unpackMethodData function unpacks the return values of a Solidity method call.
+ * It returns the unpacked values as a JavaScript array or object.
+ *
+ * @function unpackMethodData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} methodName - The name of the method whose return values to unpack
+ * @param {string} hexData - The hex-encoded return data (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the unpacked return values as a JSON string.
+ */
+export function unpackMethodData(abiJSON: string, methodName: string, hexData: string): PackUnpackResult;
+/**
+ * @class
+ * @constructor
+ * @public
+ * @classdesc This class represents a result from invoking the packMethodData or unpackMethodData functions.
+ */
+export class PackUnpackResult {
+    /**
+     * Creates a PackUnpackResult class.
+     * @param {string} error - Error message if any. Empty string if no error.
+     * @param {string} result - The actual result as a string. Empty string if there was an error.
+     */
+    constructor(error: string, result: string);
+    /**
+     * Error message if any. Empty string if no error.
+     * @type {string}
+     * @public
+     */
+    public error: string;
+    /**
+     * The actual result as a string. Empty string if there was an error.
+     * @type {string}
+     * @public
+     */
+    public result: string;
+}
 /**
  * @class
  * @constructor

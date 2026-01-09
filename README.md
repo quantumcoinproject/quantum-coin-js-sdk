@@ -100,6 +100,10 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
         * [.data](#module_quantum-coin-js-sdk..TransactionSigningRequest+data) : <code>string</code>
         * [.gasLimit](#module_quantum-coin-js-sdk..TransactionSigningRequest+gasLimit) : <code>number</code>
         * [.remarks](#module_quantum-coin-js-sdk..TransactionSigningRequest+remarks) : <code>string</code>
+    * [~PackUnpackResult](#module_quantum-coin-js-sdk..PackUnpackResult)
+        * [new PackUnpackResult(error, result)](#new_module_quantum-coin-js-sdk..PackUnpackResult_new)
+        * [.error](#module_quantum-coin-js-sdk..PackUnpackResult+error) : <code>string</code>
+        * [.result](#module_quantum-coin-js-sdk..PackUnpackResult+result) : <code>string</code>
     * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) ⇒ <code>boolean</code>
     * [~newWallet()](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code>
@@ -123,6 +127,8 @@ Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-c
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
     * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
     * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) ⇒ <code>string</code>
+    * [~packMethodData(abiJSON, methodName, ...args)](#module_quantum-coin-js-sdk..packMethodData) ⇒ <code>PackUnpackResult</code>
+    * [~unpackMethodData(abiJSON, methodName, hexData)](#module_quantum-coin-js-sdk..unpackMethodData) ⇒ <code>PackUnpackResult</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -899,6 +905,44 @@ An optional hex string (including 0x) that represents a remark (such as a commen
 
 **Kind**: instance property of [<code>TransactionSigningRequest</code>](#module_quantum-coin-js-sdk..TransactionSigningRequest)  
 **Access**: public  
+<a name="module_quantum-coin-js-sdk..PackUnpackResult"></a>
+
+### quantum-coin-js-sdk~PackUnpackResult
+This class represents a result from invoking the packMethodData or unpackMethodData functions.
+
+**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Access**: public  
+
+* [~PackUnpackResult](#module_quantum-coin-js-sdk..PackUnpackResult)
+    * [new PackUnpackResult(error, result)](#new_module_quantum-coin-js-sdk..PackUnpackResult_new)
+    * [.error](#module_quantum-coin-js-sdk..PackUnpackResult+error) : <code>string</code>
+    * [.result](#module_quantum-coin-js-sdk..PackUnpackResult+result) : <code>string</code>
+
+<a name="new_module_quantum-coin-js-sdk..PackUnpackResult_new"></a>
+
+#### new PackUnpackResult(error, result)
+Creates a PackUnpackResult class.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| error | <code>string</code> | Error message if any. Empty string if no error. |
+| result | <code>string</code> | The actual result as a string. Empty string if there was an error. |
+
+<a name="module_quantum-coin-js-sdk..PackUnpackResult+error"></a>
+
+#### packUnpackResult.error : <code>string</code>
+Error message if any. Empty string if no error.
+
+**Kind**: instance property of [<code>PackUnpackResult</code>](#module_quantum-coin-js-sdk..PackUnpackResult)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..PackUnpackResult+result"></a>
+
+#### packUnpackResult.result : <code>string</code>
+The actual result as a string. Empty string if there was an error.
+
+**Kind**: instance property of [<code>PackUnpackResult</code>](#module_quantum-coin-js-sdk..PackUnpackResult)  
+**Access**: public  
 <a name="module_quantum-coin-js-sdk..initialize"></a>
 
 ### quantum-coin-js-sdk~initialize(clientConfig) ⇒ <code>Promise.&lt;boolean&gt;</code>
@@ -1070,7 +1114,7 @@ The listAccountTransactions function returns a list of transactions for a specif
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
 ### quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>
-The signSendCoinTransaction function returns a signed transaction. Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1085,7 +1129,7 @@ The signSendCoinTransaction function returns a signed transaction. Since the ga
 <a name="module_quantum-coin-js-sdk..signTransaction"></a>
 
 ### quantum-coin-js-sdk~signTransaction(wallet, toAddress, coins, nonce, data) ⇒ <code>SignResult</code>
-The signTransaction function returns a signed transaction.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1101,7 +1145,7 @@ The signTransaction function returns a signed transaction.Since the gas fee for
 <a name="module_quantum-coin-js-sdk..signRawTransaction"></a>
 
 ### quantum-coin-js-sdk~signRawTransaction(transactionSigningRequest) ⇒ <code>SignResult</code>
-The signRawTransaction function returns a signed transaction.With this function, you can set the gasLimit explicitly compared to signTransaction.You can also pass data to be signed, such as when creating or invoking a smart contract.Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signRawTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.With this function, you can set the gasLimit explicitly compared to signTransaction.You can also pass data to be signed, such as when creating or invoking a smart contract.Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1113,7 +1157,7 @@ The signRawTransaction function returns a signed transaction.With this function
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 
 ### quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The sendCoins function posts a send-coin transaction to the blockchain. Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
+The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
@@ -1174,4 +1218,32 @@ The combinePublicKeySignature combines the public key and signature.
 | --- | --- | --- |
 | publicKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the public key. |
 | signature | <code>Array.&lt;number&gt;</code> | An array of bytes containing the signature. |
+
+<a name="module_quantum-coin-js-sdk..packMethodData"></a>
+
+### quantum-coin-js-sdk~packMethodData(abiJSON, methodName, ...args) ⇒ <code>PackUnpackResult</code>
+The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.It returns the transaction data as a hex string that can be included in a transaction.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the packed transaction data as a hex string.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| abiJSON | <code>string</code> | The Solidity ABI file content as a JSON string |
+| methodName | <code>string</code> | The name of the method to call |
+| ...args | <code>\*</code> | The parameters to pass to the method (variable arguments) |
+
+<a name="module_quantum-coin-js-sdk..unpackMethodData"></a>
+
+### quantum-coin-js-sdk~unpackMethodData(abiJSON, methodName, hexData) ⇒ <code>PackUnpackResult</code>
+The unpackMethodData function unpacks the return values of a Solidity method call.It returns the unpacked values as a JavaScript array or object.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the unpacked return values as a JSON string.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| abiJSON | <code>string</code> | The Solidity ABI file content as a JSON string |
+| methodName | <code>string</code> | The name of the method whose return values to unpack |
+| hexData | <code>string</code> | The hex-encoded return data (with or without 0x prefix) |
 
