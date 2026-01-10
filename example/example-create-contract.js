@@ -1,18 +1,5 @@
 const qcsdk = require('quantum-coin-js-sdk');
 const readline = require('readline');
-const crypto = require('crypto');
-
-/**
- * Keccak256 hash function
- * Note: Node.js crypto 'sha3-256' uses the SHA-3 standard which is based on Keccak
- * For exact keccak256 compatibility (as used in Ethereum), a dedicated keccak256
- * implementation may be needed, but SHA3-256 should work for QuantumCoin
- */
-function keccak256(data) {
-    const hash = crypto.createHash('sha3-256');
-    hash.update(data);
-    return hash.digest();
-}
 
 /**
  * Example: Creating a Smart Contract using signRawTransaction
@@ -88,94 +75,6 @@ var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
 const rpcEndpointUrl = 'https://public.rpc.quantumcoinapi.com';
-
-/**
- * Helper function to RLP encode a value
- * Simple RLP encoding implementation for address and nonce
- */
-function rlpEncode(value) {
-    if (typeof value === 'number') {
-        // Encode nonce as a number
-        if (value === 0) {
-            return Buffer.from([0x80]);
-        }
-        const bytes = [];
-        let num = value;
-        while (num > 0) {
-            bytes.unshift(num & 0xff);
-            num = num >> 8;
-        }
-        if (bytes.length === 1 && bytes[0] < 0x80) {
-            return Buffer.from(bytes);
-        }
-        return Buffer.concat([Buffer.from([0x80 + bytes.length]), Buffer.from(bytes)]);
-    } else if (Buffer.isBuffer(value)) {
-        // Encode buffer (address)
-        if (value.length === 1 && value[0] < 0x80) {
-            return value;
-        }
-        if (value.length < 56) {
-            return Buffer.concat([Buffer.from([0x80 + value.length]), value]);
-        }
-        const lengthBytes = [];
-        let len = value.length;
-        while (len > 0) {
-            lengthBytes.unshift(len & 0xff);
-            len = len >> 8;
-        }
-        return Buffer.concat([
-            Buffer.from([0xb7 + lengthBytes.length]),
-            Buffer.from(lengthBytes),
-            value
-        ]);
-    } else if (Array.isArray(value)) {
-        // Encode array
-        const encodedItems = value.map(item => rlpEncode(item));
-        const totalLength = encodedItems.reduce((sum, item) => sum + item.length, 0);
-        if (totalLength < 56) {
-            return Buffer.concat([
-                Buffer.from([0xc0 + totalLength]),
-                ...encodedItems
-            ]);
-        }
-        const lengthBytes = [];
-        let len = totalLength;
-        while (len > 0) {
-            lengthBytes.unshift(len & 0xff);
-            len = len >> 8;
-        }
-        return Buffer.concat([
-            Buffer.from([0xf7 + lengthBytes.length]),
-            Buffer.from(lengthBytes),
-            ...encodedItems
-        ]);
-    }
-    throw new Error('Unsupported RLP encode type');
-}
-
-/**
- * Helper function to calculate contract address from sender address and nonce
- * Contract address = keccak256(rlp([sender_address, nonce]))[12:] for 20-byte addresses
- * For QuantumCoin (32-byte addresses), we take the last 32 bytes
- */
-function calculateContractAddress(senderAddress, nonce) {
-    // Remove 0x prefix if present
-    const addressHex = senderAddress.startsWith('0x') ? senderAddress.slice(2) : senderAddress;
-    const addressBytes = Buffer.from(addressHex, 'hex');
-    
-    // RLP encode [address, nonce]
-    const rlpEncoded = rlpEncode([addressBytes, nonce]);
-    
-    // Keccak256 hash
-    const hash = keccak256(rlpEncoded);
-    
-    // For QuantumCoin, addresses are 32 bytes, so take the last 32 bytes
-    // (For Ethereum it would be last 20 bytes, but QuantumCoin uses 32 bytes)
-    const contractAddressBytes = hash.slice(-32);
-    const contractAddress = '0x' + contractAddressBytes.toString('hex');
-    
-    return contractAddress;
-}
 
 /**
  * Helper function to get transaction count (nonce) from RPC
@@ -342,10 +241,6 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
         const nonce = await getTransactionCount(wallet.address);
         console.log("Nonce (transaction count) is:", nonce);
 
-        // Calculate contract address (deterministic based on sender address and nonce)
-        const contractAddress = calculateContractAddress(wallet.address, nonce);
-        console.log("Contract Address (will be deployed at):", contractAddress);
-
         // Verify that bytecode has been set
         if (CONTRACT_BYTECODE === "0xPLACEHOLDER_REPLACE_WITH_COMPILED_BYTECODE" || CONTRACT_BYTECODE.length < 10) {
             console.error("\n❌ ERROR: CONTRACT_BYTECODE has not been set!");
@@ -445,8 +340,7 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
             const txHash = await sendRawTransaction(signResult.txnData);
             console.log("✅ Transaction submitted successfully!");
             console.log("Transaction hash from RPC:", txHash);
-            console.log("Contract Address:", contractAddress);
-            console.log("\nNote: The contract will be deployed at the address shown above once the transaction is mined.");
+            console.log("\nNote: The contract will be deployed at an address determined by the transaction.");
             console.log("You can check the transaction status on the block explorer.");
         } catch (error) {
             console.error("❌ Error sending transaction:", error.message);
