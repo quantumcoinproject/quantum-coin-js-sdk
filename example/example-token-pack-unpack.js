@@ -243,9 +243,9 @@ async function example1_GetTokenBalance() {
     const balance = JSON.parse(unpackResult.result)[0];
     console.log("Token Contract Address:", TOKEN_A_ADDRESS);
     console.log("ACCOUNT_HOLDER_ADDRESS:", ACCOUNT_HOLDER_ADDRESS);
-    console.log("Token balance (hex):", balance);
-    console.log("Token balance (decimal wei):", BigInt(balance).toString());
-    console.log("Token balance (decimal coins):", ethers.formatEther(BigInt(balance).toString()));
+    console.log("Token balance (number):", balance);
+    console.log("Token balance (decimal wei):", balance);
+    console.log("Token balance (decimal coins):", ethers.formatEther(balance));
 }
 
 /**
@@ -308,15 +308,15 @@ async function example2_GetTokenInfo() {
     console.log("Getting token decimals...");
     const decimalsResult = await callViewFunction("decimals");
     if (decimalsResult) {
-        console.log("Token decimals:", parseInt(decimalsResult[0], 16));
+        console.log("Token decimals:", parseInt(decimalsResult[0], 10));
     }
     
     // Get total supply
     console.log("Getting total supply...");
     const totalSupplyResult = await callViewFunction("totalSupply");
     if (totalSupplyResult) {
-        const totalSupply = BigInt(totalSupplyResult[0]).toString();
-        console.log("Total supply (hex):", totalSupplyResult[0]);
+        const totalSupply = totalSupplyResult[0];
+        console.log("Total supply (number):", totalSupply);
         console.log("Total supply (decimal):", totalSupply);
     }
     
@@ -339,8 +339,8 @@ async function example3a_GetAmountIn() {
     const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Example: Want 1 token out, calculate how much token in needed
-    // amountOut: 1 token (with 18 decimals) = 0xDE0B6B3A7640000 (1000000000000000000 wei)
-    const amountOut = "0xDE0B6B3A7640000";
+    // amountOut: 1 token (with 18 decimals) = 1000000000000000000 wei
+    const amountOut = "1000000000000000000";
     
     // Swap path: TokenA -> TokenB
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -403,10 +403,10 @@ async function example3a_GetAmountIn() {
         return;
     }
     
-    console.log("Amount in needed (hex):", amountsArray[0]);
-    console.log("Amount in needed (decimal):", BigInt(amountsArray[0]).toString());
-    console.log("Amount out (hex):", amountsArray[1]);
-    console.log("Amount out (decimal):", BigInt(amountsArray[1]).toString());
+    console.log("Amount in needed (number):", amountsArray[0]);
+    console.log("Amount in needed (decimal):", amountsArray[0]);
+    console.log("Amount out (number):", amountsArray[1]);
+    console.log("Amount out (decimal):", amountsArray[1]);
     
     return amounts;
 }
@@ -422,8 +422,8 @@ async function example3b_GetAmountOut() {
     const abiJSON = JSON.stringify(quantumswapV2RouterABI);
     
     // Example: Put in 1 token, calculate how much token out received
-    // amountIn: 1 token (with 18 decimals) = 0xDE0B6B3A7640000 (1000000000000000000 wei)
-    const amountIn = "0xDE0B6B3A7640000";
+    // amountIn: 1 token (with 18 decimals) = 1000000000000000000 wei
+    const amountIn = "1000000000000000000";
     
     // Swap path: TokenA -> TokenB
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -486,10 +486,10 @@ async function example3b_GetAmountOut() {
         return;
     }
     
-    console.log("Amount in (hex):", amountsArray[0]);
-    console.log("Amount in (decimal):", BigInt(amountsArray[0]).toString());
-    console.log("Amount out received (hex):", amountsArray[1]);
-    console.log("Amount out received (decimal):", BigInt(amountsArray[1]).toString());
+    console.log("Amount in (number):", amountsArray[0]);
+    console.log("Amount in (decimal):", amountsArray[0]);
+    console.log("Amount out received (number):", amountsArray[1]);
+    console.log("Amount out received (decimal):", amountsArray[1]);
     
     return amountsArray;
 }
@@ -519,12 +519,12 @@ async function example4a_SwapExactTokensForTokens() {
         return;
     }
     
-    const amountIn = "0xDE0B6B3A7640000"; // 1 token
+    const amountIn = "1000000000000000000"; // 1 token
     const amountOutMin = amountsOut[1]; // Use the amount out from getAmountsOut (with some slippage tolerance)
     
     // Apply 1% slippage tolerance (multiply by 99/100)
     const slippageTolerance = BigInt(amountOutMin) * BigInt(99) / BigInt(100);
-    const amountOutMinWithSlippage = "0x" + slippageTolerance.toString(16);
+    const amountOutMinWithSlippage = slippageTolerance.toString();
     
     console.log("\nStep 3: Preparing swap transaction...");
     console.log("Amount in:", amountIn);
@@ -541,9 +541,10 @@ async function example4a_SwapExactTokensForTokens() {
     // Recipient address (use the wallet address we created)
     const to = wallet.address;
     
-    // Deadline: 20 minutes from now (Unix timestamp)
+    // Deadline: 20 minutes from now (Unix timestamp in seconds, UTC)
+    // Date.now() already returns UTC milliseconds, so no conversion needed
     const deadline = Math.floor(Date.now() / 1000) + 20 * 60;
-    const deadlineHex = "0x" + BigInt(deadline).toString(16);
+    const deadlineStr = deadline.toString();
     
     // Pack the swapExactTokensForTokens method call
     const packResult = qcsdk.packMethodData(
@@ -553,7 +554,7 @@ async function example4a_SwapExactTokensForTokens() {
         amountOutMinWithSlippage,
         path,
         to,
-        deadlineHex
+        deadlineStr
     );
     
     if (packResult.error) {
@@ -637,12 +638,12 @@ async function example4b_SwapTokensForExactTokens() {
         return;
     }
     
-    const amountOut = "0xDE0B6B3A7640000"; // 1 token desired out
+    const amountOut = "1000000000000000000"; // 1 token desired out
     const amountInMax = amountsIn[0]; // Use the amount in from getAmountsIn
     
     // Apply 2% slippage tolerance (multiply by 102/100)
     const slippageTolerance = BigInt(amountInMax) * BigInt(102) / BigInt(100);
-    const amountInMaxWithSlippage = "0x" + slippageTolerance.toString(16);
+    const amountInMaxWithSlippage = slippageTolerance.toString();
     
     console.log("\nStep 3: Preparing swap transaction...");
     console.log("Desired amount out:", amountOut);
@@ -659,9 +660,10 @@ async function example4b_SwapTokensForExactTokens() {
     // Recipient address (use the wallet address we created)
     const to = wallet.address;
     
-    // Deadline: 20 minutes from now (Unix timestamp)
+    // Deadline: 20 minutes from now (Unix timestamp in seconds, UTC)
+    // Date.now() already returns UTC milliseconds, so no conversion needed
     const deadline = Math.floor(Date.now() / 1000) + 20 * 60;
-    const deadlineHex = "0x" + BigInt(deadline).toString(16);
+    const deadlineStr = deadline.toString();
     
     // Pack the swapTokensForExactTokens method call
     const packResult = qcsdk.packMethodData(
@@ -671,7 +673,7 @@ async function example4b_SwapTokensForExactTokens() {
         amountInMaxWithSlippage,
         path,
         to,
-        deadlineHex
+        deadlineStr
     );
     
     if (packResult.error) {
