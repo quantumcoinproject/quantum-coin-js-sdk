@@ -714,13 +714,13 @@ export class TransactionSigningRequest {
      * Creates a TransactionSigningRequest class.
      * @param {Wallet} wallet - The wallet with which the transaction has to be signed. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
      * @param {string} toAddress - The address to which the transaction request is made. Can be null (for example, for contract creation).
-     * @param {string} valueInWeiHex -The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. {@link /example/conversion-example.js|Conversion Examples}
+     * @param {string|BigInt} valueInWei - The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
      * @param {number} nonce - A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
      * @param {string} data - An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
      * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
      */
-    constructor(wallet: Wallet, toAddress: string, valueInWeiHex: string, nonce: number, data: string, gasLimit: number, remarks: string);
+    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string);
     /**
      * The wallet that should be used to sign the transaction.
      * @type {Wallet}
@@ -734,11 +734,11 @@ export class TransactionSigningRequest {
      */
     public toAddress: string;
     /**
-     * The value in wei-units, in hex form, including 0x. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to 0xDE0B6B3A7640000. {@link /example/conversion-example.js|Conversion Examples}
-     * @type {string}
+     * The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
+     * @type {string|BigInt}
      * @public
      */
-    public valueInWeiHex: string;
+    public valueInWei: string | bigint;
     /**
      * A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
      * @type {number}
