@@ -800,6 +800,39 @@ export function packMethodData(abiJSON: string, methodName: string, ...args: any
  */
 export function unpackMethodData(abiJSON: string, methodName: string, hexData: string): PackUnpackResult;
 /**
+ * The packCreateContractData function packs constructor data for contract creation.
+ * It combines the contract bytecode with the ABI-encoded constructor parameters.
+ * This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
+ *
+ * @function packCreateContractData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} bytecode - The contract bytecode as a hex string (with or without 0x prefix)
+ * @param {...*} args - The constructor parameters (variable arguments, can be 0 or more)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the packed contract creation data as a hex string.
+ */
+export function packCreateContractData(abiJSON: string, bytecode: string, ...args: any[]): PackUnpackResult;
+/**
+ * The createAddress function calculates the contract address that will be created by a transaction.
+ * This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
+ *
+ * @function createAddress
+ * @param {string} address - The address of the account that will create the contract (hex string with 0x prefix)
+ * @param {number} nonce - The nonce of the account at the time of contract creation
+ * @return {string|null} - Returns the contract address as a hex string, or null if an error occurred.
+ */
+export function createAddress(address: string, nonce: number): string | null;
+/**
+ * The createAddress2 function calculates the contract address using the CREATE2 opcode.
+ * This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
+ *
+ * @function createAddress2
+ * @param {string} address - The address of the account that will create the contract (hex string with 0x prefix)
+ * @param {string} salt - A 32-byte salt value as a hex string (with 0x prefix)
+ * @param {string} initHash - The keccak256 hash of the contract initialization code as a hex string (with 0x prefix)
+ * @return {string|null} - Returns the contract address as a hex string, or null if an error occurred.
+ */
+export function createAddress2(address: string, salt: string, initHash: string): string | null;
+/**
  * @class
  * @constructor
  * @public
