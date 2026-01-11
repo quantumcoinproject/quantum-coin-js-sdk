@@ -1,4 +1,5 @@
 const qcsdk = require('quantum-coin-js-sdk');
+const readline = require('readline');
 
 //This example demonstrates how to use signRawTransaction to send coins
 //It shows two examples: one using hex string for valueInWei, and another using BigInt
@@ -8,6 +9,49 @@ const qcsdk = require('quantum-coin-js-sdk');
 var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet
 
 const rpcEndpointUrl = 'https://public.rpc.quantumcoinapi.com';
+
+/**
+ * Helper function to calculate gas price
+ * QuantumCoin uses a fixed gas price: 1000 coins per 21000 gas units
+ * Gas price = (1000 coins * 10^18 wei) / 21000 gas = wei per gas unit
+ */
+function getGasPrice() {
+    const oneCoinInWei = BigInt("1000000000000000000"); // 1 coin = 10^18 wei
+    const coinsPer21000Gas = BigInt("1000"); // 1000 coins per 21000 gas
+    const gasUnits = BigInt("21000");
+    
+    // Calculate: (1000 coins * 10^18 wei) / 21000 gas
+    const totalWeiFor21000Gas = coinsPer21000Gas * oneCoinInWei;
+    const gasPriceWei = totalWeiFor21000Gas / gasUnits;
+    
+    return gasPriceWei;
+}
+
+/**
+ * Helper function to convert wei to coins
+ */
+function weiToCoins(wei) {
+    const oneCoinInWei = BigInt("1000000000000000000");
+    const coins = Number(wei) / Number(oneCoinInWei);
+    return coins;
+}
+
+/**
+ * Helper function to prompt user for confirmation
+ */
+function promptUser(question) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question(question, (answer) => {
+            rl.close();
+            resolve(answer.toLowerCase().trim());
+        });
+    });
+}
 
 async function getTransactionCount(address) {
     try {
@@ -116,6 +160,34 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
         console.log("Transaction signed successfully");
         console.log("Transaction hash:", signResult1.txnHash);
 
+        // Calculate gas price and total fee
+        const gasPrice = getGasPrice();
+        const totalFeeWei = BigInt(gasLimit) * gasPrice;
+        const totalFeeCoins = weiToCoins(totalFeeWei);
+
+        // Display transaction details
+        console.log("\n" + "=".repeat(60));
+        console.log("TRANSACTION DETAILS");
+        console.log("=".repeat(60));
+        console.log("From Address:  ", wallet1.address);
+        console.log("To Address:    ", toAddress);
+        console.log("Gas Limit:     ", gasLimit.toLocaleString());
+        console.log("Gas Price:     ", gasPrice.toString(), "wei");
+        console.log("Total Fee:     ", totalFeeWei.toString(), "wei");
+        console.log("Total Fee:     ", totalFeeCoins.toFixed(9), "coins");
+        console.log("=".repeat(60));
+
+        // Request user confirmation
+        const confirmation = await promptUser("\nDo you want to proceed with this transaction? (yes/no): ");
+        
+        if (confirmation !== 'yes' && confirmation !== 'y') {
+            console.log("Transaction cancelled by user.");
+            return;
+        }
+
+        console.log("\nProceeding with transaction...");
+        console.log("Transaction data:", signResult1.txnData);
+
         // Send transaction via RPC
         try {
             const rpcResult = await sendRawTransaction(signResult1.txnData);
@@ -174,6 +246,33 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
         console.log("Transaction data:", signResult2.txnData);
         console.log("Transaction signed successfully");
         console.log("Transaction hash:", signResult2.txnHash);
+
+        // Calculate gas price and total fee
+        const gasPrice2 = getGasPrice();
+        const totalFeeWei2 = BigInt(gasLimit2) * gasPrice2;
+        const totalFeeCoins2 = weiToCoins(totalFeeWei2);
+
+        // Display transaction details
+        console.log("\n" + "=".repeat(60));
+        console.log("TRANSACTION DETAILS");
+        console.log("=".repeat(60));
+        console.log("From Address:  ", wallet2.address);
+        console.log("To Address:    ", toAddress);
+        console.log("Gas Limit:     ", gasLimit2.toLocaleString());
+        console.log("Gas Price:     ", gasPrice2.toString(), "wei");
+        console.log("Total Fee:     ", totalFeeWei2.toString(), "wei");
+        console.log("Total Fee:     ", totalFeeCoins2.toFixed(9), "coins");
+        console.log("=".repeat(60));
+
+        // Request user confirmation
+        const confirmation2 = await promptUser("\nDo you want to proceed with this transaction? (yes/no): ");
+        
+        if (confirmation2 !== 'yes' && confirmation2 !== 'y') {
+            console.log("Transaction cancelled by user.");
+            return;
+        }
+
+        console.log("\nProceeding with transaction...");
 
         // Send transaction via RPC
         try {
