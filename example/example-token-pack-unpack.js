@@ -17,6 +17,7 @@ const rpcEndpointUrl = 'https://public.rpc.quantumcoinapi.com';
 
 // Contract addresses
 const SWAP_ROUTER_ADDRESS = "0x41323EF72662185f44a03ea0ad8094a0C9e925aB1102679D8e957e838054aac5";
+const FACTORY_ADDRESS = "0xbbF45a1B60044669793B444eD01Eb33e03Bb8cf3c5b6ae7887B218D05C5Cbf1d"; // Replace with actual Factory contract address
 const TOKEN_A_ADDRESS = "0x1Bd75060B22686a9f32Af80BC02348c1BAeDBba06f47ad723885c92a6566B65d";
 const TOKEN_B_ADDRESS = "0x12b803EC8529b26deEa8D7ff37B9457Ea15C05bD3fD0Ba2F3A4b95D53c82403a";
 const ACCOUNT_HOLDER_ADDRESS = "0xd51773b5dde3f8e4d29ae42b5046510e2a11fd0c8e4175853d6227896eb445c6";
@@ -136,6 +137,42 @@ const quantumswapV2RouterABI = [
             {"name": "amounts", "type": "uint256[]"}
         ],
         "stateMutability": "nonpayable"
+    }
+];
+
+// Factory Contract ABI (for getting pair addresses)
+const factoryABI = [
+    {
+        "name": "getPair",
+        "type": "function",
+        "inputs": [
+            {"name": "tokenA", "type": "address"},
+            {"name": "tokenB", "type": "address"}
+        ],
+        "outputs": [
+            {"name": "pair", "type": "address"}
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "allPairs",
+        "type": "function",
+        "inputs": [
+            {"name": "", "type": "uint256"}
+        ],
+        "outputs": [
+            {"name": "", "type": "address"}
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "name": "allPairsLength",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+            {"name": "", "type": "uint256"}
+        ],
+        "stateMutability": "view"
     }
 ];
 
@@ -326,6 +363,99 @@ async function example2_GetTokenInfo() {
     if (ownerResult) {
         console.log("Token owner:", ownerResult[0]);
     }
+}
+
+/**
+ * Example 3: Get pair address for two tokens
+ */
+async function example3_GetPairAddress() {
+    console.log('\n=== Example 3: Get Pair Address for Two Tokens ===\n');
+    
+    // Factory contract address
+    const factoryAddress = FACTORY_ADDRESS;
+    const abiJSON = JSON.stringify(factoryABI);
+    
+    // Token addresses
+    const tokenA = TOKEN_A_ADDRESS;
+    const tokenB = TOKEN_B_ADDRESS;
+    
+    console.log("Token A:", tokenA);
+    console.log("Token B:", tokenB);
+    console.log("Factory Address:", factoryAddress);
+    
+    // Pack the getPair method call
+    const packResult = qcsdk.packMethodData(abiJSON, "getPair", tokenA, tokenB);
+    
+    if (packResult.error) {
+        console.error("Error packing getPair:", packResult.error);
+        return;
+    }
+    
+    console.log("Packed data (hex):", packResult.result);
+    
+    // Make RPC call
+    const rpcResult = await rpcCall("eth_call", [
+        {
+            to: factoryAddress,
+            data: packResult.result
+        },
+        "latest"
+    ]);
+    
+    if (rpcResult.error) {
+        console.error("RPC error:", rpcResult.error);
+        return;
+    }
+    
+    console.log("RPC result (raw):", rpcResult.result);
+    
+    // Check if result is empty or indicates a revert
+    if (!rpcResult.result || rpcResult.result === "0x" || rpcResult.result === "") {
+        console.error("\n❌ Error: Empty result returned from Factory contract.");
+        console.error("Possible reasons:");
+        console.error("  1. Factory contract address does not exist or is incorrect");
+        console.error("  2. Contract execution reverted (contract may not have getPair function)");
+        console.error("  3. Factory contract is not deployed at the specified address");
+        console.error("\nPlease verify the Factory contract address:", factoryAddress);
+        return null;
+    }
+    
+    // Check for revert indicator (some RPCs return "0x" for reverts, others may have specific error data)
+    // If the result is just "0x" or very short, it might be a revert
+    if (rpcResult.result.length <= 2) {
+        console.error("\n❌ Error: Contract execution likely reverted.");
+        console.error("The Factory contract may not have the getPair function or the contract address is incorrect.");
+        return null;
+    }
+    
+    // Unpack the return value
+    const unpackResult = qcsdk.unpackMethodData(abiJSON, "getPair", rpcResult.result);
+    
+    if (unpackResult.error) {
+        console.error("\n❌ Error unpacking getPair:", unpackResult.error);
+        console.error("This usually means:");
+        console.error("  1. The Factory contract address is incorrect");
+        console.error("  2. The contract doesn't have the getPair function");
+        console.error("  3. The execution reverted (empty string returned)");
+        console.error("\nPlease verify the Factory contract address:", factoryAddress);
+        return null;
+    }
+    
+    // Parse the JSON result
+    const parsed = JSON.parse(unpackResult.result);
+    const pairAddress = parsed[0];
+    
+    console.log("\n✅ Pair Address:", pairAddress);
+    
+    if (pairAddress === "0x0000000000000000000000000000000000000000000000000000000000000000" || 
+        pairAddress === null || 
+        pairAddress === undefined) {
+        console.log("⚠️  Note: Pair does not exist yet. It will be created when liquidity is first added.");
+    } else {
+        console.log("✅ Pair exists at the address above.");
+    }
+    
+    return pairAddress;
 }
 
 /**
@@ -751,6 +881,9 @@ async function main() {
         // Example 2: Get token information
         await example2_GetTokenInfo();
         
+        // Example 3: Get pair address for two tokens
+        await example3_GetPairAddress();
+        
         // Example 3a: Get amount in
         await example3a_GetAmountIn();
         
@@ -760,7 +893,7 @@ async function main() {
         // Note: Swap examples (4a and 4b) create wallets, sign transactions, and send them
         // Uncomment below to test swap examples:
          await example4a_SwapExactTokensForTokens();
-        // await example4b_SwapTokensForExactTokens();
+         await example4b_SwapTokensForExactTokens();
         
     } catch (error) {
         console.error("Error running examples:", error);
@@ -775,6 +908,7 @@ if (require.main === module) {
 module.exports = {
     example1_GetTokenBalance,
     example2_GetTokenInfo,
+    example3_GetPairAddress,
     example3a_GetAmountIn,
     example3b_GetAmountOut,
     example4a_SwapExactTokensForTokens,
