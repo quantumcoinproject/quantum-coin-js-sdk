@@ -165,12 +165,18 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
         const totalFeeWei = BigInt(gasLimit) * gasPrice;
         const totalFeeCoins = weiToCoins(totalFeeWei);
 
+        // Convert valueInWei to coins for display
+        const valueInWeiBigInt = BigInt(valueInWeiHex);
+        const valueInCoins = weiToCoins(valueInWeiBigInt);
+
         // Display transaction details
         console.log("\n" + "=".repeat(60));
         console.log("TRANSACTION DETAILS");
         console.log("=".repeat(60));
         console.log("From Address:  ", wallet1.address);
         console.log("To Address:    ", toAddress);
+        console.log("Amount:        ", valueInWeiBigInt.toString(), "wei");
+        console.log("Amount:        ", valueInCoins.toFixed(9), "coins");
         console.log("Gas Limit:     ", gasLimit.toLocaleString());
         console.log("Gas Price:     ", gasPrice.toString(), "wei");
         console.log("Total Fee:     ", totalFeeWei.toString(), "wei");
@@ -252,12 +258,17 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
         const totalFeeWei2 = BigInt(gasLimit2) * gasPrice2;
         const totalFeeCoins2 = weiToCoins(totalFeeWei2);
 
+        // Convert valueInWei to coins for display
+        const valueInCoins2 = weiToCoins(valueInWeiBigInt);
+
         // Display transaction details
         console.log("\n" + "=".repeat(60));
         console.log("TRANSACTION DETAILS");
         console.log("=".repeat(60));
         console.log("From Address:  ", wallet2.address);
         console.log("To Address:    ", toAddress);
+        console.log("Amount:        ", valueInWeiBigInt.toString(), "wei");
+        console.log("Amount:        ", valueInCoins2.toFixed(9), "coins");
         console.log("Gas Limit:     ", gasLimit2.toLocaleString());
         console.log("Gas Price:     ", gasPrice2.toString(), "wei");
         console.log("Total Fee:     ", totalFeeWei2.toString(), "wei");

@@ -229,6 +229,15 @@ async function sendRawTransaction(signedTxData) {
 }
 
 /**
+ * Helper function to convert wei to coins (ETH equivalent)
+ */
+function weiToCoins(wei) {
+    const oneCoinInWei = BigInt("1000000000000000000");
+    const coins = Number(wei) / Number(oneCoinInWei);
+    return coins;
+}
+
+/**
  * Example 1: Get token balance of an address
  */
 async function example1_GetTokenBalance() {
@@ -278,11 +287,12 @@ async function example1_GetTokenBalance() {
     
     // Parse the JSON result
     const balance = JSON.parse(unpackResult.result)[0];
+    const balanceWei = BigInt(balance);
+    const balanceCoins = weiToCoins(balanceWei);
     console.log("Token Contract Address:", TOKEN_A_ADDRESS);
     console.log("ACCOUNT_HOLDER_ADDRESS:", ACCOUNT_HOLDER_ADDRESS);
-    console.log("Token balance (number):", balance);
-    console.log("Token balance (decimal wei):", balance);
-    console.log("Token balance (decimal coins):", ethers.formatEther(balance));
+    console.log("Token balance (wei):", balance);
+    console.log("Token balance (coins):", balanceCoins.toFixed(9));
 }
 
 /**
@@ -353,8 +363,10 @@ async function example2_GetTokenInfo() {
     const totalSupplyResult = await callViewFunction("totalSupply");
     if (totalSupplyResult) {
         const totalSupply = totalSupplyResult[0];
-        console.log("Total supply (number):", totalSupply);
-        console.log("Total supply (decimal):", totalSupply);
+        const totalSupplyWei = BigInt(totalSupply);
+        const totalSupplyCoins = weiToCoins(totalSupplyWei);
+        console.log("Total supply (wei):", totalSupply);
+        console.log("Total supply (coins):", totalSupplyCoins.toFixed(9));
     }
     
     // Get owner
@@ -471,6 +483,8 @@ async function example3a_GetAmountIn() {
     // Example: Want 1 token out, calculate how much token in needed
     // amountOut: 1 token (with 18 decimals) = 1000000000000000000 wei
     const amountOut = "1000000000000000000";
+    const amountOutWei = BigInt(amountOut);
+    const amountOutCoins = weiToCoins(amountOutWei);
     
     // Swap path: TokenA -> TokenB
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -484,7 +498,8 @@ async function example3a_GetAmountIn() {
     }
     
     console.log("Packed data (hex):", packResult.result);
-    console.log("Amount out desired:", amountOut);
+    console.log("Amount out desired (wei):", amountOut);
+    console.log("Amount out desired (coins):", amountOutCoins.toFixed(9));
     console.log("Swap path:", path);
     
     // Make RPC call
@@ -533,10 +548,14 @@ async function example3a_GetAmountIn() {
         return;
     }
     
-    console.log("Amount in needed (number):", amountsArray[0]);
-    console.log("Amount in needed (decimal):", amountsArray[0]);
-    console.log("Amount out (number):", amountsArray[1]);
-    console.log("Amount out (decimal):", amountsArray[1]);
+    const amountInWei = BigInt(amountsArray[0]);
+    const amountInCoins = weiToCoins(amountInWei);
+    const amountOutResultWei = BigInt(amountsArray[1]);
+    const amountOutResultCoins = weiToCoins(amountOutResultWei);
+    console.log("Amount in needed (wei):", amountsArray[0]);
+    console.log("Amount in needed (coins):", amountInCoins.toFixed(9));
+    console.log("Amount out (wei):", amountsArray[1]);
+    console.log("Amount out (coins):", amountOutResultCoins.toFixed(9));
     
     return amounts;
 }
@@ -554,6 +573,8 @@ async function example3b_GetAmountOut() {
     // Example: Put in 1 token, calculate how much token out received
     // amountIn: 1 token (with 18 decimals) = 1000000000000000000 wei
     const amountIn = "1000000000000000000";
+    const amountInInputWei = BigInt(amountIn);
+    const amountInInputCoins = weiToCoins(amountInInputWei);
     
     // Swap path: TokenA -> TokenB
     const path = [TOKEN_A_ADDRESS, TOKEN_B_ADDRESS];
@@ -567,7 +588,8 @@ async function example3b_GetAmountOut() {
     }
     
     console.log("Packed data (hex):", packResult.result);
-    console.log("Amount in:", amountIn);
+    console.log("Amount in (wei):", amountIn);
+    console.log("Amount in (coins):", amountInInputCoins.toFixed(9));
     console.log("Swap path:", path);
     
     // Make RPC call
@@ -616,10 +638,14 @@ async function example3b_GetAmountOut() {
         return;
     }
     
-    console.log("Amount in (number):", amountsArray[0]);
-    console.log("Amount in (decimal):", amountsArray[0]);
-    console.log("Amount out received (number):", amountsArray[1]);
-    console.log("Amount out received (decimal):", amountsArray[1]);
+    const amountInWei = BigInt(amountsArray[0]);
+    const amountInCoins = weiToCoins(amountInWei);
+    const amountOutWei = BigInt(amountsArray[1]);
+    const amountOutCoins = weiToCoins(amountOutWei);
+    console.log("Amount in (wei):", amountsArray[0]);
+    console.log("Amount in (coins):", amountInCoins.toFixed(9));
+    console.log("Amount out received (wei):", amountsArray[1]);
+    console.log("Amount out received (coins):", amountOutCoins.toFixed(9));
     
     return amountsArray;
 }
@@ -650,16 +676,25 @@ async function example4a_SwapExactTokensForTokens() {
     }
     
     const amountIn = "1000000000000000000"; // 1 token
+    const amountInWei = BigInt(amountIn);
+    const amountInCoins = weiToCoins(amountInWei);
     const amountOutMin = amountsOut[1]; // Use the amount out from getAmountsOut (with some slippage tolerance)
     
     // Apply 1% slippage tolerance (multiply by 99/100)
     const slippageTolerance = BigInt(amountOutMin) * BigInt(99) / BigInt(100);
     const amountOutMinWithSlippage = slippageTolerance.toString();
+    const amountOutMinWei = BigInt(amountOutMin);
+    const amountOutMinCoins = weiToCoins(amountOutMinWei);
+    const amountOutMinWithSlippageWei = BigInt(amountOutMinWithSlippage);
+    const amountOutMinWithSlippageCoins = weiToCoins(amountOutMinWithSlippageWei);
     
     console.log("\nStep 3: Preparing swap transaction...");
-    console.log("Amount in:", amountIn);
-    console.log("Expected amount out:", amountsOut[1]);
-    console.log("Minimum amount out (with 1% slippage):", amountOutMinWithSlippage);
+    console.log("Amount in (wei):", amountIn);
+    console.log("Amount in (coins):", amountInCoins.toFixed(9));
+    console.log("Expected amount out (wei):", amountsOut[1]);
+    console.log("Expected amount out (coins):", amountOutMinCoins.toFixed(9));
+    console.log("Minimum amount out (with 1% slippage) (wei):", amountOutMinWithSlippage);
+    console.log("Minimum amount out (with 1% slippage) (coins):", amountOutMinWithSlippageCoins.toFixed(9));
     
     // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
@@ -769,16 +804,25 @@ async function example4b_SwapTokensForExactTokens() {
     }
     
     const amountOut = "1000000000000000000"; // 1 token desired out
+    const amountOutWei = BigInt(amountOut);
+    const amountOutCoins = weiToCoins(amountOutWei);
     const amountInMax = amountsIn[0]; // Use the amount in from getAmountsIn
     
     // Apply 2% slippage tolerance (multiply by 102/100)
     const slippageTolerance = BigInt(amountInMax) * BigInt(102) / BigInt(100);
     const amountInMaxWithSlippage = slippageTolerance.toString();
+    const amountInMaxWei = BigInt(amountInMax);
+    const amountInMaxCoins = weiToCoins(amountInMaxWei);
+    const amountInMaxWithSlippageWei = BigInt(amountInMaxWithSlippage);
+    const amountInMaxWithSlippageCoins = weiToCoins(amountInMaxWithSlippageWei);
     
     console.log("\nStep 3: Preparing swap transaction...");
-    console.log("Desired amount out:", amountOut);
-    console.log("Required amount in:", amountsIn[0]);
-    console.log("Maximum amount in (with 2% slippage):", amountInMaxWithSlippage);
+    console.log("Desired amount out (wei):", amountOut);
+    console.log("Desired amount out (coins):", amountOutCoins.toFixed(9));
+    console.log("Required amount in (wei):", amountsIn[0]);
+    console.log("Required amount in (coins):", amountInMaxCoins.toFixed(9));
+    console.log("Maximum amount in (with 2% slippage) (wei):", amountInMaxWithSlippage);
+    console.log("Maximum amount in (with 2% slippage) (coins):", amountInMaxWithSlippageCoins.toFixed(9));
     
     // QuantumSwapV2 Router contract address
     const routerAddress = SWAP_ROUTER_ADDRESS;
