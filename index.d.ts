@@ -57,7 +57,7 @@ export function verifyWallet(wallet: Wallet): boolean;
  */
 export function newWallet(): Wallet;
 /**
- * The sendCoins function posts a send-coin transaction to the blockchain.
+ * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function.
  * Transactions are usually committed in less than 30 seconds.
@@ -110,7 +110,7 @@ export function isAddressValid(address: string): boolean;
  */
 export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
 /**
- * The signSendCoinTransaction function returns a signed transaction.
+ * The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
  * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
@@ -703,6 +703,161 @@ export function addressFromPublicKey(publicKey: number[]): string;
  * @return {string} - Returns a hex string corresponding to combined signature. Returns null if the operation failed.
  */
 export function combinePublicKeySignature(publicKey: number[], signature: number[]): string;
+/**
+ * @class
+ * @constructor
+ * @public
+ * @classdesc This class represents a signing request that can be passed to signTransaction.
+ */
+export class TransactionSigningRequest {
+    /**
+     * Creates a TransactionSigningRequest class.
+     * @param {Wallet} wallet - The wallet with which the transaction has to be signed. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
+     * @param {string} toAddress - The address to which the transaction request is made. Can be null (for example, for contract creation).
+     * @param {string|BigInt} valueInWei - The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
+     * @param {number} nonce - A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
+     * @param {string} data - An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
+     * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
+     * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     */
+    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string);
+    /**
+     * The wallet that should be used to sign the transaction.
+     * @type {Wallet}
+     * @public
+     */
+    public wallet: Wallet;
+    /**
+     * The address to which the transaction request is made. Can be null (for example, for contract creation).
+     * @type {string}
+     * @public
+     */
+    public toAddress: string;
+    /**
+     * The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
+     * @type {string|BigInt}
+     * @public
+     */
+    public valueInWei: string | bigint;
+    /**
+     * A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
+     * @type {number}
+     * @public
+     */
+    public nonce: number;
+    /**
+     * An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
+     * @type {string}
+     * @public
+     */
+    public data: string;
+    /**
+     * A limit of gas to be used. Set 21000 for basic non smart contract transactions.
+     * @type {number}
+     * @public
+     */
+    public gasLimit: number;
+    /**
+     * An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     * @type {string}
+     * @public
+     */
+    public remarks: string;
+}
+/**
+ * The signRawTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
+ * With this function, you can set the gasLimit explicitly compared to signTransaction.
+ * You can also pass data to be signed, such as when creating or invoking a smart contract.
+ * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ *
+ * @function signRawTransaction
+ * @param {TransactionSigningRequest} transactionSigningRequest - An object of type TransactionSigningRequest with the transaction signing details.
+ * @return {SignResult}  Returns a promise of type SignResult.
+ */
+export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
+/**
+ * The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.
+ * It returns the transaction data as a hex string that can be included in a transaction.
+ *
+ * @function packMethodData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} methodName - The name of the method to call
+ * @param {...*} args - The parameters to pass to the method (variable arguments)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the packed transaction data as a hex string.
+ */
+export function packMethodData(abiJSON: string, methodName: string, ...args: any[]): PackUnpackResult;
+/**
+ * The unpackMethodData function unpacks the return values of a Solidity method call.
+ * It returns the unpacked values as a JavaScript array or object.
+ *
+ * @function unpackMethodData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} methodName - The name of the method whose return values to unpack
+ * @param {string} hexData - The hex-encoded return data (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the unpacked return values as a JSON string.
+ */
+export function unpackMethodData(abiJSON: string, methodName: string, hexData: string): PackUnpackResult;
+/**
+ * The packCreateContractData function packs constructor data for contract creation.
+ * It combines the contract bytecode with the ABI-encoded constructor parameters.
+ * This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
+ *
+ * @function packCreateContractData
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} bytecode - The contract bytecode as a hex string (with or without 0x prefix)
+ * @param {...*} args - The constructor parameters (variable arguments, can be 0 or more)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the packed contract creation data as a hex string.
+ */
+export function packCreateContractData(abiJSON: string, bytecode: string, ...args: any[]): PackUnpackResult;
+/**
+ * The createAddress function calculates the contract address that will be created by a transaction.
+ * This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
+ *
+ * @function createAddress
+ * @param {string} address - The address of the account that will create the contract (hex string with 0x prefix)
+ * @param {number} nonce - The nonce of the account at the time of contract creation
+ * @return {string|null} - Returns the contract address as a hex string, or null if an error occurred.
+ */
+export function createAddress(address: string, nonce: number): string | null;
+/**
+ * The createAddress2 function calculates the contract address using the CREATE2 opcode.
+ * This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
+ *
+ * @function createAddress2
+ * @param {string} address - The address of the account that will create the contract (hex string with 0x prefix)
+ * @param {string} salt - A 32-byte salt value as a hex string (with 0x prefix)
+ * @param {string} initHash - The keccak256 hash of the contract initialization code as a hex string (with 0x prefix)
+ * @return {string|null} - Returns the contract address as a hex string, or null if an error occurred.
+ */
+export function createAddress2(address: string, salt: string, initHash: string): string | null;
+/**
+ * @class
+ * @constructor
+ * @public
+ * @classdesc This class represents a result from invoking the packMethodData or unpackMethodData functions.
+ */
+export class PackUnpackResult {
+    /**
+     * Creates a PackUnpackResult class.
+     * @param {string} error - Error message if any. Empty string if no error.
+     * @param {string} result - The actual result as a string. Empty string if there was an error.
+     */
+    constructor(error: string, result: string);
+    /**
+     * Error message if any. Empty string if no error.
+     * @type {string}
+     * @public
+     */
+    public error: string;
+    /**
+     * The actual result as a string. Empty string if there was an error.
+     * @type {string}
+     * @public
+     */
+    public result: string;
+}
 /**
  * @class
  * @constructor
