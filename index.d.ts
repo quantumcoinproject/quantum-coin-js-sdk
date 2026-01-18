@@ -819,6 +819,29 @@ export function unpackMethodData(abiJSON: string, methodName: string, hexData: s
  */
 export function packCreateContractData(abiJSON: string, bytecode: string, ...args: any[]): PackUnpackResult;
 /**
+ * The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.
+ * It returns the topics array and data hex string that can be used to create event logs.
+ *
+ * @function encodeEventLog
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} eventName - The name of the event to encode
+ * @param {...*} args - The event parameter values (variable arguments)
+ * @return {EventLogEncodeResult} - Returns an EventLogEncodeResult object containing the error (if any) and the encoded event log with topics and data.
+ */
+export function encodeEventLog(abiJSON: string, eventName: string, ...args: any[]): EventLogEncodeResult;
+/**
+ * The decodeEventLog function decodes event log topics and data back into event parameters.
+ * It returns the decoded values as a JavaScript object.
+ *
+ * @function decodeEventLog
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} eventName - The name of the event to decode
+ * @param {string[]} topics - Array of topic hex strings (with or without 0x prefix)
+ * @param {string} data - Hex-encoded data string (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the decoded event parameters as a JSON string.
+ */
+export function decodeEventLog(abiJSON: string, eventName: string, topics: string[], data: string): PackUnpackResult;
+/**
  * The createAddress function calculates the contract address that will be created by a transaction.
  * This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
  *
@@ -864,6 +887,34 @@ export class PackUnpackResult {
      * @public
      */
     public result: string;
+}
+/**
+ * @class EventLogEncodeResult
+ * @classdesc This class represents a result from invoking the encodeEventLog function.
+ */
+export class EventLogEncodeResult {
+    /**
+     * Creates an EventLogEncodeResult class.
+     * @param {string} error - Error message if any. Empty string if no error.
+     * @param {Object|null} result - The actual result object with topics and data. Null if there was an error.
+     * @param {string[]} result.topics - Array of topic hex strings (with 0x prefix)
+     * @param {string} result.data - Hex-encoded data string (with 0x prefix)
+     */
+    constructor(error: string, result: any | null);
+    /**
+     * Error message if any. Empty string if no error.
+     * @type {string}
+     * @public
+     */
+    public error: string;
+    /**
+     * The actual result object with topics and data. Null if there was an error.
+     * @type {Object|null}
+     * @property {string[]} topics - Array of topic hex strings (with 0x prefix)
+     * @property {string} data - Hex-encoded data string (with 0x prefix)
+     * @public
+     */
+    public result: any | null;
 }
 /**
  * @class
