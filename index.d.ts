@@ -719,8 +719,9 @@ export class TransactionSigningRequest {
      * @param {string} data - An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
      * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     * @param {number|null} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used.
      */
-    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string);
+    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string, chainId: number | null);
     /**
      * The wallet that should be used to sign the transaction.
      * @type {Wallet}
@@ -729,16 +730,16 @@ export class TransactionSigningRequest {
     public wallet: Wallet;
     /**
      * The address to which the transaction request is made. Can be null (for example, for contract creation).
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public toAddress: string;
+    public toAddress: string | null;
     /**
      * The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
-     * @type {string|BigInt}
+     * @type {string|BigInt|null}
      * @public
      */
-    public valueInWei: string | bigint;
+    public valueInWei: string | bigint | null;
     /**
      * A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
      * @type {number}
@@ -747,10 +748,10 @@ export class TransactionSigningRequest {
     public nonce: number;
     /**
      * An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public data: string;
+    public data: string | null;
     /**
      * A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @type {number}
@@ -759,13 +760,19 @@ export class TransactionSigningRequest {
     public gasLimit: number;
     /**
      * An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public remarks: string;
+    public remarks: string | null;
+    /**
+     * The chain id of the blockchain. Mainnet chainId is 123123. If null, the chainId specified in the initialize() function will be used.
+     * @type {number|null}
+     * @public
+     */
+    public chainId: number | null;
 }
 /**
- * The signRawTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
+ * The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.
  * With this function, you can set the gasLimit explicitly compared to signTransaction.
  * You can also pass data to be signed, such as when creating or invoking a smart contract.
  * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
