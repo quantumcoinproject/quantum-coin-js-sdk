@@ -842,6 +842,25 @@ export function encodeEventLog(abiJSON: string, eventName: string, ...args: any[
  */
 export function decodeEventLog(abiJSON: string, eventName: string, topics: string[], data: string): PackUnpackResult;
 /**
+ * The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.
+ * Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.
+ * Returns a hex-encoded string of the RLP-encoded data.
+ *
+ * @function encodeRlp
+ * @param {*} value - The value to encode (can be string, number, boolean, array, object, etc.)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the RLP-encoded data as a hex string.
+ */
+export function encodeRlp(value: any): PackUnpackResult;
+/**
+ * The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.
+ * Takes a hex-encoded string and returns a JSON string representation of the decoded value.
+ *
+ * @function decodeRlp
+ * @param {string} data - The hex-encoded RLP data (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the decoded value as a JSON string.
+ */
+export function decodeRlp(data: string): PackUnpackResult;
+/**
  * The createAddress function calculates the contract address that will be created by a transaction.
  * This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
  *
