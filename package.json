@@ -1,11 +1,12 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly && jsdoc2md index.js >README.md"
+    "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly && jsdoc2md index.js >README.md",
+    "build-powershell": "powershell npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly; jsdoc2md index.js >README.md"
   },
   "repository": {
     "type": "git",

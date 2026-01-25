@@ -719,8 +719,9 @@ export class TransactionSigningRequest {
      * @param {string} data - An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
      * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
+     * @param {number|null} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used.
      */
-    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string);
+    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string, chainId: number | null);
     /**
      * The wallet that should be used to sign the transaction.
      * @type {Wallet}
@@ -729,16 +730,16 @@ export class TransactionSigningRequest {
     public wallet: Wallet;
     /**
      * The address to which the transaction request is made. Can be null (for example, for contract creation).
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public toAddress: string;
+    public toAddress: string | null;
     /**
      * The value in wei-units. Can be provided as either a hex string (including 0x prefix) or a BigInt. For example, to represent 1 coin, which is 1000000000000000000 in wei-units, set the value to "0xDE0B6B3A7640000" or BigInt("1000000000000000000"). {@link /example/conversion-example.js|Conversion Examples}
-     * @type {string|BigInt}
+     * @type {string|BigInt|null}
      * @public
      */
-    public valueInWei: string | bigint;
+    public valueInWei: string | bigint | null;
     /**
      * A monotonically increasing number representing the nonce of the account signing the transaction. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
      * @type {number}
@@ -747,10 +748,10 @@ export class TransactionSigningRequest {
     public nonce: number;
     /**
      * An optional hex string (including 0x) that represents the contract data. Can be null if not invoking or creating a contract.
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public data: string;
+    public data: string | null;
     /**
      * A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @type {number}
@@ -759,13 +760,19 @@ export class TransactionSigningRequest {
     public gasLimit: number;
     /**
      * An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
-     * @type {string}
+     * @type {string|null}
      * @public
      */
-    public remarks: string;
+    public remarks: string | null;
+    /**
+     * The chain id of the blockchain. Mainnet chainId is 123123. If null, the chainId specified in the initialize() function will be used.
+     * @type {number|null}
+     * @public
+     */
+    public chainId: number | null;
 }
 /**
- * The signRawTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
+ * The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.
  * With this function, you can set the gasLimit explicitly compared to signTransaction.
  * You can also pass data to be signed, such as when creating or invoking a smart contract.
  * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
@@ -812,6 +819,48 @@ export function unpackMethodData(abiJSON: string, methodName: string, hexData: s
  */
 export function packCreateContractData(abiJSON: string, bytecode: string, ...args: any[]): PackUnpackResult;
 /**
+ * The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.
+ * It returns the topics array and data hex string that can be used to create event logs.
+ *
+ * @function encodeEventLog
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} eventName - The name of the event to encode
+ * @param {...*} args - The event parameter values (variable arguments)
+ * @return {EventLogEncodeResult} - Returns an EventLogEncodeResult object containing the error (if any) and the encoded event log with topics and data.
+ */
+export function encodeEventLog(abiJSON: string, eventName: string, ...args: any[]): EventLogEncodeResult;
+/**
+ * The decodeEventLog function decodes event log topics and data back into event parameters.
+ * It returns the decoded values as a JavaScript object.
+ *
+ * @function decodeEventLog
+ * @param {string} abiJSON - The Solidity ABI file content as a JSON string
+ * @param {string} eventName - The name of the event to decode
+ * @param {string[]} topics - Array of topic hex strings (with or without 0x prefix)
+ * @param {string} data - Hex-encoded data string (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the decoded event parameters as a JSON string.
+ */
+export function decodeEventLog(abiJSON: string, eventName: string, topics: string[], data: string): PackUnpackResult;
+/**
+ * The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.
+ * Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.
+ * Returns a hex-encoded string of the RLP-encoded data.
+ *
+ * @function encodeRlp
+ * @param {*} value - The value to encode (can be string, number, boolean, array, object, etc.)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the RLP-encoded data as a hex string.
+ */
+export function encodeRlp(value: any): PackUnpackResult;
+/**
+ * The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.
+ * Takes a hex-encoded string and returns a JSON string representation of the decoded value.
+ *
+ * @function decodeRlp
+ * @param {string} data - The hex-encoded RLP data (with or without 0x prefix)
+ * @return {PackUnpackResult} - Returns a PackUnpackResult object containing the error (if any) and the decoded value as a JSON string.
+ */
+export function decodeRlp(data: string): PackUnpackResult;
+/**
  * The createAddress function calculates the contract address that will be created by a transaction.
  * This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
  *
@@ -857,6 +906,34 @@ export class PackUnpackResult {
      * @public
      */
     public result: string;
+}
+/**
+ * @class EventLogEncodeResult
+ * @classdesc This class represents a result from invoking the encodeEventLog function.
+ */
+export class EventLogEncodeResult {
+    /**
+     * Creates an EventLogEncodeResult class.
+     * @param {string} error - Error message if any. Empty string if no error.
+     * @param {Object|null} result - The actual result object with topics and data. Null if there was an error.
+     * @param {string[]} result.topics - Array of topic hex strings (with 0x prefix)
+     * @param {string} result.data - Hex-encoded data string (with 0x prefix)
+     */
+    constructor(error: string, result: any | null);
+    /**
+     * Error message if any. Empty string if no error.
+     * @type {string}
+     * @public
+     */
+    public error: string;
+    /**
+     * The actual result object with topics and data. Null if there was an error.
+     * @type {Object|null}
+     * @property {string[]} topics - Array of topic hex strings (with 0x prefix)
+     * @property {string} data - Hex-encoded data string (with 0x prefix)
+     * @public
+     */
+    public result: any | null;
 }
 /**
  * @class
