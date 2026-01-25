@@ -1,4 +1,4 @@
-<a name="module_quantum-coin-js-sdk"></a>
+<a name="module_quantum-coin-js-sdk"> </a>
 
 ## quantum-coin-js-sdk
 Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.
