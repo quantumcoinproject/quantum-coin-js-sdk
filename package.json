@@ -4,7 +4,7 @@
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/non-transactional.preinit.test.js tests/non-transactional.test.js tests/transactional.rpc.test.js tests/transactional.relay.test.js",
     "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly"
   },
   "repository": {
