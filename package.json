@@ -1,12 +1,11 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly && jsdoc2md index.js >README.md",
-    "build-powershell": "powershell npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly; jsdoc2md index.js >README.md"
+    "test": "node --test tests/non-transactional.preinit.test.js tests/non-transactional.test.js tests/transactional.rpc.test.js tests/transactional.relay.test.js",
+    "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly"
   },
   "repository": {
     "type": "git",
@@ -30,8 +29,7 @@
   },
   "homepage": "https://github.com/quantumcoinproject/quantum-coin-js-sdk#readme",
   "dependencies": {
-    "jsdoc-to-markdown": "^9.1.2",
-    "quantum-coin-pqc-js-sdk": "^1.0.0",
-    "seed-words": "^1.0.1"
+    "quantum-coin-pqc-js-sdk": "1.0.5",
+    "seed-words": "1.0.2"
   }
 }
