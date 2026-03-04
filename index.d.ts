@@ -62,6 +62,7 @@ export function newWallet(): Wallet;
  * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function.
  * Transactions are usually committed in less than 30 seconds.
  *
+ * @deprecated Use signRawTransaction and postTransaction instead.
  * @async
  * @function sendCoins
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
@@ -115,6 +116,7 @@ export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
  * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
  * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
  *
+ * @deprecated Use signRawTransaction instead.
  * @function signSendCoinTransaction
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
  * @param {string} toAddress - The address to which the coins should be sent.
@@ -720,6 +722,7 @@ export class TransactionSigningRequest {
      * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
      * @param {number|null} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used.
+    * @param {number|null} signingSchemeId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used.
      */
     constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string, chainId: number | null);
     /**

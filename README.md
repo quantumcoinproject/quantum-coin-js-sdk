@@ -1,32 +1,11 @@
-<a name="module_quantum-coin-js-sdk"> </a>
+<a name="module_quantum-coin-js-sdk"></a>
 
 ## quantum-coin-js-sdk
-Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.
-[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
+Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
 
 **Example**  
 ```js
-Requires Node.js version v20.18.1 or higher
-
-Installation:
-npm install quantum-coin-js-sdk --save
-
-//Adding reference:
-var qcsdk = require('quantum-coin-js-sdk');
-
-//Example initialization with defaults for mainnet
-//Initialize the SDK first before invoking any other function
-qcsdk.initialize(null).then((initResult) => {
-  
-}
-
-//Example initialization with specific values
-//Initialize the SDK first before invoking any other function
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
-qcsdk.initialize(clientConfigVal).then((initResult) => {
-
-}
-Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
+Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-coin-js-sdk --save//Adding reference:var qcsdk = require('quantum-coin-js-sdk');//Example initialization with defaults for mainnet//Initialize the SDK first before invoking any other functionqcsdk.initialize(null).then((initResult) => {  }//Example initialization with specific values//Initialize the SDK first before invoking any other functionvar clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)qcsdk.initialize(clientConfigVal).then((initResult) => {}Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
 ```
 
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
@@ -113,7 +92,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
         * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
         * [.err](#module_quantum-coin-js-sdk..AccountTransactionsResult+err) : <code>Error</code>
     * [~TransactionSigningRequest](#module_quantum-coin-js-sdk..TransactionSigningRequest)
-        * [new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
+        * [new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId, signingSchemeId)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
         * [.wallet](#module_quantum-coin-js-sdk..TransactionSigningRequest+wallet) : <code>Wallet</code>
         * [.toAddress](#module_quantum-coin-js-sdk..TransactionSigningRequest+toAddress) : <code>string</code> \| <code>null</code>
         * [.valueInWei](#module_quantum-coin-js-sdk..TransactionSigningRequest+valueInWei) : <code>string</code> \| <code>BigInt</code> \| <code>null</code>
@@ -149,11 +128,11 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
     * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
     * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
-    * [~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>
+    * ~~[~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>~~
     * [~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>SignResult</code>
     * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) ⇒ <code>Uint8Array</code>
     * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) ⇒ <code>SignResult</code>
-    * [~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+    * ~~[~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
     * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
@@ -466,9 +445,7 @@ Hash of the Transaction, to uniquely identify it. Is 66 bytes in length includin
 <a name="module_quantum-coin-js-sdk..SignResult+txnData"></a>
 
 #### signResult.txnData : <code>string</code>
-A payload representing the signed transaction. 
-To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. 
-This value is null if the value of resultCode is not 0.
+A payload representing the signed transaction. To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. This value is null if the value of resultCode is not 0.
 
 **Kind**: instance property of [<code>SignResult</code>](#module_quantum-coin-js-sdk..SignResult)  
 **Access**: public  
@@ -525,8 +502,7 @@ An error object if the operation resulted in an error and there was no response.
 <a name="module_quantum-coin-js-sdk..TransactionReceipt"></a>
 
 ### quantum-coin-js-sdk~TransactionReceipt
-This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. 
-While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
+This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
 
 **Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Access**: public  
@@ -872,7 +848,7 @@ This class represents a signing request that can be passed to signTransaction.
 **Access**: public  
 
 * [~TransactionSigningRequest](#module_quantum-coin-js-sdk..TransactionSigningRequest)
-    * [new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
+    * [new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId, signingSchemeId)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
     * [.wallet](#module_quantum-coin-js-sdk..TransactionSigningRequest+wallet) : <code>Wallet</code>
     * [.toAddress](#module_quantum-coin-js-sdk..TransactionSigningRequest+toAddress) : <code>string</code> \| <code>null</code>
     * [.valueInWei](#module_quantum-coin-js-sdk..TransactionSigningRequest+valueInWei) : <code>string</code> \| <code>BigInt</code> \| <code>null</code>
@@ -884,7 +860,7 @@ This class represents a signing request that can be passed to signTransaction.
 
 <a name="new_module_quantum-coin-js-sdk..TransactionSigningRequest_new"></a>
 
-#### new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId)
+#### new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId, signingSchemeId)
 Creates a TransactionSigningRequest class.
 
 
@@ -898,6 +874,7 @@ Creates a TransactionSigningRequest class.
 | gasLimit | <code>number</code> | A limit of gas to be used. Set 21000 for basic non smart contract transactions. |
 | remarks | <code>string</code> | An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field. |
 | chainId | <code>number</code> \| <code>null</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used. |
+| signingSchemeId | <code>number</code> \| <code>null</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used. |
 
 <a name="module_quantum-coin-js-sdk..TransactionSigningRequest+wallet"></a>
 
@@ -1198,8 +1175,7 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 <a name="module_quantum-coin-js-sdk..postTransaction"></a>
 
 ### quantum-coin-js-sdk~postTransaction(txnData) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The postTransaction function posts a signed transaction to the blockchain. 
-This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
+The postTransaction function posts a signed transaction to the blockchain. This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult. txnHash will be null in SendResult.  
@@ -1230,12 +1206,7 @@ The getAccountDetails function returns details of an account corresponding to th
 <a name="module_quantum-coin-js-sdk..getTransactionDetails"></a>
 
 ### quantum-coin-js-sdk~getTransactionDetails(txnHash) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-The getTransactionDetails function returns details of a transaction posted to the blockchain. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the getTransactionDetails function. 
-You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). 
-The transactionReceipt field can be null unless the transaction is registered with the blockchain.
+The getTransactionDetails function returns details of a transaction posted to the blockchain. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). The transactionReceipt field can be null unless the transaction is registered with the blockchain.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a promise of type type TransactionDetailsResult.  
@@ -1247,13 +1218,7 @@ The transactionReceipt field can be null unless the transaction is registered wi
 <a name="module_quantum-coin-js-sdk..listAccountTransactions"></a>
 
 ### quantum-coin-js-sdk~listAccountTransactions(address, pageNumber) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
-The listAccountTransactions function returns a list of transactions for a specific account. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
-You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). 
-Both transactions from and transactions to the address will be returned in the list.
-Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
+The listAccountTransactions function returns a list of transactions for a specific account. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the listAccountTransactions function. You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). Both transactions from and transactions to the address will be returned in the list.Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code> - Returns a promise of type type ListAccountTransactionsResponse.  
@@ -1265,11 +1230,10 @@ Use the getTransactionDetails function, passing the hash of the transaction to g
 
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
-### quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>
-The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+### ~~quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>~~
+***Use signRawTransaction instead.***
+
+The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1284,10 +1248,7 @@ Another usecase for this function is when you want to first store a signed trans
 <a name="module_quantum-coin-js-sdk..signTransaction"></a>
 
 ### quantum-coin-js-sdk~signTransaction(wallet, toAddress, coins, nonce, data) ⇒ <code>SignResult</code>
-The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1315,12 +1276,7 @@ Helper function to convert a hex string to Uint8Array
 <a name="module_quantum-coin-js-sdk..signRawTransaction"></a>
 
 ### quantum-coin-js-sdk~signRawTransaction(transactionSigningRequest) ⇒ <code>SignResult</code>
-The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.
-With this function, you can set the gasLimit explicitly compared to signTransaction.
-You can also pass data to be signed, such as when creating or invoking a smart contract.
-Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.With this function, you can set the gasLimit explicitly compared to signTransaction.You can also pass data to be signed, such as when creating or invoking a smart contract.Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1331,11 +1287,10 @@ Another usecase for this function is when you want to first store a signed trans
 
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 
-### quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
-Transactions are usually committed in less than 30 seconds.
+### ~~quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
+***Use signRawTransaction and postTransaction instead.***
+
+The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
@@ -1400,8 +1355,7 @@ The combinePublicKeySignature combines the public key and signature.
 <a name="module_quantum-coin-js-sdk..packMethodData"></a>
 
 ### quantum-coin-js-sdk~packMethodData(abiJSON, methodName, ...args) ⇒ <code>PackUnpackResult</code>
-The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.
-It returns the transaction data as a hex string that can be included in a transaction.
+The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.It returns the transaction data as a hex string that can be included in a transaction.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the packed transaction data as a hex string.  
@@ -1415,8 +1369,7 @@ It returns the transaction data as a hex string that can be included in a transa
 <a name="module_quantum-coin-js-sdk..unpackMethodData"></a>
 
 ### quantum-coin-js-sdk~unpackMethodData(abiJSON, methodName, hexData) ⇒ <code>PackUnpackResult</code>
-The unpackMethodData function unpacks the return values of a Solidity method call.
-It returns the unpacked values as a JavaScript array or object.
+The unpackMethodData function unpacks the return values of a Solidity method call.It returns the unpacked values as a JavaScript array or object.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the unpacked return values as a JSON string.  
@@ -1430,9 +1383,7 @@ It returns the unpacked values as a JavaScript array or object.
 <a name="module_quantum-coin-js-sdk..packCreateContractData"></a>
 
 ### quantum-coin-js-sdk~packCreateContractData(abiJSON, bytecode, ...args) ⇒ <code>PackUnpackResult</code>
-The packCreateContractData function packs constructor data for contract creation.
-It combines the contract bytecode with the ABI-encoded constructor parameters.
-This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
+The packCreateContractData function packs constructor data for contract creation.It combines the contract bytecode with the ABI-encoded constructor parameters.This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the packed contract creation data as a hex string.  
@@ -1446,8 +1397,7 @@ This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
 <a name="module_quantum-coin-js-sdk..encodeEventLog"></a>
 
 ### quantum-coin-js-sdk~encodeEventLog(abiJSON, eventName, ...args) ⇒ <code>EventLogEncodeResult</code>
-The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.
-It returns the topics array and data hex string that can be used to create event logs.
+The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.It returns the topics array and data hex string that can be used to create event logs.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>EventLogEncodeResult</code> - - Returns an EventLogEncodeResult object containing the error (if any) and the encoded event log with topics and data.  
@@ -1461,8 +1411,7 @@ It returns the topics array and data hex string that can be used to create event
 <a name="module_quantum-coin-js-sdk..decodeEventLog"></a>
 
 ### quantum-coin-js-sdk~decodeEventLog(abiJSON, eventName, topics, data) ⇒ <code>PackUnpackResult</code>
-The decodeEventLog function decodes event log topics and data back into event parameters.
-It returns the decoded values as a JavaScript object.
+The decodeEventLog function decodes event log topics and data back into event parameters.It returns the decoded values as a JavaScript object.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the decoded event parameters as a JSON string.  
@@ -1477,9 +1426,7 @@ It returns the decoded values as a JavaScript object.
 <a name="module_quantum-coin-js-sdk..encodeRlp"></a>
 
 ### quantum-coin-js-sdk~encodeRlp(value) ⇒ <code>PackUnpackResult</code>
-The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.
-Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.
-Returns a hex-encoded string of the RLP-encoded data.
+The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.Returns a hex-encoded string of the RLP-encoded data.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the RLP-encoded data as a hex string.  
@@ -1491,8 +1438,7 @@ Returns a hex-encoded string of the RLP-encoded data.
 <a name="module_quantum-coin-js-sdk..decodeRlp"></a>
 
 ### quantum-coin-js-sdk~decodeRlp(data) ⇒ <code>PackUnpackResult</code>
-The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.
-Takes a hex-encoded string and returns a JSON string representation of the decoded value.
+The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.Takes a hex-encoded string and returns a JSON string representation of the decoded value.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the decoded value as a JSON string.  
@@ -1504,8 +1450,7 @@ Takes a hex-encoded string and returns a JSON string representation of the decod
 <a name="module_quantum-coin-js-sdk..createAddress"></a>
 
 ### quantum-coin-js-sdk~createAddress(address, nonce) ⇒ <code>string</code> \| <code>null</code>
-The createAddress function calculates the contract address that will be created by a transaction.
-This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
+The createAddress function calculates the contract address that will be created by a transaction.This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>string</code> \| <code>null</code> - - Returns the contract address as a hex string, or null if an error occurred.  
@@ -1518,8 +1463,7 @@ This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
 <a name="module_quantum-coin-js-sdk..createAddress2"></a>
 
 ### quantum-coin-js-sdk~createAddress2(address, salt, initHash) ⇒ <code>string</code> \| <code>null</code>
-The createAddress2 function calculates the contract address using the CREATE2 opcode.
-This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
+The createAddress2 function calculates the contract address using the CREATE2 opcode.This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>string</code> \| <code>null</code> - - Returns the contract address as a hex string, or null if an error occurred.  
