@@ -33,18 +33,32 @@
 
 var wasmexec = require('./wasm_exec');
 var wasmBase64 = require('./wasmBase64');
-var pqc = require('quantum-coin-pqc-js-sdk');
 const crypto = require("crypto");
 var seedwords = require('seed-words');
 
 var config = null;
 var isInitialized = false;
+/** CIRCL WASM namespace (set after InitAccountsWebAssembly). Use getCircl() for access. */
+var circl = null;
 const DEFAULT_GAS = 21000;
 const API_KEY_HEADER_NAME = "X-API-KEY";
 const REQUEST_ID_HEADER_NAME = "X-REQUEST-ID";
-const CRYPTO_SEED_WORDS = 48
-const CRYPTO_SEED_BYTES = 96
-const CRYPTO_EXPANDED_SEED_BYTES = 160
+const CRYPTO_SEED_WORDS = 48;
+const CRYPTO_SEED_BYTES = 96;
+const CRYPTO_EXPANDED_SEED_BYTES = 160;
+
+// Key type and seed constants (CIRCL migration; see pqc-circl-migration.md)
+const KEY_TYPE_HYBRIDEDMLDSASLHDSA = 3;
+const KEY_TYPE_HYBRIDEDMLDSASLHDSA5 = 5;
+const SEED_WORD_LIST_LENGTH_HYBRIDEDS = 48;
+const SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA5 = 36;
+const SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA = 32;
+const BASE_SEED_BYTES_HYBRIDEDS = 96;
+const BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5 = 72;
+const BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA = 64;
+const CIRCL_CRYPTO_MSG_LENGTH = 32;
+const INVALID_KEY_TYPE = -1001;
+const CIRCL_CRYPTO_FAILURE = -1002;
 
 /**
  * @class
@@ -844,6 +858,10 @@ async function InitAccountsWebAssembly() {
     mod = result.module;
     inst = result.instance;
     go.run(inst);
+    const g = (typeof globalThis !== 'undefined' ? globalThis : typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this);
+    if (g && g.circl) {
+        circl = g.circl;
+    }
 }
 
 /**
@@ -899,76 +917,171 @@ function isAddressValid(address) {
 }
 
 /**
+ * Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASLHDSA5) from private key length.
+ * @param {number[]|Uint8Array} privateKey - Wallet private key bytes.
+ * @returns {number|null} KEY_TYPE_HYBRIDEDMLDSASLHDSA (3), KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5), or null on error.
+ */
+function getKeyTypeFromPrivateKey(privateKey) {
+    if (circl == null || !privateKey || typeof privateKey.length !== 'number') {
+        return null;
+    }
+    const len = privateKey.length;
+    const hybridNs = circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
+    if (hybridNs && len === hybridNs.PrivateKeySize) {
+        return KEY_TYPE_HYBRIDEDMLDSASLHDSA;
+    }
+    if (hybrid5Ns && len === hybrid5Ns.PrivateKeySize) {
+        return KEY_TYPE_HYBRIDEDMLDSASLHDSA5;
+    }
+    return null;
+}
+
+/**
+ * Convert key (number[] or Uint8Array) to Uint8Array for CIRCL.
+ * @param {number[]|Uint8Array} key - Key bytes.
+ * @returns {Uint8Array}
+ */
+function toUint8Array(key) {
+    if (key instanceof Uint8Array) return key;
+    return new Uint8Array(key);
+}
+
+/**
  * The newWallet function creates a new Wallet.
  * @function newWallet
- * @return {Wallet} Returns a Wallet object.
+ * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
+ * @return {Wallet|number} Returns a Wallet object, or -1000 (not initialized), -1001 (invalid key type), -1002 (crypto failure).
  */
-function newWallet() {
+function newWallet(keyType) {
     if (isInitialized === false) {
         return -1000;
     }
-
-    let keyPair = pqc.cryptoNewKeyPair();
-    let address = PublicKeyToAddress(keyPair.getPublicKey());
-    let walletRet = new Wallet(address, keyPair.getPrivateKey(), keyPair.getPublicKey());
-    return walletRet;
+    if (circl == null) {
+        return CIRCL_CRYPTO_FAILURE;
+    }
+    if (keyType === null || keyType === undefined) {
+        keyType = KEY_TYPE_HYBRIDEDMLDSASLHDSA;
+    }
+    const hybridNs = circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
+    let res;
+    if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs) {
+        res = hybridNs.generateKey();
+    } else if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns) {
+        res = hybrid5Ns.generateKey();
+    } else {
+        return INVALID_KEY_TYPE;
+    }
+    if (res && res.error) {
+        return CIRCL_CRYPTO_FAILURE;
+    }
+    if (!res || !res.result || !res.result.publicKey || !res.result.privateKey) {
+        return CIRCL_CRYPTO_FAILURE;
+    }
+    const publicKey = res.result.publicKey instanceof Uint8Array ? Array.from(res.result.publicKey) : res.result.publicKey;
+    const privateKey = res.result.privateKey instanceof Uint8Array ? Array.from(res.result.privateKey) : res.result.privateKey;
+    const address = PublicKeyToAddress(publicKey);
+    return new Wallet(address, privateKey, publicKey);
 }
 
 /**
  * The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
  *
  * @function newWalletSeed
- * @return {array} Returns an array of seed words (48 words in total). Returns null if the operation failed.
+ * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
+ * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
  */
-function newWalletSeed() {
+function newWalletSeed(keyType) {
     if (isInitialized === false) {
         return -1000;
     }
-
-    let seedArray = pqc.cryptoNewSeed();
-    if (seedArray === null || seedArray.length === null || seedArray.length !== CRYPTO_SEED_BYTES) {
+    if (circl == null || !circl.cryptoRandom) {
         return null;
     }
-
-    let wordList = seedwords.getWordListFromSeedArray(seedArray);
-    if (wordList === null || wordList.length === null || wordList.length !== CRYPTO_SEED_WORDS) {
+    if (keyType === null || keyType === undefined) {
+        keyType = KEY_TYPE_HYBRIDEDMLDSASLHDSA;
+    }
+    if (keyType !== KEY_TYPE_HYBRIDEDMLDSASLHDSA && keyType !== KEY_TYPE_HYBRIDEDMLDSASLHDSA5) {
         return null;
     }
-
+    const baseSeedLen = keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 ? BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5 : BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA;
+    const res = circl.cryptoRandom(baseSeedLen);
+    if (res && res.error) {
+        return null;
+    }
+    if (!res || !res.result || res.result.length !== baseSeedLen) {
+        return null;
+    }
+    const seedArray = res.result instanceof Uint8Array ? res.result : new Uint8Array(res.result);
+    const wordList = seedwords.getWordListFromSeedArray(seedArray);
+    const expectedLen = keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 ? SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA5 : SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA;
+    if (wordList == null || wordList.length !== expectedLen) {
+        return null;
+    }
     return wordList;
 }
 
 /**
  * The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
+ * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *
  * @function openWalletFromSeedWords
- * @param {array} seedWordList - An array of seed words. There should be 48 words in total.
- * @return {Wallet} Returns a Wallet object. Returns null if the operation failed.
+ * @param {array} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
+ * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
 function openWalletFromSeedWords(seedWordList) {
     if (isInitialized === false) {
         return -1000;
     }
-
-    if (seedWordList === null || seedWordList.length === null || seedWordList.length != CRYPTO_SEED_WORDS) {
+    if (seedWordList == null || typeof seedWordList.length !== 'number') {
         return null;
     }
-
-    let seedArray = seedwords.getSeedArrayFromWordList(seedWordList);
-    
-    if (seedArray === null || seedArray.length === null || seedArray.length !== CRYPTO_SEED_BYTES) {
+    const len = seedWordList.length;
+    if (len !== SEED_WORD_LIST_LENGTH_HYBRIDEDS && len !== SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA5 && len !== SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA) {
         return null;
     }
-
-    let expandedSeedArray = pqc.cryptoExpandSeed(seedArray);
-    if (expandedSeedArray === null || expandedSeedArray.length === null || expandedSeedArray.length !== CRYPTO_EXPANDED_SEED_BYTES) {
+    const seedArray = seedwords.getSeedArrayFromWordList(seedWordList);
+    if (seedArray == null || seedArray.length == null) {
         return null;
     }
-
-    let keyPair = pqc.cryptoNewKeyPairFromSeed(expandedSeedArray);
-    let address = PublicKeyToAddress(keyPair.getPublicKey());
-    let walletRet = new Wallet(address, keyPair.getPrivateKey(), keyPair.getPublicKey());
-    return walletRet;
+    if (circl == null) {
+        return null;
+    }
+    let expandedRes;
+    let keyPairRes;
+    const seedU8 = seedArray instanceof Uint8Array ? seedArray : new Uint8Array(seedArray);
+    if (len === SEED_WORD_LIST_LENGTH_HYBRIDEDS) {
+        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDS) return null;
+        const ns = circl.hybrideds;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    } else if (len === SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA5) {
+        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5) return null;
+        const ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    } else {
+        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA) return null;
+        const ns = circl.hybridedmldsaslhdsa;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    }
+    if (keyPairRes && keyPairRes.error) return null;
+    if (!keyPairRes || !keyPairRes.result || !keyPairRes.result.publicKey || !keyPairRes.result.privateKey) return null;
+    const publicKey = keyPairRes.result.publicKey instanceof Uint8Array ? Array.from(keyPairRes.result.publicKey) : keyPairRes.result.publicKey;
+    const privateKey = keyPairRes.result.privateKey instanceof Uint8Array ? Array.from(keyPairRes.result.privateKey) : keyPairRes.result.privateKey;
+    const address = PublicKeyToAddress(publicKey);
+    return new Wallet(address, privateKey, publicKey);
 }
 
 /**
@@ -1098,7 +1211,9 @@ function getRandomRequestId() {
 }
 
 function isByteArray(array) {
-    if (array && array.byteLength !== undefined) return true;
+    if (!array) return false;
+    if (array.byteLength !== undefined) return true;
+    if (typeof array.length === 'number' && array.length >= 0) return true;
     return false;
 }
 
@@ -1111,44 +1226,77 @@ function isByteArray(array) {
  */
 function verifyWallet(wallet) {
     if (isInitialized === false) {
+        console.log('[verifyWallet] FAIL: not initialized');
         return -1000;
     }
-
     if (wallet === null || wallet.address === null || wallet.privateKey === null || wallet.publicKey === null) {
+        console.log('[verifyWallet] FAIL: wallet or wallet.address/privateKey/publicKey is null');
         return false;
     }
-
-    if (isAddressValid(wallet.address) === false) { 
+    if (isAddressValid(wallet.address) === false) {
+        console.log('[verifyWallet] FAIL: isAddressValid(wallet.address) === false');
         return false;
     }
-
     if (isByteArray(wallet.privateKey) === false) {
+        console.log('[verifyWallet] FAIL: isByteArray(wallet.privateKey) === false');
         return false;
     }
-
-    if (wallet.privateKey.length !== 4064) {
-        return false;
-    }
-
     if (isByteArray(wallet.publicKey) === false) {
+        console.log('[verifyWallet] FAIL: isByteArray(wallet.publicKey) === false');
         return false;
     }
-
-    if (wallet.publicKey.length !== 1408) {
+    const keyType = getKeyTypeFromPrivateKey(wallet.privateKey);
+    if (keyType == null) {
+        console.log('[verifyWallet] FAIL: getKeyTypeFromPrivateKey returned null (privateKey.length=' + wallet.privateKey.length + ', circl.hybridedmldsaslhdsa.PrivateKeySize=' + (circl && circl.hybridedmldsaslhdsa ? circl.hybridedmldsaslhdsa.PrivateKeySize : 'N/A') + ', hybrid5.PrivateKeySize=' + (circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5) ? (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5).PrivateKeySize : 'N/A') + ')');
         return false;
     }
-
-    var address = PublicKeyToAddress(wallet.publicKey);
+    const hybridNs = circl && circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5);
+    if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs && wallet.privateKey.length !== hybridNs.PrivateKeySize) {
+        console.log('[verifyWallet] FAIL: keyType 3 but privateKey.length !== hybridNs.PrivateKeySize');
+        return false;
+    }
+    if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns && wallet.privateKey.length !== hybrid5Ns.PrivateKeySize) {
+        console.log('[verifyWallet] FAIL: keyType 5 but privateKey.length !== hybrid5Ns.PrivateKeySize');
+        return false;
+    }
+    const address = PublicKeyToAddress(wallet.publicKey);
     if (address !== wallet.address) {
+        console.log('[verifyWallet] FAIL: PublicKeyToAddress(wallet.publicKey) !== wallet.address');
         return false;
     }
-
-    let utf8Encode = new TextEncoder();
-    let message = utf8Encode.encode("verifyverifyverifyverifyverifyok");
-
-    var quantumSig = pqc.cryptoSign(message, wallet.privateKey);
-    var verifyResult = pqc.cryptoVerify(message, quantumSig, wallet.publicKey);
-    return verifyResult;
+    const message = new TextEncoder().encode("verifyverifyverifyverifyverifyok");
+    const privU8 = toUint8Array(wallet.privateKey);
+    const pubU8 = toUint8Array(wallet.publicKey);
+    let sigRes;
+    let verRes;
+    if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs) {
+        sigRes = hybridNs.sign(privU8, message);
+        if (sigRes && sigRes.error) {
+            console.log('[verifyWallet] FAIL: hybridNs.sign returned error:', sigRes.error);
+            return false;
+        }
+        verRes = hybridNs.verify(pubU8, message, sigRes.result);
+    } else if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns) {
+        sigRes = hybrid5Ns.sign(privU8, message);
+        if (sigRes && sigRes.error) {
+            console.log('[verifyWallet] FAIL: hybrid5Ns.sign returned error:', sigRes.error);
+            return false;
+        }
+        verRes = hybrid5Ns.verify(pubU8, message, sigRes.result);
+    } else {
+        console.log('[verifyWallet] FAIL: no CIRCL namespace for keyType (keyType=' + keyType + ', hybridNs=' + !!hybridNs + ', hybrid5Ns=' + !!hybrid5Ns + ')');
+        return false;
+    }
+    if (verRes && verRes.error) {
+        console.log('[verifyWallet] FAIL: verify returned error:', verRes.error);
+        return false;
+    }
+    if (!(verRes && verRes.result === true)) {
+        console.log('[verifyWallet] FAIL: verRes.result !== true (verRes=', verRes, ')');
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -1239,7 +1387,12 @@ function transactionGetData(fromaddress, nonce, toaddress, amount, gas, chainid,
 }
 
 function transactionGetSigningHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext) {
-    let messageData = TxnSigningHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext);
+    let messageDataReturn = TxnSigningHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext);
+    if (messageDataReturn && messageDataReturn.error) {
+        console.log('[transactionGetSigningHash2] FAIL: messageDataReturn returned error:', messageDataReturn.error);
+        return null;
+    }
+    var messageData = messageDataReturn.result;
     var messageBytes = [];
     for (var i = 0; i < messageData.length; ++i) {
         messageBytes.push(messageData.charCodeAt(i));
@@ -1258,8 +1411,12 @@ function transactionGetTransactionHash2(fromaddress, nonce, toaddress, valueInWe
     for (let i = 0; i < arraySigDataToPass.length; i++) {
         typedSigArray[i] = arraySigDataToPass[i];
     }
-    var txnHash = TxnHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
-    return txnHash;
+    var txnHashReturn = TxnHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
+    if (txnHashReturn && txnHashReturn.error) {
+        console.log('[transactionGetTransactionHash2] FAIL: TxnHash2 returned error:', txnHashReturn.error);
+        return null;
+    }
+    return txnHashReturn.result;
 }
 
 function transactionGetData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, pkkey, sig) {
@@ -1273,8 +1430,12 @@ function transactionGetData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, 
     for (let i = 0; i < arraySigDataToPass.length; i++) {
         typedSigArray[i] = arraySigDataToPass[i];
     }
-    var txnData = TxnData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
-    return txnData;
+    var txnDataReturn = TxnData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
+    if (txnDataReturn && txnDataReturn.error) {
+        console.log('[transactionGetData2] FAIL: TxnData2 returned error:', txnDataReturn.error);
+        return null;
+    }
+    return txnDataReturn.result;
 }
 
 /**
@@ -1725,17 +1886,27 @@ async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
 
     const contractData = null;
 
-    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData)
+    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData);
     if (txSigningHash == null) {
         return new SignResult(-506, null, null);
     }
-
-    var quantumSig = pqc.cryptoSign(txSigningHash, wallet.privateKey);
-
-    var verifyResult = pqc.cryptoVerify(txSigningHash, quantumSig, wallet.publicKey);
-    if (verifyResult !== true) {
+    const txSigningHashU8 = toUint8Array(txSigningHash);
+    const hybridedsNs = circl && circl.hybrideds;
+    if (!hybridedsNs) {
         return new SignResult(-507, null, null);
     }
+    const sigRes = hybridedsNs.signCompact(toUint8Array(wallet.privateKey), txSigningHashU8);
+    if (sigRes && sigRes.error) {
+        return new SignResult(-507, null, null);
+    }
+    const verRes = hybridedsNs.verifyCompact(toUint8Array(wallet.publicKey), txSigningHashU8, sigRes.result);
+    if (verRes && verRes.error) {
+        return new SignResult(-507, null, null);
+    }
+    if (verRes.result !== true) {
+        return new SignResult(-507, null, null);
+    }
+    const quantumSig = sigRes.result instanceof Uint8Array ? Array.from(sigRes.result) : sigRes.result;
 
     var txHashHex = transactionGetTransactionHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData, wallet.publicKey, quantumSig);
     if (txHashHex == null) {
@@ -1797,17 +1968,27 @@ async function signTransaction(wallet, toAddress, coins, nonce, data) {
 
     const contractData = null;
 
-    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData)
+    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData);
     if (txSigningHash == null) {
         return new SignResult(-506, null, null);
     }
-
-    var quantumSig = pqc.cryptoSign(txSigningHash, wallet.privateKey);
-
-    var verifyResult = pqc.cryptoVerify(txSigningHash, quantumSig, wallet.publicKey);
-    if (verifyResult !== true) {
+    const txSigningHashU8 = toUint8Array(txSigningHash);
+    const hybridedsNs = circl && circl.hybrideds;
+    if (!hybridedsNs) {
         return new SignResult(-507, null, null);
     }
+    const sigRes = hybridedsNs.signCompact(toUint8Array(wallet.privateKey), txSigningHashU8);
+    if (sigRes && sigRes.error) {
+        return new SignResult(-507, null, null);
+    }
+    const verRes = hybridedsNs.verifyCompact(toUint8Array(wallet.publicKey), txSigningHashU8, sigRes.result);
+    if (verRes && verRes.error) {
+        return new SignResult(-507, null, null);
+    }
+    if (verRes.result !== true) {
+        return new SignResult(-507, null, null);
+    }
+    const quantumSig = sigRes.result instanceof Uint8Array ? Array.from(sigRes.result) : sigRes.result;
 
     var txHashHex = transactionGetTransactionHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData, wallet.publicKey, quantumSig);
     if (txHashHex == null) {
@@ -1893,7 +2074,7 @@ function signRawTransaction(transactionSigningRequest) {
             }
             valueInWeiHex = transactionSigningRequest.valueInWei;
         } else {
-            return new SignResult(-903, null, null);
+            return new SignResult(-923, null, null);
         }
     }
 
@@ -1940,40 +2121,68 @@ function signRawTransaction(transactionSigningRequest) {
         // Validate chainId if provided
         let tempChainId = parseInt(transactionSigningRequest.chainId);
         if (Number.isInteger(tempChainId) === false) {
-            return new SignResult(-915, null, null);
+            return new SignResult(-911, null, null);
         }
         chainId = tempChainId;
         if (chainId < 0) {
-            return new SignResult(-916, null, null);
+            return new SignResult(-912, null, null);
         }
     } else {
         // Use chainId from initialize()
         chainId = config.chainId;
     }
 
-    let signingContext;
-
+    let signingContext = transactionSigningRequest.signingContext;
+    const keyTypeForContext = getKeyTypeFromPrivateKey(transactionSigningRequest.wallet.privateKey);
+    if (signingContext === null || signingContext === undefined) {
+        if (keyTypeForContext === KEY_TYPE_HYBRIDEDMLDSASLHDSA) {
+            signingContext = 0;
+        } else if (keyTypeForContext === KEY_TYPE_HYBRIDEDMLDSASLHDSA5) {
+            signingContext = 1;
+        } else {
+            return new SignResult(-913, null, null);
+        }
+    }
 
     let txSigningHash = transactionGetSigningHash2(transactionSigningRequest.wallet.address, nonce, transactionSigningRequest.toAddress, valueInWeiHex, gasLimit, chainId, data, remarks, signingContext);
     if (txSigningHash == null) {
-        return new SignResult(-911, null, null);
+        return new SignResult(-914, null, null);
     }
-
-    let quantumSig = pqc.cryptoSign(txSigningHash, transactionSigningRequest.wallet.privateKey);
-
-    let verifyResult = pqc.cryptoVerify(txSigningHash, quantumSig, transactionSigningRequest.wallet.publicKey);
-    if (verifyResult !== true) {
-        return new SignResult(-912, null, null);
+    const txSigningHashU8 = toUint8Array(txSigningHash);
+    const wallet = transactionSigningRequest.wallet;
+    const privU8 = toUint8Array(wallet.privateKey);
+    const pubU8 = toUint8Array(wallet.publicKey);
+    let sigRes;
+    let verRes;
+    const hybridNs = circl && circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5);
+    if (signingContext === 0 && hybridNs) {
+        sigRes = hybridNs.signCompact(privU8, txSigningHashU8);
+        if (sigRes && sigRes.error) return new SignResult(-915, null, null);
+        verRes = hybridNs.verifyCompact(pubU8, txSigningHashU8, sigRes.result);
+    } else if (signingContext === 1 && hybrid5Ns) {
+        sigRes = hybrid5Ns.sign(privU8, txSigningHashU8);
+        if (sigRes && sigRes.error) return new SignResult(-916, null, null);
+        verRes = hybrid5Ns.verify(pubU8, txSigningHashU8, sigRes.result);
+    } else if (signingContext === 2 && hybridNs) {
+        sigRes = hybridNs.sign(privU8, txSigningHashU8);
+        if (sigRes && sigRes.error) return new SignResult(-917, null, null);
+        verRes = hybridNs.verify(pubU8, txSigningHashU8, sigRes.result);
+    } else {
+        return new SignResult(-918, null, null);
     }
+    if (verRes && verRes.error) return new SignResult(-919, null, null);
+    if (verRes.result !== true) return new SignResult(-920, null, null);
+    const quantumSig = sigRes.result instanceof Uint8Array ? Array.from(sigRes.result) : sigRes.result;
 
     let txHashHex = transactionGetTransactionHash2(transactionSigningRequest.wallet.address, nonce, transactionSigningRequest.toAddress, valueInWeiHex, gasLimit, chainId, data, remarks, signingContext, transactionSigningRequest.wallet.publicKey, quantumSig);
     if (txHashHex == null) {
-        return new SignResult(-913, null, null);
+        return new SignResult(-921, null, null);
     }
 
     let txnData = transactionGetData2(transactionSigningRequest.wallet.address, nonce, transactionSigningRequest.toAddress, valueInWeiHex, gasLimit, chainId, data, remarks, signingContext, transactionSigningRequest.wallet.publicKey, quantumSig);
     if (txnData == null) {
-        return new SignResult(-914, null, null);
+        return new SignResult(-922, null, null);
     }
 
     return new SignResult(0, txHashHex, txnData);
@@ -2039,17 +2248,27 @@ async function sendCoins(wallet, toAddress, coins, nonce) {
 
     const contractData = null;
 
-    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData)
+    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData);
     if (txSigningHash == null) {
         return new SendResult(-9, null, null, null);
     }
-
-    var quantumSig = pqc.cryptoSign(txSigningHash, wallet.privateKey);
-
-    var verifyResult = pqc.cryptoVerify(txSigningHash, quantumSig, wallet.publicKey);
-    if (verifyResult !== true) {
+    const txSigningHashU8 = toUint8Array(txSigningHash);
+    const hybridedsNs = circl && circl.hybrideds;
+    if (!hybridedsNs) {
         return new SendResult(-10, null, null, null);
     }
+    const sigRes = hybridedsNs.signCompact(toUint8Array(wallet.privateKey), txSigningHashU8);
+    if (sigRes && sigRes.error) {
+        return new SendResult(-10, null, null, null);
+    }
+    const verRes = hybridedsNs.verifyCompact(toUint8Array(wallet.publicKey), txSigningHashU8, sigRes.result);
+    if (verRes && verRes.error) {
+        return new SendResult(-10, null, null, null);
+    }
+    if (verRes.result !== true) {
+        return new SendResult(-10, null, null, null);
+    }
+    const quantumSig = sigRes.result instanceof Uint8Array ? Array.from(sigRes.result) : sigRes.result;
 
     var txHashHex = transactionGetTransactionHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData, wallet.publicKey, quantumSig);
     if (txHashHex == null) {
