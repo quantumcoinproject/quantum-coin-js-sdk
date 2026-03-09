@@ -1094,42 +1094,56 @@ function openWalletFromSeedWords(seedWordList) {
  */
 function deserializeEncryptedWallet(walletJsonString, passphrase) {
     if (isInitialized === false) {
+        console.error('deserializeEncryptedWallet: SDK not initialized');
         return -1000;
     }
-    
+
     if (walletJsonString == null || passphrase == null) {
+        console.error('deserializeEncryptedWallet: walletJsonString or passphrase is null');
         return null;
     }
 
     if (typeof walletJsonString === 'string' || walletJsonString instanceof String) {
 
     } else {
+        console.error('deserializeEncryptedWallet: walletJsonString is not a string');
         return null;
     }
 
     if (typeof passphrase === 'string' || passphrase instanceof String) {
 
     } else {
+        console.error('deserializeEncryptedWallet: passphrase is not a string');
         return null;
     }
 
-    let walletJsonObj = JSON.parse(walletJsonString);
+    let walletJsonObj;
+    try {
+        walletJsonObj = JSON.parse(walletJsonString);
+    } catch (e) {
+        console.error('deserializeEncryptedWallet: JSON parse failed', e.message);
+        return null;
+    }
 
     if (walletJsonObj == null) {
+        console.error('deserializeEncryptedWallet: parsed JSON is null');
         return null;
     }
 
     if (walletJsonObj.address == null) {
+        console.error('deserializeEncryptedWallet: wallet JSON missing address');
         return null;
     }
 
     let keyPairString = JsonToWalletKeyPair(walletJsonString, passphrase);
     if (keyPairString == null) {
+        console.error('deserializeEncryptedWallet: failed to derive key pair (wrong passphrase or invalid crypto)');
         return null;
     }
 
     let keyPairSplit = keyPairString.split(",");
     if (keyPairSplit.length < 2) {
+        console.error('deserializeEncryptedWallet: key pair format invalid');
         return null;
     }
 
@@ -1137,17 +1151,20 @@ function deserializeEncryptedWallet(walletJsonString, passphrase) {
     let publicKeyArray = base64ToBytes(keyPairSplit[1]);
     let address = PublicKeyToAddress(publicKeyArray);
     if (address == null) {
+        console.error('deserializeEncryptedWallet: failed to derive address from public key');
         return null;
     }
 
     if (typeof address === 'string' || address instanceof String) {
 
     } else {
+        console.error('deserializeEncryptedWallet: address is not a string');
         return null;
     }
 
     let addressCheck = "0x" + walletJsonObj.address.toLowerCase();
     if (addressCheck != address.toLowerCase()) {
+        console.error('deserializeEncryptedWallet: address mismatch with wallet JSON');
         return null;
     }
 
