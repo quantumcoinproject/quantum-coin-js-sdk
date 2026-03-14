@@ -85,5 +85,47 @@ describe('transactional', { concurrency: 1 }, () => {
       );
     },
   );
+
+  test(
+    'relay signSendCoinTransaction + postTransaction: must succeed or fail only for insufficient gas',
+    { timeout: 120_000 },
+    async () => {
+      await qcsdk.initialize(
+        new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', ''),
+      );
+      // initialize() returns false if already initialized (e.g. by previous test); either way SDK is ready
+
+      assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded and verifyWallet(newWallet()) must pass');
+      const wallet = qcsdk.newWallet();
+      assert.ok(wallet);
+
+      const acct = await qcsdk.getAccountDetails(wallet.address);
+      assert.ok(acct);
+      assert.equal(acct.resultCode, 0, 'relay getAccountDetails must succeed to proceed');
+      const nonce = acct.accountDetails.nonce;
+      assert.ok(Number.isInteger(nonce) && nonce >= 0);
+
+      const signResult = await qcsdk.signSendCoinTransaction(wallet, TO_ADDRESS_EXAMPLE, '0', nonce);
+      assert.ok(signResult);
+      assert.equal(signResult.resultCode, 0, 'signSendCoinTransaction must succeed');
+      assert.ok(signResult.txnData && typeof signResult.txnData === 'string');
+
+      const post = await qcsdk.postTransaction(signResult.txnData);
+      assert.ok(post && typeof post.resultCode === 'number');
+
+      if (post.resultCode === 0) {
+        return;
+      }
+
+      const statusText = post.response?.statusText ?? '';
+      const bodyText = await readResponseTextSafe(post.response);
+      const combined = `${statusText}\n${bodyText}`.trim();
+
+      assert.ok(
+        isInsufficientGasErrorText(combined),
+        `Transactional relay test (signSendCoinTransaction + postTransaction) failed with unexpected error. resultCode=${post.resultCode}\n${combined || '(no response body)'}`,
+      );
+    },
+  );
 });
 
