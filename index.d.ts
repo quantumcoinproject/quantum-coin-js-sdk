@@ -51,17 +51,18 @@ export function deserializeEncryptedWallet(walletJsonString: string, passphrase:
 export function verifyWallet(wallet: Wallet): boolean;
 /**
  * The newWallet function creates a new Wallet.
- *
  * @function newWallet
- * @return {Wallet} Returns a Wallet object.
+ * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
+ * @return {Wallet|number} Returns a Wallet object, or -1000 (not initialized), -1001 (invalid key type), -1002 (crypto failure).
  */
-export function newWallet(): Wallet;
+export function newWallet(keyType: number | null): Wallet | number;
 /**
  * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function.
  * Transactions are usually committed in less than 30 seconds.
  *
+ * @deprecated Use signRawTransaction and postTransaction instead.
  * @async
  * @function sendCoins
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
@@ -115,6 +116,7 @@ export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
  * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
  * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
  *
+ * @deprecated Use signRawTransaction instead.
  * @function signSendCoinTransaction
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
  * @param {string} toAddress - The address to which the coins should be sent.
@@ -658,17 +660,19 @@ export class AccountTransactionCompact {
  * The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
  *
  * @function newWalletSeed
- * @return {array} Returns an array of seed words (48 words in total). Returns null if the operation failed.
+ * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
+ * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
  */
-export function newWalletSeed(): any[];
+export function newWalletSeed(keyType: number | null): any[] | number | null;
 /**
  * The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
+ * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *
  * @function openWalletFromSeedWords
- * @param {array} seedWordList - An array of seed words. There should be 48 words in total.
- * @return {Wallet} Returns a Wallet object. Returns null if the operation failed.
+ * @param {array} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
+ * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
-export function openWalletFromSeedWords(seedWordList: any[]): Wallet;
+export function openWalletFromSeedWords(seedWordList: any[]): Wallet | number;
 /**
  * The publicKeyFromSignature extracts the public key from a signature.
  *
@@ -720,8 +724,12 @@ export class TransactionSigningRequest {
      * @param {number} gasLimit - A limit of gas to be used. Set 21000 for basic non smart contract transactions.
      * @param {string} remarks - An optional hex string (including 0x) that represents a remark (such as a comment). Maximum 32 bytes length (in bytes). Warning, do not store any sensitive information in this field.
      * @param {number|null} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. If null, the chainId specified in the initialize() function will be used.
+    * @param {number|null} signingContext - It is recommended that you pass null for this parameter, unless the context needs to be set explicitly. Signing context determines the cryptographic scheme used to sign. The wallet key type should compatible with the signing context. Applicable values are 0,1,2. Default value if not specified will be determined dynamically from the wallet key type. Signing context 1,2 will incur additional gas fee. For information on the schemes, see https://github.com/quantumcoinproject/circl?tab=readme-ov-file#hybrid-schemes
+     * Signing context 0: Scheme used is hybrid-ed-mldsa-slhdsa compact (scheme id 3)
+     * Signing context 1: Scheme used is hybrid-ed-mldsa-slhdsa-5 (scheme id 5 : 20x the gas fee of scheme 0)
+     * Signing context 2: hybrid-ed-mldsa-slhdsa full (scheme id 4 : 30x the gas fee of scheme 0)
      */
-    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string, chainId: number | null);
+    constructor(wallet: Wallet, toAddress: string, valueInWei: string | bigint, nonce: number, data: string, gasLimit: number, remarks: string, chainId: number | null, signingContext: number | null);
     /**
      * The wallet that should be used to sign the transaction.
      * @type {Wallet}
@@ -770,6 +778,12 @@ export class TransactionSigningRequest {
      * @public
      */
     public chainId: number | null;
+    /**
+     * It is recommended that you pass null for this parameter, unless the context needs to be set explicitly. Signing context determines the cryptographic scheme used to sign. Gas fee varies by context.
+     * @type {number|null}
+     * @public
+     */
+    public signingContext: number | null;
 }
 /**
  * The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.
@@ -784,6 +798,28 @@ export class TransactionSigningRequest {
  * @return {SignResult}  Returns a promise of type SignResult.
  */
 export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
+/**
+ * Sign a message with a private key. Optional signingContext selects algorithm (same pattern as signRawTransaction); if null/omitted, derived from private key type.
+ * @param {number[]|Uint8Array} privateKey - Private key bytes.
+ * @param {number[]|Uint8Array} message - Message bytes (e.g. 32-byte hash).
+ * @param {number|null} [signingContext] - Optional. 0 = hybridedmldsaslhdsa compact, 1 = hybridedmldsaslhdsa5, 2 = hybridedmldsaslhdsa full. If null/omitted, derived from private key type.
+ * @returns {{ resultCode: number, signature: Uint8Array|null }} resultCode 0 on success, signature bytes; negative on error (e.g. -1000 not initialized, -700 invalid args, -701 unknown key type, -702/-703 CIRCL sign error, -704 unsupported key type or context).
+ */
+export function sign(privateKey: number[] | Uint8Array, message: number[] | Uint8Array, signingContext?: number | null): {
+    resultCode: number;
+    signature: Uint8Array | null;
+};
+/**
+ * Verify a signature over a message with a public key. Algorithm is determined by the first byte of the signature: 1=hybrideds verifyCompact, 2=hybrideds verify, 3=hybridedmldsaslhdsa verifyCompact, 4=hybridedmldsaslhdsa verify, 5=hybridedmldsaslhdsa5 verify.
+ * @param {number[]|Uint8Array} publicKey - Public key bytes.
+ * @param {number[]|Uint8Array} signature - Signature bytes from sign(); first byte selects verify function (1-5).
+ * @param {number[]|Uint8Array} message - Message bytes (same as passed to sign).
+ * @returns {{ resultCode: number, valid: boolean }} resultCode 0 and valid true if signature is valid; negative on error (e.g. -1000 not initialized, -715 invalid args, -717 CIRCL verify error, -719 signature invalid, -718 unknown signature type).
+ */
+export function verify(publicKey: number[] | Uint8Array, signature: number[] | Uint8Array, message: number[] | Uint8Array): {
+    resultCode: number;
+    valid: boolean;
+};
 /**
  * The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.
  * It returns the transaction data as a hex string that can be included in a transaction.
