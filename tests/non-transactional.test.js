@@ -1,5 +1,7 @@
 const { describe, test, before } = require('node:test');
 const assert = require('node:assert/strict');
+const path = require('path');
+const fs = require('fs');
 
 // Tests are required to live under `tests/` per project convention.
 // These are the "non-transactional" tests: offline operations + read-only relay/RPC calls.
@@ -54,6 +56,9 @@ const TEST_SEED_WORDS_36 = TEST_SEED_WORDS.slice(0, 36);
 // Expected addresses for first 32/36 words (deterministic from test run)
 const TEST_SEED_ADDRESS_32 = '0x38b12df2d4762a04a183f936c47747a1f13d0b0ba72066b43b4b6d7f776e9e25';
 const TEST_SEED_ADDRESS_36 = '0x030e264c853bd859c53fae3ad6ef0e011dc799685e2b05d5efa7ac50f10ca075';
+
+// Default test password for encrypt/decrypt in seed-wallet roundtrip tests
+const SEED_WALLET_TEST_PASSPHRASE = TEST_WALLET_PASSPHRASE;
 
 async function rpc(method, params) {
   const response = await fetch(PUBLIC_RPC_URL, {
@@ -230,6 +235,27 @@ describe('non-transactional', () => {
     assert.equal(qcsdk.verifyWallet(wallet), true);
     assert.equal(qcsdk.isAddressValid(wallet.address), true);
     assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS_36);
+  });
+
+  // Hardcoded encrypted wallet JSON (from openWalletFromSeedWords + serializeEncryptedWallet with SEED_WALLET_TEST_PASSPHRASE).
+  // Deserialize and verify addresses match. Uses fixtures in tests/ (encrypted-48.json, encrypted-32.json, encrypted-36.json).
+  test('seed words: deserializeEncryptedWallet from serialized 48/32/36 seed wallets — addresses match', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded and verifyWallet(newWallet()) must pass');
+    const testsDir = __dirname;
+    const enc48 = fs.readFileSync(path.join(testsDir, 'encrypted-48.json'), 'utf8').trim();
+    const enc32 = fs.readFileSync(path.join(testsDir, 'encrypted-32.json'), 'utf8').trim();
+    const enc36 = fs.readFileSync(path.join(testsDir, 'encrypted-36.json'), 'utf8').trim();
+    for (const [enc, expectedAddress] of [
+      [enc48, TEST_SEED_ADDRESS],
+      [enc32, TEST_SEED_ADDRESS_32],
+      [enc36, TEST_SEED_ADDRESS_36],
+    ]) {
+      const wallet = qcsdk.deserializeEncryptedWallet(enc, SEED_WALLET_TEST_PASSPHRASE);
+      assert.ok(wallet, 'deserializeEncryptedWallet should return a wallet');
+      assert.equal(wallet.address.toLowerCase(), expectedAddress);
+      assert.equal(qcsdk.verifyWallet(wallet), true);
+      assert.equal(qcsdk.isAddressValid(wallet.address), true);
+    }
   });
 
   test('publicKeyFromPrivateKey/addressFromPublicKey and signature helpers', () => {

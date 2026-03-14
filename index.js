@@ -938,6 +938,27 @@ function getKeyTypeFromPrivateKey(privateKey) {
 }
 
 /**
+ * Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASLHDSA5) from public key length.
+ * @param {number[]|Uint8Array} publicKey - Public key bytes.
+ * @returns {number|null} KEY_TYPE_HYBRIDEDMLDSASLHDSA (3), KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5), or null on error.
+ */
+function getKeyTypeFromPublicKey(publicKey) {
+    if (circl == null || !publicKey || typeof publicKey.length !== 'number') {
+        return null;
+    }
+    const len = publicKey.byteLength !== undefined ? publicKey.byteLength : publicKey.length;
+    const hybridNs = circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
+    if (hybridNs && typeof hybridNs.PublicKeySize === 'number' && len === hybridNs.PublicKeySize) {
+        return KEY_TYPE_HYBRIDEDMLDSASLHDSA;
+    }
+    if (hybrid5Ns && typeof hybrid5Ns.PublicKeySize === 'number' && len === hybrid5Ns.PublicKeySize) {
+        return KEY_TYPE_HYBRIDEDMLDSASLHDSA5;
+    }
+    return null;
+}
+
+/**
  * Convert key (number[] or Uint8Array) to Uint8Array for CIRCL.
  * @param {number[]|Uint8Array} key - Key bytes.
  * @returns {Uint8Array}
@@ -2206,6 +2227,100 @@ function signRawTransaction(transactionSigningRequest) {
 }
 
 /**
+ * Sign a message with a private key. Optional signingContext selects algorithm (same pattern as signRawTransaction); if null/omitted, derived from private key type.
+ * @param {number[]|Uint8Array} privateKey - Private key bytes.
+ * @param {number[]|Uint8Array} message - Message bytes (e.g. 32-byte hash).
+ * @param {number|null} [signingContext] - Optional. 0 = hybridedmldsaslhdsa compact, 1 = hybridedmldsaslhdsa5, 2 = hybridedmldsaslhdsa full. If null/omitted, derived from private key type.
+ * @returns {{ resultCode: number, signature: Uint8Array|null }} resultCode 0 on success, signature bytes; negative on error (e.g. -1000 not initialized, -700 invalid args, -701 unknown key type, -702/-703 CIRCL sign error, -704 unsupported key type or context).
+ */
+function sign(privateKey, message, signingContext) {
+    if (isInitialized === false) {
+        return { resultCode: -1000, signature: null };
+    }
+    if (!isByteArray(privateKey) || !isByteArray(message)) {
+        return { resultCode: -700, signature: null };
+    }
+    const privU8 = toUint8Array(privateKey);
+    const messageU8 = toUint8Array(message);
+    const hybridNs = circl && circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5);
+    let sigRes;
+    const ctx = signingContext === null || signingContext === undefined ? null : signingContext;
+    if (ctx === null) {
+        const keyType = getKeyTypeFromPrivateKey(privateKey);
+        if (keyType == null) {
+            return { resultCode: -701, signature: null };
+        }
+        if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs) {
+            sigRes = hybridNs.signCompact(privU8, messageU8);
+            if (sigRes && sigRes.error) return { resultCode: -702, signature: null };
+        } else if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns) {
+            sigRes = hybrid5Ns.sign(privU8, messageU8);
+            if (sigRes && sigRes.error) return { resultCode: -703, signature: null };
+        } else {
+            return { resultCode: -704, signature: null };
+        }
+    } else if (ctx === 0 && hybridNs) {
+        sigRes = hybridNs.signCompact(privU8, messageU8);
+        if (sigRes && sigRes.error) return { resultCode: -702, signature: null };
+    } else if (ctx === 1 && hybrid5Ns) {
+        sigRes = hybrid5Ns.sign(privU8, messageU8);
+        if (sigRes && sigRes.error) return { resultCode: -703, signature: null };
+    } else if (ctx === 2 && hybridNs) {
+        sigRes = hybridNs.sign(privU8, messageU8);
+        if (sigRes && sigRes.error) return { resultCode: -702, signature: null };
+    } else {
+        return { resultCode: -704, signature: null };
+    }
+    const sig = sigRes.result instanceof Uint8Array ? sigRes.result : new Uint8Array(sigRes.result);
+    return { resultCode: 0, signature: sig };
+}
+
+/**
+ * Verify a signature over a message with a public key. Algorithm is determined by the first byte of the signature: 1=hybrideds verifyCompact, 2=hybrideds verify, 3=hybridedmldsaslhdsa verifyCompact, 4=hybridedmldsaslhdsa verify, 5=hybridedmldsaslhdsa5 verify.
+ * @param {number[]|Uint8Array} publicKey - Public key bytes.
+ * @param {number[]|Uint8Array} signature - Signature bytes from sign(); first byte selects verify function (1-5).
+ * @param {number[]|Uint8Array} message - Message bytes (same as passed to sign).
+ * @returns {{ resultCode: number, valid: boolean }} resultCode 0 and valid true if signature is valid; negative on error (e.g. -1000 not initialized, -715 invalid args, -717 CIRCL verify error, -719 signature invalid, -718 unknown signature type).
+ */
+function verify(publicKey, signature, message) {
+    if (isInitialized === false) {
+        return { resultCode: -1000, valid: false };
+    }
+    if (!isByteArray(publicKey) || !isByteArray(signature) || !isByteArray(message)) {
+        return { resultCode: -715, valid: false };
+    }
+    const sigLen = signature.byteLength !== undefined ? signature.byteLength : signature.length;
+    if (sigLen < 1) {
+        return { resultCode: -715, valid: false };
+    }
+    const sigType = signature[0];
+    const pubU8 = toUint8Array(publicKey);
+    const sigU8 = toUint8Array(signature);
+    const messageU8 = toUint8Array(message);
+    const hybridedsNs = circl && circl.hybrideds;
+    const hybridNs = circl && circl.hybridedmldsaslhdsa;
+    const hybrid5Ns = circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5);
+    let verRes;
+    if (sigType === 1 && hybridedsNs) {
+        verRes = hybridedsNs.verifyCompact(pubU8, messageU8, sigU8);
+    } else if (sigType === 2 && hybridedsNs) {
+        verRes = hybridedsNs.verify(pubU8, messageU8, sigU8);
+    } else if (sigType === 3 && hybridNs) {
+        verRes = hybridNs.verifyCompact(pubU8, messageU8, sigU8);
+    } else if (sigType === 4 && hybridNs) {
+        verRes = hybridNs.verify(pubU8, messageU8, sigU8);
+    } else if (sigType === 5 && hybrid5Ns) {
+        verRes = hybrid5Ns.verify(pubU8, messageU8, sigU8);
+    } else {
+        return { resultCode: -718, valid: false };
+    }
+    if (verRes && verRes.error) return { resultCode: -717, valid: false };
+    if (verRes.result !== true) return { resultCode: -719, valid: false };
+    return { resultCode: 0, valid: true };
+}
+
+/**
  * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
  * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
@@ -2874,6 +2989,8 @@ module.exports = {
     combinePublicKeySignature,
     TransactionSigningRequest,
     signRawTransaction,
+    sign,
+    verify,
     packMethodData,
     unpackMethodData,
     packCreateContractData,
