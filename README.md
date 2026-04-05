@@ -1,4 +1,4 @@
-﻿<a name="module_quantum-coin-js-sdk"></a> 
+<a name="module_quantum-coin-js-sdk"></a>
 
 ## quantum-coin-js-sdk
 Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.
@@ -143,6 +143,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~toUint8Array(key)](#module_quantum-coin-js-sdk..toUint8Array) ΓçÆ <code>Uint8Array</code>
     * [~newWallet(keyType)](#module_quantum-coin-js-sdk..newWallet) ΓçÆ <code>Wallet</code> \| <code>number</code>
     * [~newWalletSeed(keyType)](#module_quantum-coin-js-sdk..newWalletSeed) ΓçÆ <code>array</code> \| <code>number</code> \| <code>null</code>
+    * [~openWalletFromSeed(seedArray)](#module_quantum-coin-js-sdk..openWalletFromSeed) ΓçÆ <code>Wallet</code> \| <code>number</code>
     * [~openWalletFromSeedWords(seedWordList)](#module_quantum-coin-js-sdk..openWalletFromSeedWords) ΓçÆ <code>Wallet</code> \| <code>number</code>
     * [~deserializeEncryptedWallet(walletJsonString, passphrase)](#module_quantum-coin-js-sdk..deserializeEncryptedWallet) ΓçÆ <code>Wallet</code>
     * [~serializeEncryptedWallet(wallet, passphrase)](#module_quantum-coin-js-sdk..serializeEncryptedWallet) ΓçÆ <code>string</code>
@@ -1187,6 +1188,19 @@ The newWalletSeed function creates a new Wallet seed word list. The return array
 | Param | Type | Description |
 | --- | --- | --- |
 | keyType | <code>number</code> \| <code>null</code> | Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3. |
+
+<a name="module_quantum-coin-js-sdk..openWalletFromSeed"></a>
+
+### quantum-coin-js-sdk~openWalletFromSeed(seedArray) ΓçÆ <code>Wallet</code> \| <code>number</code>
+The openWalletFromSeed function creates a wallet from a raw seed byte array.
+Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Wallet</code> \| <code>number</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| seedArray | <code>Array.&lt;number&gt;</code> \| <code>Uint8Array</code> | The raw seed bytes. Length 96, 72, or 64 depending on scheme. |
 
 <a name="module_quantum-coin-js-sdk..openWalletFromSeedWords"></a>
 

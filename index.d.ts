@@ -665,6 +665,15 @@ export class AccountTransactionCompact {
  */
 export function newWalletSeed(keyType: number | null): any[] | number | null;
 /**
+ * The openWalletFromSeed function creates a wallet from a raw seed byte array.
+ * Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
+ *
+ * @function openWalletFromSeed
+ * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length 96, 72, or 64 depending on scheme.
+ * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ */
+export function openWalletFromSeed(seedArray: Array<number> | Uint8Array): Wallet | number;
+/**
  * The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
  * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *

@@ -1044,6 +1044,61 @@ function newWalletSeed(keyType) {
 }
 
 /**
+ * The openWalletFromSeed function creates a wallet from a raw seed byte array.
+ * Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
+ *
+ * @function openWalletFromSeed
+ * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length 96, 72, or 64 depending on scheme.
+ * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ */
+function openWalletFromSeed(seedArray) {
+    if (isInitialized === false) {
+        return -1000;
+    }
+    if (seedArray == null || typeof seedArray.length !== 'number') {
+        return null;
+    }
+    const len = seedArray.length;
+    if (len !== BASE_SEED_BYTES_HYBRIDEDS && len !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5 && len !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA) {
+        return null;
+    }
+    if (circl == null) {
+        return null;
+    }
+    let expandedRes;
+    let keyPairRes;
+    const seedU8 = seedArray instanceof Uint8Array ? seedArray : new Uint8Array(seedArray);
+    if (len === BASE_SEED_BYTES_HYBRIDEDS) {
+        const ns = circl.hybrideds;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    } else if (len === BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5) {
+        const ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    } else {
+        const ns = circl.hybridedmldsaslhdsa;
+        if (!ns) return null;
+        expandedRes = ns.expandSeed(seedU8);
+        if (expandedRes && expandedRes.error) return null;
+        if (!expandedRes || !expandedRes.result) return null;
+        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
+    }
+    if (keyPairRes && keyPairRes.error) return null;
+    if (!keyPairRes || !keyPairRes.result || !keyPairRes.result.publicKey || !keyPairRes.result.privateKey) return null;
+    const publicKey = keyPairRes.result.publicKey instanceof Uint8Array ? Array.from(keyPairRes.result.publicKey) : keyPairRes.result.publicKey;
+    const privateKey = keyPairRes.result.privateKey instanceof Uint8Array ? Array.from(keyPairRes.result.privateKey) : keyPairRes.result.privateKey;
+    const address = PublicKeyToAddress(publicKey);
+    return new Wallet(address, privateKey, publicKey);
+}
+
+/**
  * The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
  * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *
@@ -1066,43 +1121,7 @@ function openWalletFromSeedWords(seedWordList) {
     if (seedArray == null || seedArray.length == null) {
         return null;
     }
-    if (circl == null) {
-        return null;
-    }
-    let expandedRes;
-    let keyPairRes;
-    const seedU8 = seedArray instanceof Uint8Array ? seedArray : new Uint8Array(seedArray);
-    if (len === SEED_WORD_LIST_LENGTH_HYBRIDEDS) {
-        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDS) return null;
-        const ns = circl.hybrideds;
-        if (!ns) return null;
-        expandedRes = ns.expandSeed(seedU8);
-        if (expandedRes && expandedRes.error) return null;
-        if (!expandedRes || !expandedRes.result) return null;
-        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
-    } else if (len === SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA5) {
-        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5) return null;
-        const ns = circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5;
-        if (!ns) return null;
-        expandedRes = ns.expandSeed(seedU8);
-        if (expandedRes && expandedRes.error) return null;
-        if (!expandedRes || !expandedRes.result) return null;
-        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
-    } else {
-        if (seedArray.length !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA) return null;
-        const ns = circl.hybridedmldsaslhdsa;
-        if (!ns) return null;
-        expandedRes = ns.expandSeed(seedU8);
-        if (expandedRes && expandedRes.error) return null;
-        if (!expandedRes || !expandedRes.result) return null;
-        keyPairRes = ns.newKeyFromSeed(expandedRes.result);
-    }
-    if (keyPairRes && keyPairRes.error) return null;
-    if (!keyPairRes || !keyPairRes.result || !keyPairRes.result.publicKey || !keyPairRes.result.privateKey) return null;
-    const publicKey = keyPairRes.result.publicKey instanceof Uint8Array ? Array.from(keyPairRes.result.publicKey) : keyPairRes.result.publicKey;
-    const privateKey = keyPairRes.result.privateKey instanceof Uint8Array ? Array.from(keyPairRes.result.privateKey) : keyPairRes.result.privateKey;
-    const address = PublicKeyToAddress(publicKey);
-    return new Wallet(address, privateKey, publicKey);
+    return openWalletFromSeed(seedArray);
 }
 
 /**
@@ -2982,6 +3001,7 @@ module.exports = {
     ListAccountTransactionsResponse, 
     AccountTransactionCompact,
     newWalletSeed,
+    openWalletFromSeed,
     openWalletFromSeedWords,
     publicKeyFromSignature,
     publicKeyFromPrivateKey,
