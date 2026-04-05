@@ -237,6 +237,90 @@ describe('non-transactional', () => {
     assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS_36);
   });
 
+  // --- openWalletFromSeed tests (raw seed byte arrays) ---
+
+  // Hardcoded seed byte arrays derived from TEST_SEED_WORDS via seed-words.getSeedArrayFromWordList
+  const TEST_SEED_ARRAY_48 = [49,159,218,142,198,66,182,182,73,216,5,119,6,71,216,42,164,55,124,237,92,81,228,227,156,0,38,189,152,58,215,177,80,252,71,86,51,210,70,33,106,200,184,26,246,139,249,41,191,104,163,253,21,26,43,108,146,94,243,204,112,236,219,139,218,249,224,255,76,150,203,7,108,119,101,70,217,112,225,190,112,169,98,168,104,223,14,235,161,192,118,167,128,203,76,59];
+  const TEST_SEED_ARRAY_32 = [49,159,218,142,198,66,182,182,73,216,5,119,6,71,216,42,164,55,124,237,92,81,228,227,156,0,38,189,152,58,215,177,80,252,71,86,51,210,70,33,106,200,184,26,246,139,249,41,191,104,163,253,21,26,43,108,146,94,243,204,112,236,219,139];
+  const TEST_SEED_ARRAY_36 = [49,159,218,142,198,66,182,182,73,216,5,119,6,71,216,42,164,55,124,237,92,81,228,227,156,0,38,189,152,58,215,177,80,252,71,86,51,210,70,33,106,200,184,26,246,139,249,41,191,104,163,253,21,26,43,108,146,94,243,204,112,236,219,139,218,249,224,255,76,150,203,7];
+
+  test('openWalletFromSeed: 96-byte seed produces expected address (hybrideds)', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_48);
+    assert.ok(wallet, 'openWalletFromSeed should return a wallet for 96-byte seed');
+    assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS);
+    assert.equal(qcsdk.verifyWallet(wallet), true);
+    assert.equal(qcsdk.isAddressValid(wallet.address), true);
+  });
+
+  test('openWalletFromSeed: 64-byte seed produces expected address (hybrid)', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet, 'openWalletFromSeed should return a wallet for 64-byte seed');
+    assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS_32);
+    assert.equal(qcsdk.verifyWallet(wallet), true);
+    assert.equal(qcsdk.isAddressValid(wallet.address), true);
+  });
+
+  test('openWalletFromSeed: 72-byte seed produces expected address (hybrid5)', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_36);
+    assert.ok(wallet, 'openWalletFromSeed should return a wallet for 72-byte seed');
+    assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS_36);
+    assert.equal(qcsdk.verifyWallet(wallet), true);
+    assert.equal(qcsdk.isAddressValid(wallet.address), true);
+  });
+
+  test('openWalletFromSeed: matches openWalletFromSeedWords for all three schemes', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    for (const [seedArray, seedWords] of [
+      [TEST_SEED_ARRAY_48, TEST_SEED_WORDS],
+      [TEST_SEED_ARRAY_32, TEST_SEED_WORDS_32],
+      [TEST_SEED_ARRAY_36, TEST_SEED_WORDS_36],
+    ]) {
+      const fromSeed = qcsdk.openWalletFromSeed(seedArray);
+      const fromWords = qcsdk.openWalletFromSeedWords(seedWords);
+      assert.ok(fromSeed, 'openWalletFromSeed should return a wallet');
+      assert.ok(fromWords, 'openWalletFromSeedWords should return a wallet');
+      assert.equal(fromSeed.address.toLowerCase(), fromWords.address.toLowerCase());
+    }
+  });
+
+  test('openWalletFromSeed: accepts Uint8Array input', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.openWalletFromSeed(new Uint8Array(TEST_SEED_ARRAY_48));
+    assert.ok(wallet, 'openWalletFromSeed should accept Uint8Array');
+    assert.equal(wallet.address.toLowerCase(), TEST_SEED_ADDRESS);
+  });
+
+  test('openWalletFromSeed: null input returns null', () => {
+    assert.equal(qcsdk.openWalletFromSeed(null), null);
+  });
+
+  test('openWalletFromSeed: undefined input returns null', () => {
+    assert.equal(qcsdk.openWalletFromSeed(undefined), null);
+  });
+
+  test('openWalletFromSeed: empty array returns null', () => {
+    assert.equal(qcsdk.openWalletFromSeed([]), null);
+  });
+
+  test('openWalletFromSeed: wrong length array returns null', () => {
+    assert.equal(qcsdk.openWalletFromSeed([1, 2, 3, 4, 5]), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(63).fill(0)), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(65).fill(0)), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(71).fill(0)), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(73).fill(0)), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(95).fill(0)), null);
+    assert.equal(qcsdk.openWalletFromSeed(new Array(97).fill(0)), null);
+  });
+
+  test('openWalletFromSeed: non-array input returns null', () => {
+    assert.equal(qcsdk.openWalletFromSeed('not an array'), null);
+    assert.equal(qcsdk.openWalletFromSeed(12345), null);
+    assert.equal(qcsdk.openWalletFromSeed({}), null);
+  });
+
   // Hardcoded encrypted wallet JSON (from openWalletFromSeedWords + serializeEncryptedWallet with SEED_WALLET_TEST_PASSPHRASE).
   // Deserialize and verify addresses match. Uses fixtures in tests/ (encrypted-48.json, encrypted-32.json, encrypted-36.json).
   test('seed words: deserializeEncryptedWallet from serialized 48/32/36 seed wallets — addresses match', () => {
