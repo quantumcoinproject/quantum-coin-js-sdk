@@ -1281,6 +1281,58 @@ describe('non-transactional', () => {
     assert.notEqual(signRawBad.resultCode, 0);
   });
 
+  // ---------------------------------------------------------------------------
+  // Security-fix negative coverage
+  // ---------------------------------------------------------------------------
+
+  test('security: deserializeWallet returns null on malformed JSON (no thrown exception)', () => {
+    const garbage = [
+      '{bad json',
+      '',
+      'null',
+      '42',
+      '{"address":"abc"',
+      undefined,
+    ];
+    for (const input of garbage) {
+      const result = qcsdk.deserializeWallet(input);
+      assert.ok(
+        result === null || result === -1000,
+        `deserializeWallet(${JSON.stringify(input)}) should return null or -1000, got ${result}`,
+      );
+    }
+  });
+
+  test('security: signRawTransaction rejects invalid hex in valueInWei', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.newWallet();
+    const txReq = new qcsdk.TransactionSigningRequest(
+      wallet, TO_ADDRESS_EXAMPLE, '0xZZZZ', 0, null, 21000, null, MAINNET_CHAIN_ID,
+    );
+    const res = qcsdk.signRawTransaction(txReq);
+    assert.equal(res.resultCode, -903, 'invalid hex valueInWei must return -903');
+  });
+
+  test('security: signRawTransaction rejects invalid hex in data', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.newWallet();
+    const txReq = new qcsdk.TransactionSigningRequest(
+      wallet, TO_ADDRESS_EXAMPLE, '0x0', 0, '0xGGGG', 21000, null, MAINNET_CHAIN_ID,
+    );
+    const res = qcsdk.signRawTransaction(txReq);
+    assert.equal(res.resultCode, -906, 'invalid hex data must return -906');
+  });
+
+  test('security: signRawTransaction rejects invalid hex in remarks', () => {
+    assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded');
+    const wallet = qcsdk.newWallet();
+    const txReq = new qcsdk.TransactionSigningRequest(
+      wallet, TO_ADDRESS_EXAMPLE, '0x0', 0, null, 21000, '0xZZZZ', MAINNET_CHAIN_ID,
+    );
+    const res = qcsdk.signRawTransaction(txReq);
+    assert.equal(res.resultCode, -909, 'invalid hex remarks must return -909');
+  });
+
   test('relay read-only APIs: getLatestBlockDetails/getAccountDetails/listAccountTransactions/getTransactionDetails', async () => {
     const latest = await qcsdk.getLatestBlockDetails();
     assert.ok(latest);
