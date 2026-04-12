@@ -56,6 +56,7 @@ const BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA = 64;
 const MIN_PASSPHRASE_LENGTH = 12;
 const INVALID_KEY_TYPE = -1001;
 const CIRCL_CRYPTO_FAILURE = -1002;
+const EXPECTED_WASM_SHA256 = "bcab6389db37af9cc6538fb54a872f416131392d3ad5ea23a0969d8aac3b1c85";
 
 /**
  * @class
@@ -849,6 +850,10 @@ function isLargeNumber(val) {
     return false;
 }
 
+function getGlobalObject() {
+    return (typeof globalThis !== 'undefined' ? globalThis : typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this);
+}
+
 async function InitAccountsWebAssembly() {
     const go = new global.Go();
     let mod, inst;
@@ -859,14 +864,75 @@ async function InitAccountsWebAssembly() {
         throw new Error("Error parsing base64");
     }
     const wasmBytes = Uint8Array.from(atob(base64wasm), c => c.charCodeAt(0));
+
+    const hashHex = crypto.createHash('sha256').update(wasmBytes).digest('hex');
+    if (hashHex !== EXPECTED_WASM_SHA256) {
+        throw new Error("WASM integrity check failed");
+    }
+
+    const g = getGlobalObject();
+    if (g) {
+        delete g.circl;
+    }
+
     let result = await WebAssembly.instantiate(wasmBytes, go.importObject);
     mod = result.module;
     inst = result.instance;
     go.run(inst);
-    const g = (typeof globalThis !== 'undefined' ? globalThis : typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this);
+
     if (g && g.circl) {
         circl = g.circl;
+        delete g.circl;
+        if (circl.hybridedmldsaslhdsa) Object.freeze(circl.hybridedmldsaslhdsa);
+        if (circl.hybridedmldsaslhdsa5) Object.freeze(circl.hybridedmldsaslhdsa5);
+        if (circl.hybridedmldsaslhds5) Object.freeze(circl.hybridedmldsaslhds5);
+        if (circl.hybrideds) Object.freeze(circl.hybrideds);
+        Object.freeze(circl);
     }
+}
+
+function validateCryptoRandom() {
+    if (!circl || !circl.cryptoRandom) {
+        return false;
+    }
+
+    const sampleSize = 64;
+    const res1 = circl.cryptoRandom(sampleSize);
+    const res2 = circl.cryptoRandom(sampleSize);
+
+    if (!res1 || res1.error || !res1.result || res1.result.length !== sampleSize) {
+        return false;
+    }
+    if (!res2 || res2.error || !res2.result || res2.result.length !== sampleSize) {
+        return false;
+    }
+
+    const a = res1.result instanceof Uint8Array ? res1.result : new Uint8Array(res1.result);
+    const b = res2.result instanceof Uint8Array ? res2.result : new Uint8Array(res2.result);
+
+    let identical = true;
+    for (let i = 0; i < sampleSize; i++) {
+        if (a[i] !== b[i]) { identical = false; break; }
+    }
+    if (identical) {
+        return false;
+    }
+
+    let aAllZero = true, bAllZero = true;
+    for (let i = 0; i < sampleSize; i++) {
+        if (a[i] !== 0) aAllZero = false;
+        if (b[i] !== 0) bAllZero = false;
+    }
+    if (aAllZero || bAllZero) {
+        return false;
+    }
+
+    const seen = new Set(a);
+    if (seen.size < 48) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -887,7 +953,10 @@ async function initialize(clientConfig) {
     if (clientConfig.readUrl === null || clientConfig.writeUrl === null || clientConfig.chainId === null) {
         return false;
     }
-    await InitAccountsWebAssembly();    
+    await InitAccountsWebAssembly();
+    if (!validateCryptoRandom()) {
+        throw new Error("CSPRNG validation failed");
+    }
     config = clientConfig;
     isInitialized = await seedwords.initialize();
 
@@ -1123,7 +1192,7 @@ function openWalletFromSeedWords(seedWordList) {
         return null;
     }
     const seedArray = seedwords.getSeedArrayFromWordList(seedWordList);
-    if (seedArray == null || seedArray.length == null) {
+    if (seedArray == null || seedArray.length === undefined) {
         return null;
     }
     return openWalletFromSeed(seedArray);
@@ -1139,26 +1208,22 @@ function openWalletFromSeedWords(seedWordList) {
  */
 function deserializeEncryptedWallet(walletJsonString, passphrase) {
     if (isInitialized === false) {
-        console.error('deserializeEncryptedWallet: SDK not initialized');
         return -1000;
     }
 
     if (walletJsonString == null || passphrase == null) {
-        console.error('deserializeEncryptedWallet: walletJsonString or passphrase is null');
         return null;
     }
 
     if (typeof walletJsonString === 'string' || walletJsonString instanceof String) {
 
     } else {
-        console.error('deserializeEncryptedWallet: walletJsonString is not a string');
         return null;
     }
 
     if (typeof passphrase === 'string' || passphrase instanceof String) {
 
     } else {
-        console.error('deserializeEncryptedWallet: passphrase is not a string');
         return null;
     }
 
@@ -1166,29 +1231,24 @@ function deserializeEncryptedWallet(walletJsonString, passphrase) {
     try {
         walletJsonObj = JSON.parse(walletJsonString);
     } catch (e) {
-        console.error('deserializeEncryptedWallet: JSON parse failed', e.message);
         return null;
     }
 
     if (walletJsonObj == null) {
-        console.error('deserializeEncryptedWallet: parsed JSON is null');
         return null;
     }
 
     if (walletJsonObj.address == null) {
-        console.error('deserializeEncryptedWallet: wallet JSON missing address');
         return null;
     }
 
     let keyPairString = JsonToWalletKeyPair(walletJsonString, passphrase);
     if (keyPairString == null) {
-        console.error('deserializeEncryptedWallet: failed to derive key pair (wrong passphrase or invalid crypto)');
         return null;
     }
 
     let keyPairSplit = keyPairString.split(",");
     if (keyPairSplit.length < 2) {
-        console.error('deserializeEncryptedWallet: key pair format invalid');
         return null;
     }
 
@@ -1200,20 +1260,17 @@ function deserializeEncryptedWallet(walletJsonString, passphrase) {
     }
     let address = PublicKeyToAddress(publicKeyArray);
     if (address == null) {
-        console.error('deserializeEncryptedWallet: failed to derive address from public key');
         return null;
     }
 
     if (typeof address === 'string' || address instanceof String) {
 
     } else {
-        console.error('deserializeEncryptedWallet: address is not a string');
         return null;
     }
 
     let addressCheck = "0x" + walletJsonObj.address.toLowerCase();
-    if (addressCheck != address.toLowerCase()) {
-        console.error('deserializeEncryptedWallet: address mismatch with wallet JSON');
+    if (addressCheck !== address.toLowerCase()) {
         return null;
     }
 
@@ -1263,7 +1320,7 @@ function serializeEncryptedWallet(wallet, passphrase) {
 
     let walletJson = JSON.parse(walletJsonString);
     let addressCheck = "0x" + walletJson.address;
-    if (addressCheck.toLowerCase() != wallet.address.toLowerCase()) {
+    if (addressCheck.toLowerCase() !== wallet.address.toLowerCase()) {
         return null;
     }
 
@@ -1341,43 +1398,34 @@ function isByteArray(array) {
  */
 function verifyWallet(wallet) {
     if (isInitialized === false) {
-        console.log('[verifyWallet] FAIL: not initialized');
         return -1000;
     }
     if (wallet === null || wallet.address === null || wallet.privateKey === null || wallet.publicKey === null) {
-        console.log('[verifyWallet] FAIL: wallet or wallet.address/privateKey/publicKey is null');
         return false;
     }
     if (isAddressValid(wallet.address) === false) {
-        console.log('[verifyWallet] FAIL: isAddressValid(wallet.address) === false');
         return false;
     }
     if (isByteArray(wallet.privateKey) === false) {
-        console.log('[verifyWallet] FAIL: isByteArray(wallet.privateKey) === false');
         return false;
     }
     if (isByteArray(wallet.publicKey) === false) {
-        console.log('[verifyWallet] FAIL: isByteArray(wallet.publicKey) === false');
         return false;
     }
     const keyType = getKeyTypeFromPrivateKey(wallet.privateKey);
     if (keyType == null) {
-        console.log('[verifyWallet] FAIL: getKeyTypeFromPrivateKey returned null (privateKey.length=' + wallet.privateKey.length + ', circl.hybridedmldsaslhdsa.PrivateKeySize=' + (circl && circl.hybridedmldsaslhdsa ? circl.hybridedmldsaslhdsa.PrivateKeySize : 'N/A') + ', hybrid5.PrivateKeySize=' + (circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5) ? (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5).PrivateKeySize : 'N/A') + ')');
         return false;
     }
     const hybridNs = circl && circl.hybridedmldsaslhdsa;
     const hybrid5Ns = circl && (circl.hybridedmldsaslhdsa5 || circl.hybridedmldsaslhds5);
     if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs && wallet.privateKey.length !== hybridNs.PrivateKeySize) {
-        console.log('[verifyWallet] FAIL: keyType 3 but privateKey.length !== hybridNs.PrivateKeySize');
         return false;
     }
     if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns && wallet.privateKey.length !== hybrid5Ns.PrivateKeySize) {
-        console.log('[verifyWallet] FAIL: keyType 5 but privateKey.length !== hybrid5Ns.PrivateKeySize');
         return false;
     }
     const address = PublicKeyToAddress(wallet.publicKey);
     if (address !== wallet.address) {
-        console.log('[verifyWallet] FAIL: PublicKeyToAddress(wallet.publicKey) !== wallet.address');
         return false;
     }
     const message = new TextEncoder().encode("verifyverifyverifyverifyverifyok");
@@ -1388,27 +1436,22 @@ function verifyWallet(wallet) {
     if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA && hybridNs) {
         sigRes = hybridNs.sign(privU8, message);
         if (sigRes && sigRes.error) {
-            console.log('[verifyWallet] FAIL: hybridNs.sign returned error:', sigRes.error);
             return false;
         }
         verRes = hybridNs.verify(pubU8, message, sigRes.result);
     } else if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5 && hybrid5Ns) {
         sigRes = hybrid5Ns.sign(privU8, message);
         if (sigRes && sigRes.error) {
-            console.log('[verifyWallet] FAIL: hybrid5Ns.sign returned error:', sigRes.error);
             return false;
         }
         verRes = hybrid5Ns.verify(pubU8, message, sigRes.result);
     } else {
-        console.log('[verifyWallet] FAIL: no CIRCL namespace for keyType (keyType=' + keyType + ', hybridNs=' + !!hybridNs + ', hybrid5Ns=' + !!hybrid5Ns + ')');
         return false;
     }
     if (verRes && verRes.error) {
-        console.log('[verifyWallet] FAIL: verify returned error:', verRes.error);
         return false;
     }
     if (!(verRes && verRes.result === true)) {
-        console.log('[verifyWallet] FAIL: verRes.result !== true (verRes=', verRes, ')');
         return false;
     }
     return true;
@@ -1455,7 +1498,12 @@ function deserializeWallet(walletJson) {
         return -1000;
     }
 
-    var tempWallet = JSON.parse(walletJson);
+    var tempWallet;
+    try {
+        tempWallet = JSON.parse(walletJson);
+    } catch (e) {
+        return null;
+    }
 
     var preExpansionSeed = null;
     if (tempWallet.preExpansionSeed != null && tempWallet.preExpansionSeed.length > 0) {
@@ -1464,7 +1512,7 @@ function deserializeWallet(walletJson) {
 
     var wallet = new Wallet(tempWallet.address, base64ToBytes(tempWallet.privateKey), base64ToBytes(tempWallet.publicKey), preExpansionSeed);
 
-    if (verifyWallet(wallet) == false) {
+    if (verifyWallet(wallet) === false) {
         return null;
     }
 
@@ -1513,7 +1561,6 @@ function transactionGetData(fromaddress, nonce, toaddress, amount, gas, chainid,
 function transactionGetSigningHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext) {
     let messageDataReturn = TxnSigningHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext);
     if (messageDataReturn && messageDataReturn.error) {
-        console.log('[transactionGetSigningHash2] FAIL: messageDataReturn returned error:', messageDataReturn.error);
         return null;
     }
     var messageData = messageDataReturn.result;
@@ -1537,7 +1584,6 @@ function transactionGetTransactionHash2(fromaddress, nonce, toaddress, valueInWe
     }
     var txnHashReturn = TxnHash2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
     if (txnHashReturn && txnHashReturn.error) {
-        console.log('[transactionGetTransactionHash2] FAIL: TxnHash2 returned error:', txnHashReturn.error);
         return null;
     }
     return txnHashReturn.result;
@@ -1556,7 +1602,6 @@ function transactionGetData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, 
     }
     var txnDataReturn = TxnData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, chainid, data, remarks, signingContext, typedPkArray, typedSigArray)
     if (txnDataReturn && txnDataReturn.error) {
-        console.log('[transactionGetData2] FAIL: TxnData2 returned error:', txnDataReturn.error);
         return null;
     }
     return txnDataReturn.result;
@@ -1604,7 +1649,7 @@ async function postTransaction(txnData) {
             return new SendResult(-601, null, null, requestId);
         }
 
-        if (response.status == 200 || response.status == 204) {
+        if (response.status === 200 || response.status === 204) {
             return new SendResult(0, null, response, requestId);
         }
 
@@ -1665,7 +1710,7 @@ async function getLatestBlockDetails() {
         }
 
         let blockNumber = parseInt(result.blockNumber);
-        if (Number.isInteger(blockNumber) == false) {
+        if (Number.isInteger(blockNumber) === false) {
             return new LatestBlockDetailsResult(-105, null, response, requestId);
         }
 
@@ -1692,7 +1737,7 @@ async function getAccountDetails(address) {
     if (address == null) {
         return new AccountDetailsResult(-200, null, null, null);
     }
-    if (isAddressValid(address) == false) {
+    if (isAddressValid(address) === false) {
         return new AccountDetailsResult(-201, null, null, null);
     }
 
@@ -1737,7 +1782,7 @@ async function getAccountDetails(address) {
         }
 
         let blockNumber = parseInt(result.blockNumber);
-        if (Number.isInteger(blockNumber) == false) {
+        if (Number.isInteger(blockNumber) === false) {
             return new AccountDetailsResult(-207, null, response, requestId);
         }
 
@@ -1745,7 +1790,7 @@ async function getAccountDetails(address) {
             nonce = 0;
         } else {
             let tempNonce = parseInt(result.nonce);
-            if (Number.isInteger(tempNonce) == true) {
+            if (Number.isInteger(tempNonce) === true) {
                 nonce = tempNonce;
                 if (nonce < 0) {
                     return new AccountDetailsResult(-208, null, response, requestId);
@@ -1756,7 +1801,7 @@ async function getAccountDetails(address) {
         }
 
         if (result.balance != null) {
-            if (isLargeNumber(result.balance) == false) {
+            if (isLargeNumber(result.balance) === false) {
                 return new AccountDetailsResult(-210, null, response, requestId);
             } else {
                 balance = result.balance;
@@ -1767,7 +1812,7 @@ async function getAccountDetails(address) {
         return new AccountDetailsResult(0, accountDetails, response, requestId);
 
      } catch (error) {
-        return new AccountDetailsResult(0, null, null, requestId, error);
+        return new AccountDetailsResult(-10000, null, null, requestId, error);
     }
 }
 
@@ -1791,7 +1836,7 @@ async function getTransactionDetails(txnHash) {
     if (txnHash == null) {
         return new TransactionDetailsResult(-300, null, null, null);
     }
-    if (isAddressValid(txnHash) == false) {
+    if (isAddressValid(txnHash) === false) {
         return new TransactionDetailsResult(-301, null, null, null);
     }
 
@@ -1833,7 +1878,7 @@ async function getTransactionDetails(txnHash) {
 
         if (result.blockNumber !== null) {
             let tempBlockNumber = parseInt(result.blockNumber);
-            if (Number.isInteger(tempBlockNumber) == true) {
+            if (Number.isInteger(tempBlockNumber) === true) {
                 transactionDetails.blockNumber = tempBlockNumber;
             }
             if (tempBlockNumber < 0) {
@@ -1863,7 +1908,7 @@ async function getTransactionDetails(txnHash) {
         
         return new TransactionDetailsResult(0, transactionDetails, response, requestId);
     } catch (error) {
-        return new TransactionDetailsResult(0, null, null, requestId, error);
+        return new TransactionDetailsResult(-10000, null, null, requestId, error);
     }
 }
 
@@ -1960,7 +2005,7 @@ async function listAccountTransactions(address, pageNumber) {
 
         return new AccountTransactionsResult(0, listAccountDetailsResponse, response, requestId);
     } catch (error) {
-        return new AccountTransactionsResult(0, null, null, requestId, error);
+        return new AccountTransactionsResult(-10000, null, null, requestId, error);
     }
 }
 
@@ -1987,20 +2032,20 @@ async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
         return new SignResult(-500, null, null);
     }
 
-    if (isAddressValid(toAddress) == false) {
+    if (isAddressValid(toAddress) === false) {
         return new SignResult(-501, null, null);
     }
 
-    if (verifyWallet(wallet) == false) {
+    if (verifyWallet(wallet) === false) {
         return new SignResult(-502, null, null);
     }
 
-    if (isLargeNumber(coins) == false) {
+    if (isLargeNumber(coins) === false) {
         return new SignResult(-503, null, null);
     }
 
     let tempNonce = parseInt(nonce);
-    if (Number.isInteger(tempNonce) == false) {
+    if (Number.isInteger(tempNonce) === false) {
         return new SignResult(-504, null, null);
     }
     nonce = tempNonce;
@@ -2069,20 +2114,20 @@ async function signTransaction(wallet, toAddress, coins, nonce, data) {
         return new SignResult(-500, null, null);
     }
 
-    if (isAddressValid(toAddress) == false) {
+    if (isAddressValid(toAddress) === false) {
         return new SignResult(-501, null, null);
     }
 
-    if (verifyWallet(wallet) == false) {
+    if (verifyWallet(wallet) === false) {
         return new SignResult(-502, null, null);
     }
 
-    if (isLargeNumber(coins) == false) {
+    if (isLargeNumber(coins) === false) {
         return new SignResult(-503, null, null);
     }
 
     let tempNonce = parseInt(nonce);
-    if (Number.isInteger(tempNonce) == false) {
+    if (Number.isInteger(tempNonce) === false) {
         return new SignResult(-504, null, null);
     }
     nonce = tempNonce;
@@ -2143,6 +2188,10 @@ function hexStringToUint8Array(hex) {
         hex = hex.slice(2);
     }
 
+    if (/[^0-9a-fA-F]/.test(hex)) {
+        return new Uint8Array(0);
+    }
+
     // Ensure even length (pad with leading zero if needed)
     if (hex.length % 2 !== 0) {
         hex = '0' + hex;
@@ -2193,7 +2242,7 @@ function signRawTransaction(transactionSigningRequest) {
             // Convert BigInt to hex string
             valueInWeiHex = '0x' + transactionSigningRequest.valueInWei.toString(16);
         } else if (typeof transactionSigningRequest.valueInWei === 'string') {
-            if (transactionSigningRequest.valueInWei.startsWith('0x') === false) {
+            if (transactionSigningRequest.valueInWei.startsWith('0x') === false || /[^0-9a-fA-F]/.test(transactionSigningRequest.valueInWei.slice(2))) {
                 return new SignResult(-903, null, null);
             }
             valueInWeiHex = transactionSigningRequest.valueInWei;
@@ -2213,7 +2262,7 @@ function signRawTransaction(transactionSigningRequest) {
 
     let data = null;
     if (transactionSigningRequest.data !== null) {
-        if (typeof transactionSigningRequest.data !== 'string' || transactionSigningRequest.data.startsWith('0x') === false) {
+        if (typeof transactionSigningRequest.data !== 'string' || transactionSigningRequest.data.startsWith('0x') === false || /[^0-9a-fA-F]/.test(transactionSigningRequest.data.slice(2))) {
             return new SignResult(-906, null, null);
         }
         data = hexStringToUint8Array(transactionSigningRequest.data);
@@ -2230,7 +2279,7 @@ function signRawTransaction(transactionSigningRequest) {
 
     let remarks = null;
     if (transactionSigningRequest.remarks !== null) {
-        if (typeof transactionSigningRequest.remarks !== 'string' || transactionSigningRequest.remarks.startsWith('0x') === false) {
+        if (typeof transactionSigningRequest.remarks !== 'string' || transactionSigningRequest.remarks.startsWith('0x') === false || /[^0-9a-fA-F]/.test(transactionSigningRequest.remarks.slice(2))) {
             return new SignResult(-909, null, null);
         }
         remarks = hexStringToUint8Array(transactionSigningRequest.remarks);
@@ -2430,20 +2479,20 @@ async function sendCoins(wallet, toAddress, coins, nonce) {
         return new SendResult(-1, null, null, null);
     }
 
-    if (isAddressValid(toAddress) == false) {
+    if (isAddressValid(toAddress) === false) {
         return new SendResult(-2, null, null, null);
     }
 
-    if (verifyWallet(wallet) == false) {
+    if (verifyWallet(wallet) === false) {
         return new SendResult(-3, null, null, null);
     }
 
-    if (isLargeNumber(coins) == false) {
+    if (isLargeNumber(coins) === false) {
         return new SendResult(-4, null, null, null);
     }
 
     let tempNonce = parseInt(nonce);
-    if (Number.isInteger(tempNonce) == false) {
+    if (Number.isInteger(tempNonce) === false) {
         return new SendResult(-5, null, null, null);
     }
     nonce = tempNonce;
