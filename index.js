@@ -43,9 +43,6 @@ var circl = null;
 const DEFAULT_GAS = 21000;
 const API_KEY_HEADER_NAME = "X-API-KEY";
 const REQUEST_ID_HEADER_NAME = "X-REQUEST-ID";
-const CRYPTO_SEED_WORDS = 48;
-const CRYPTO_SEED_BYTES = 96;
-const CRYPTO_EXPANDED_SEED_BYTES = 160;
 
 // Key type and seed constants (CIRCL migration; see pqc-circl-migration.md)
 const KEY_TYPE_HYBRIDEDMLDSASLHDSA = 3;
@@ -56,7 +53,7 @@ const SEED_WORD_LIST_LENGTH_HYBRIDEDMLDSASLHDSA = 32;
 const BASE_SEED_BYTES_HYBRIDEDS = 96;
 const BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5 = 72;
 const BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA = 64;
-const CIRCL_CRYPTO_MSG_LENGTH = 32;
+const MIN_PASSPHRASE_LENGTH = 12;
 const INVALID_KEY_TYPE = -1001;
 const CIRCL_CRYPTO_FAILURE = -1002;
 
@@ -1236,7 +1233,7 @@ function serializeEncryptedWallet(wallet, passphrase) {
         return null;
     }
 
-    if (passphrase.length < 12) {
+    if (passphrase.length < MIN_PASSPHRASE_LENGTH) {
         return null;
     }
 
@@ -1249,6 +1246,45 @@ function serializeEncryptedWallet(wallet, passphrase) {
     }
 
     return walletJsonString;
+}
+
+/**
+ * The serializeSeedAsEncryptedWallet function encrypts a raw seed byte array into a wallet JSON string
+ * that can be opened with deserializeEncryptedWallet or Desktop/Mobile/Web/CLI wallet applications.
+ * The seed is stored in its pre-expansion form (version 5 wallet format). This function can take
+ * up to a minute or so to execute due to key derivation.
+ *
+ * @function serializeSeedAsEncryptedWallet
+ * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length must be 96, 72, or 64 depending on scheme.
+ * @param {string} passphrase - A passphrase used to encrypt the wallet. Must be at least 12 characters long.
+ * @return {string|number|null} Returns the encrypted wallet JSON string. Returns -1000 if not initialized, null if the operation failed.
+ */
+function serializeSeedAsEncryptedWallet(seedArray, passphrase) {
+    if (isInitialized === false) {
+        return -1000;
+    }
+    if (seedArray == null || typeof seedArray.length !== 'number') {
+        return null;
+    }
+    const len = seedArray.length;
+    if (len !== BASE_SEED_BYTES_HYBRIDEDS && len !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA5 && len !== BASE_SEED_BYTES_HYBRIDEDMLDSASLHDSA) {
+        return null;
+    }
+    if (passphrase == null) {
+        return null;
+    }
+    if (typeof passphrase !== 'string' && !(passphrase instanceof String)) {
+        return null;
+    }
+    if (passphrase.length < MIN_PASSPHRASE_LENGTH) {
+        return null;
+    }
+    const seedU8 = seedArray instanceof Uint8Array ? seedArray : new Uint8Array(seedArray);
+    const result = EncryptPreExpansionSeed(seedU8, passphrase);
+    if (result == null || result instanceof Error) {
+        return null;
+    }
+    return result;
 }
 
 function base64ToBytes(base64) {
@@ -2976,6 +3012,7 @@ module.exports = {
     serializeWallet,
     deserializeWallet,
     serializeEncryptedWallet,
+    serializeSeedAsEncryptedWallet,
     deserializeEncryptedWallet,
     verifyWallet,
     newWallet,
