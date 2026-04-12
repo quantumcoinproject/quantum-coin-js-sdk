@@ -33,6 +33,18 @@ export function deserializeWallet(walletJson: string): Wallet;
  */
 export function serializeEncryptedWallet(wallet: Wallet, passphrase: string): string;
 /**
+ * The serializeSeedAsEncryptedWallet function encrypts a raw seed byte array into a wallet JSON string
+ * that can be opened with deserializeEncryptedWallet or Desktop/Mobile/Web/CLI wallet applications.
+ * The seed is stored in its pre-expansion form (version 5 wallet format). This function can take
+ * up to a minute or so to execute due to key derivation.
+ *
+ * @function serializeSeedAsEncryptedWallet
+ * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length must be 96, 72, or 64 depending on scheme.
+ * @param {string} passphrase - A passphrase used to encrypt the wallet. Must be at least 12 characters long.
+ * @return {string|number|null} Returns the encrypted wallet JSON string. Returns -1000 if not initialized, null if the operation failed.
+ */
+export function serializeSeedAsEncryptedWallet(seedArray: Array<number> | Uint8Array, passphrase: string): string | number | null;
+/**
  * The deserializeEncryptedWallet function opens a wallet backed-up using an application such as the Desktop/Mobile/CLI/Web wallet. This function can take upto a minute or so to execute. You should open wallets only from trusted sources.
  *
  * @function deserializeEncryptedWallet
@@ -270,7 +282,7 @@ export class LatestBlockDetailsResult {
      * @type {Object}
      * @public
     */
-    public response: any;
+    public response: Object;
     /**
      * An unique id to represent the request. This can be null if request failed before it could be sent.
      * @type {string}
@@ -342,7 +354,7 @@ export class AccountDetailsResult {
      * @type {Object}
      * @public
     */
-    public response: any;
+    public response: Object;
     /**
      * An unique id to represent the request. This can be null if request failed before it could be sent.
      * @type {string}
@@ -381,7 +393,7 @@ export class SendResult {
      * @type {Object}
      * @public
     */
-    public response: any;
+    public response: Object;
     /**
      * An unique id to represent the request. This can be null if request failed before it could be sent.
      * @type {string}
@@ -539,7 +551,7 @@ export class TransactionDetailsResult {
      * @type {Object}
      * @public
     */
-    public response: any;
+    public response: Object;
     /**
      * An unique id to represent the request. This can be null if request failed before it could be sent.
      * @type {string}
@@ -578,7 +590,7 @@ export class AccountTransactionsResult {
      * @type {Object}
      * @public
     */
-    public response: any;
+    public response: Object;
     /**
      * An unique id to represent the request. This can be null if request failed before it could be sent.
      * @type {string}
@@ -663,7 +675,7 @@ export class AccountTransactionCompact {
  * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
  * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
  */
-export function newWalletSeed(keyType: number | null): any[] | number | null;
+export function newWalletSeed(keyType: number | null): array | number | null;
 /**
  * The openWalletFromSeed function creates a wallet from a raw seed byte array.
  * Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
@@ -681,7 +693,7 @@ export function openWalletFromSeed(seedArray: Array<number> | Uint8Array): Walle
  * @param {array} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
  * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
-export function openWalletFromSeedWords(seedWordList: any[]): Wallet | number;
+export function openWalletFromSeedWords(seedWordList: array): Wallet | number;
 /**
  * The publicKeyFromSignature extracts the public key from a signature.
  *
@@ -964,7 +976,7 @@ export class EventLogEncodeResult {
      * @param {string[]} result.topics - Array of topic hex strings (with 0x prefix)
      * @param {string} result.data - Hex-encoded data string (with 0x prefix)
      */
-    constructor(error: string, result: any | null);
+    constructor(error: string, result: Object | null);
     /**
      * Error message if any. Empty string if no error.
      * @type {string}
@@ -978,7 +990,7 @@ export class EventLogEncodeResult {
      * @property {string} data - Hex-encoded data string (with 0x prefix)
      * @public
      */
-    public result: any | null;
+    public result: Object | null;
 }
 /**
  * @class
