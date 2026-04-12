@@ -393,6 +393,172 @@ describe('non-transactional', () => {
     assert.equal(qcsdk.serializeSeedAsEncryptedWallet(TEST_SEED_ARRAY_32, 12345), null);
   });
 
+  // --- preExpansionSeed field tests ---
+
+  test('Wallet class: constructor without preExpansionSeed defaults to null', () => {
+    const w = new qcsdk.Wallet('0xabc', [1, 2], [3, 4]);
+    assert.equal(w.preExpansionSeed, null);
+  });
+
+  test('Wallet class: constructor with preExpansionSeed stores it', () => {
+    const seed = new Uint8Array([10, 20, 30]);
+    const w = new qcsdk.Wallet('0xabc', [1, 2], [3, 4], seed);
+    assert.ok(w.preExpansionSeed != null);
+    assert.equal(w.preExpansionSeed.length, 3);
+    assert.equal(w.preExpansionSeed[0], 10);
+  });
+
+  test('newWallet: wallet has preExpansionSeed === null', () => {
+    const w = qcsdk.newWallet();
+    assert.ok(w && typeof w === 'object');
+    assert.equal(w.preExpansionSeed, null);
+  });
+
+  test('openWalletFromSeed: 64-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 64);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeed: 72-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_36);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 72);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_36);
+    for (let i = 0; i < 72; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeed: 96-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_48);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 96);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_48);
+    for (let i = 0; i < 96; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeedWords: wallet has non-null preExpansionSeed', () => {
+    const wallet = qcsdk.openWalletFromSeedWords(TEST_SEED_WORDS);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 96);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (64-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 64);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (72-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_36);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 72);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_36);
+    for (let i = 0; i < 72; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (96-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_48);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 96);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_48);
+    for (let i = 0; i < 96; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: non-seed wallet has null preExpansionSeed and produces V4', () => {
+    const wallet = qcsdk.newWallet();
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 4, 'non-seed wallet should produce V4 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
+  test('serializeWallet/deserializeWallet roundtrip: seed wallet preserves preExpansionSeed', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeWallet(wallet);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.ok(parsed.preExpansionSeed, 'serialized JSON should contain preExpansionSeed field');
+    const restored = qcsdk.deserializeWallet(json);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 64);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeWallet/deserializeWallet roundtrip: non-seed wallet has null preExpansionSeed and no field in JSON', () => {
+    const wallet = qcsdk.newWallet();
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    const json = qcsdk.serializeWallet(wallet);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.preExpansionSeed, undefined, 'non-seed wallet JSON should not contain preExpansionSeed');
+    const restored = qcsdk.deserializeWallet(json);
+    assert.ok(restored);
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
+  test('backward compat: deserializeEncryptedWallet on V4 JSON (no seed) returns wallet with null preExpansionSeed', () => {
+    const wallet = qcsdk.deserializeEncryptedWallet(EXAMPLE_WALLET_ENCRYPTED_JSON, EXAMPLE_WALLET_PASSPHRASE);
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    assert.equal(qcsdk.verifyWallet(wallet), true);
+  });
+
+  test('backward compat: deserializeWallet on JSON without preExpansionSeed field returns null seed', () => {
+    const wallet = qcsdk.newWallet();
+    const jsonWithoutSeed = JSON.stringify({
+      address: wallet.address,
+      privateKey: Array.from(wallet.privateKey).map(b => String.fromCodePoint(b)).join(''),
+      publicKey: Array.from(wallet.publicKey).map(b => String.fromCodePoint(b)).join(''),
+    });
+    const w = qcsdk.newWallet();
+    const json = qcsdk.serializeWallet(w);
+    const parsed = JSON.parse(json);
+    delete parsed.preExpansionSeed;
+    const cleanJson = JSON.stringify(parsed);
+    const restored = qcsdk.deserializeWallet(cleanJson);
+    assert.ok(restored);
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
   // Hardcoded encrypted wallet JSON (from openWalletFromSeedWords + serializeEncryptedWallet with SEED_WALLET_TEST_PASSPHRASE).
   // Deserialize and verify addresses match. Uses fixtures in tests/ (encrypted-48.json, encrypted-32.json, encrypted-36.json).
   test('seed words: deserializeEncryptedWallet from serialized 48/32/36 seed wallets — addresses match', () => {
@@ -561,6 +727,491 @@ describe('non-transactional', () => {
     // Negative: invalid ABI
     const bad = qcsdk.decodeEventLog('not-json', 'Transfer', enc.result.topics, enc.result.data);
     assert.notEqual(bad.error, '');
+  });
+
+  // --- packCreateContractData tests (ported from Go main_test.go) ---
+
+  test('packCreateContractData: parameterless constructor', () => {
+    const abi = JSON.stringify([{
+      type: 'constructor',
+      inputs: [],
+      stateMutability: 'nonpayable',
+    }]);
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const result = qcsdk.packCreateContractData(abi, bytecode);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.toLowerCase().startsWith(bytecode.toLowerCase()));
+  });
+
+  test('packCreateContractData: constructor with uint256 params', () => {
+    const abi = JSON.stringify([{
+      type: 'constructor',
+      inputs: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+      ],
+      stateMutability: 'nonpayable',
+    }]);
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const result = qcsdk.packCreateContractData(abi, bytecode, '1', '2');
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.length > bytecode.length, 'result should be longer than bytecode alone');
+    assert.ok(result.result.toLowerCase().startsWith(bytecode.toLowerCase()));
+  });
+
+  test('packCreateContractData: constructor with address param', () => {
+    const abi = JSON.stringify([{
+      type: 'constructor',
+      inputs: [{ name: 'owner', type: 'address' }],
+      stateMutability: 'nonpayable',
+    }]);
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const ownerAddr = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const result = qcsdk.packCreateContractData(abi, bytecode, ownerAddr);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.length > bytecode.length);
+  });
+
+  test('packCreateContractData: constructor with uint256[] array param', () => {
+    const abi = JSON.stringify([{
+      type: 'constructor',
+      inputs: [{ name: 'values', type: 'uint256[]' }],
+      stateMutability: 'nonpayable',
+    }]);
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const result = qcsdk.packCreateContractData(abi, bytecode, ['100', '200', '300']);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.length > bytecode.length);
+  });
+
+  test('packCreateContractData: empty ABI JSON returns error', () => {
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const r1 = qcsdk.packCreateContractData('', bytecode);
+    assert.notEqual(r1.error, '');
+    const r2 = qcsdk.packCreateContractData('   ', bytecode);
+    assert.notEqual(r2.error, '');
+  });
+
+  test('packCreateContractData: empty bytecode returns error', () => {
+    const abi = JSON.stringify([{ type: 'constructor', inputs: [], stateMutability: 'nonpayable' }]);
+    const r1 = qcsdk.packCreateContractData(abi, '');
+    assert.notEqual(r1.error, '');
+    const r2 = qcsdk.packCreateContractData(abi, '   ');
+    assert.notEqual(r2.error, '');
+  });
+
+  test('packCreateContractData: invalid bytecode returns error', () => {
+    const abi = JSON.stringify([{ type: 'constructor', inputs: [], stateMutability: 'nonpayable' }]);
+    const result = qcsdk.packCreateContractData(abi, '0xinvalid');
+    assert.notEqual(result.error, '');
+  });
+
+  test('packCreateContractData: argument count mismatch returns error', () => {
+    const abi = JSON.stringify([{
+      type: 'constructor',
+      inputs: [
+        { name: 'a', type: 'uint256' },
+        { name: 'b', type: 'uint256' },
+      ],
+      stateMutability: 'nonpayable',
+    }]);
+    const bytecode = '0x6080604052348015600f57600080fd5b506004361060325760003560e01c8063';
+    const tooFew = qcsdk.packCreateContractData(abi, bytecode, '1');
+    assert.notEqual(tooFew.error, '');
+    const tooMany = qcsdk.packCreateContractData(abi, bytecode, '1', '2', '3');
+    assert.notEqual(tooMany.error, '');
+  });
+
+  // --- packMethodData / unpackMethodData extended tests (ported from Go) ---
+
+  test('packMethodData: zero-argument method (name())', () => {
+    const abi = JSON.stringify([{
+      name: 'name',
+      type: 'function',
+      inputs: [],
+      outputs: [{ name: '', type: 'string' }],
+      stateMutability: 'view',
+    }]);
+    const result = qcsdk.packMethodData(abi, 'name');
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.equal(result.result.length, 10, 'zero-arg method should produce 4-byte selector (0x + 8 hex chars)');
+  });
+
+  test('packMethodData: address[] argument', () => {
+    const abi = JSON.stringify([{
+      name: 'getAmountsIn',
+      type: 'function',
+      inputs: [
+        { name: 'amountOut', type: 'uint256' },
+        { name: 'path', type: 'address[]' },
+      ],
+      outputs: [{ name: 'amounts', type: 'uint256[]' }],
+      stateMutability: 'view',
+    }]);
+    const addr1 = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const addr2 = '0x0000000000000000000000000000000000000000000000000000000000000002';
+    const result = qcsdk.packMethodData(abi, 'getAmountsIn', '1000', [addr1, addr2]);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.length > 10);
+  });
+
+  test('packMethodData: uint256[] argument', () => {
+    const abi = JSON.stringify([{
+      name: 'batchTransfer',
+      type: 'function',
+      inputs: [{ name: 'amounts', type: 'uint256[]' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }]);
+    const result = qcsdk.packMethodData(abi, 'batchTransfer', ['100', '200', '300']);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+  });
+
+  test('packMethodData: mixed arguments (address, uint256, bool)', () => {
+    const abi = JSON.stringify([{
+      name: 'doSomething',
+      type: 'function',
+      inputs: [
+        { name: 'to', type: 'address' },
+        { name: 'amount', type: 'uint256' },
+        { name: 'flag', type: 'bool' },
+      ],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    }]);
+    const addr = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const result = qcsdk.packMethodData(abi, 'doSomething', addr, '500', true);
+    assert.equal(result.error, '');
+    assert.ok(isHex0x(result.result));
+    assert.ok(result.result.length > 10);
+  });
+
+  test('packMethodData: empty method name returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'getValue',
+      type: 'function',
+      inputs: [],
+      outputs: [{ name: '', type: 'uint256' }],
+    }]);
+    const r1 = qcsdk.packMethodData(abi, '');
+    assert.notEqual(r1.error, '');
+    const r2 = qcsdk.packMethodData(abi, '   ');
+    assert.notEqual(r2.error, '');
+  });
+
+  test('unpackMethodData: empty method name returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'getValue',
+      type: 'function',
+      inputs: [],
+      outputs: [{ name: '', type: 'uint256' }],
+    }]);
+    const r1 = qcsdk.unpackMethodData(abi, '', '0x00');
+    assert.notEqual(r1.error, '');
+    const r2 = qcsdk.unpackMethodData(abi, '   ', '0x00');
+    assert.notEqual(r2.error, '');
+  });
+
+  test('unpackMethodData: non-existent method returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'getValue',
+      type: 'function',
+      inputs: [],
+      outputs: [{ name: '', type: 'uint256' }],
+    }]);
+    const result = qcsdk.unpackMethodData(abi, 'nonExistentMethod', '0x00');
+    assert.notEqual(result.error, '');
+  });
+
+  test('unpackMethodData: invalid hex data returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'getValue',
+      type: 'function',
+      inputs: [],
+      outputs: [{ name: '', type: 'uint256' }],
+    }]);
+    const result = qcsdk.unpackMethodData(abi, 'getValue', 'invalid hex');
+    assert.notEqual(result.error, '');
+  });
+
+  test('packMethodData/unpackMethodData: offline roundtrip with balanceOf', () => {
+    const abi = JSON.stringify([{
+      name: 'balanceOf',
+      type: 'function',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ name: '', type: 'uint256' }],
+      stateMutability: 'view',
+    }]);
+    const addr = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const pack = qcsdk.packMethodData(abi, 'balanceOf', addr);
+    assert.equal(pack.error, '');
+    assert.ok(isHex0x(pack.result));
+    const returnData = '0x' + '00'.repeat(31) + '0a';
+    const unpack = qcsdk.unpackMethodData(abi, 'balanceOf', returnData);
+    assert.equal(unpack.error, '');
+    const parsed = JSON.parse(unpack.result);
+    assert.ok(Array.isArray(parsed));
+    assert.equal(parsed[0], '10');
+  });
+
+  // --- Event log encode/decode extended tests (ported from Go) ---
+
+  test('encodeEventLog: all-indexed event (Approval)', () => {
+    const abi = JSON.stringify([{
+      name: 'Approval',
+      type: 'event',
+      anonymous: false,
+      inputs: [
+        { name: 'owner', type: 'address', indexed: true },
+        { name: 'spender', type: 'address', indexed: true },
+        { name: 'value', type: 'uint256', indexed: true },
+      ],
+    }]);
+    const owner = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const spender = '0x0000000000000000000000000000000000000000000000000000000000000002';
+    const value = '1000000000000000000';
+    const enc = qcsdk.encodeEventLog(abi, 'Approval', owner, spender, value);
+    assert.equal(enc.error, '');
+    assert.equal(enc.result.topics.length, 4);
+    assert.equal(enc.result.data, '0x');
+  });
+
+  test('encodeEventLog: all-non-indexed event (Received)', () => {
+    const abi = JSON.stringify([{
+      name: 'Received',
+      type: 'event',
+      anonymous: false,
+      inputs: [
+        { name: 'sender', type: 'address', indexed: false },
+        { name: 'amount', type: 'uint256', indexed: false },
+      ],
+    }]);
+    const sender = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const amount = '1000000000000000000';
+    const enc = qcsdk.encodeEventLog(abi, 'Received', sender, amount);
+    assert.equal(enc.error, '');
+    assert.equal(enc.result.topics.length, 1);
+    assert.ok(enc.result.data !== '' && enc.result.data !== '0x');
+  });
+
+  test('encodeEventLog: anonymous event has no signature topic', () => {
+    const abi = JSON.stringify([{
+      name: 'AnonEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { name: 'value', type: 'uint256', indexed: true },
+      ],
+    }]);
+    const enc = qcsdk.encodeEventLog(abi, 'AnonEvent', '42');
+    assert.equal(enc.error, '');
+    assert.equal(enc.result.topics.length, 1, 'anonymous event should have only indexed param topics, no signature');
+  });
+
+  test('encodeEventLog: invalid event name returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [],
+    }]);
+    const enc = qcsdk.encodeEventLog(abi, 'NonExistentEvent');
+    assert.notEqual(enc.error, '');
+  });
+
+  test('encodeEventLog: argument count mismatch returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [
+        { name: 'from', type: 'address', indexed: true },
+        { name: 'to', type: 'address', indexed: true },
+      ],
+    }]);
+    const enc = qcsdk.encodeEventLog(abi, 'Transfer', '0x0000000000000000000000000000000000000000000000000000000000000001');
+    assert.notEqual(enc.error, '');
+  });
+
+  test('decodeEventLog: invalid event name returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [],
+    }]);
+    const dec = qcsdk.decodeEventLog(abi, 'NonExistentEvent', ['0x00'], '0x');
+    assert.notEqual(dec.error, '');
+  });
+
+  test('decodeEventLog: invalid topic signature returns error', () => {
+    const abi = JSON.stringify([{
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [
+        { name: 'from', type: 'address', indexed: true },
+      ],
+    }]);
+    const wrongTopics = [
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ];
+    const dec = qcsdk.decodeEventLog(abi, 'Transfer', wrongTopics, '0x');
+    assert.notEqual(dec.error, '');
+  });
+
+  test('encodeEventLog/decodeEventLog: complex roundtrip (2 indexed + 3 non-indexed)', () => {
+    const abi = JSON.stringify([{
+      name: 'ComplexEvent',
+      type: 'event',
+      anonymous: false,
+      inputs: [
+        { name: 'indexedAddr', type: 'address', indexed: true },
+        { name: 'indexedValue', type: 'uint256', indexed: true },
+        { name: 'nonIndexedAddr', type: 'address', indexed: false },
+        { name: 'nonIndexedValue', type: 'uint256', indexed: false },
+        { name: 'flag', type: 'bool', indexed: false },
+      ],
+    }]);
+    const indexedAddr = '0x0000000000000000000000000000000000000000000000000000000000000001';
+    const indexedValue = '1000000000000000000';
+    const nonIndexedAddr = '0x0000000000000000000000000000000000000000000000000000000000000002';
+    const nonIndexedValue = '2000000000000000000';
+    const flag = true;
+
+    const enc = qcsdk.encodeEventLog(abi, 'ComplexEvent', indexedAddr, indexedValue, nonIndexedAddr, nonIndexedValue, flag);
+    assert.equal(enc.error, '');
+    assert.equal(enc.result.topics.length, 3);
+    assert.ok(enc.result.data !== '0x');
+
+    const dec = qcsdk.decodeEventLog(abi, 'ComplexEvent', enc.result.topics, enc.result.data);
+    assert.equal(dec.error, '');
+    const decoded = JSON.parse(dec.result);
+    assert.equal(decoded.indexedAddr.toLowerCase(), indexedAddr.toLowerCase());
+    assert.equal(decoded.indexedValue, indexedValue);
+    assert.equal(decoded.nonIndexedAddr.toLowerCase(), nonIndexedAddr.toLowerCase());
+    assert.equal(decoded.nonIndexedValue, nonIndexedValue);
+    assert.equal(decoded.flag, true);
+  });
+
+  // --- RLP encode/decode extended tests (ported from Go) ---
+
+  test('encodeRlp/decodeRlp: string roundtrip', () => {
+    const enc = qcsdk.encodeRlp('hello');
+    assert.equal(enc.error, '');
+    assert.ok(isHex0x(enc.result));
+    const dec = qcsdk.decodeRlp(enc.result);
+    assert.equal(dec.error, '');
+  });
+
+  test('encodeRlp/decodeRlp: number roundtrip', () => {
+    const enc = qcsdk.encodeRlp(42);
+    assert.equal(enc.error, '');
+    assert.ok(isHex0x(enc.result));
+    const dec = qcsdk.decodeRlp(enc.result);
+    assert.equal(dec.error, '');
+  });
+
+  test('encodeRlp/decodeRlp: boolean roundtrip', () => {
+    const encTrue = qcsdk.encodeRlp(true);
+    assert.equal(encTrue.error, '');
+    assert.ok(isHex0x(encTrue.result));
+    const decTrue = qcsdk.decodeRlp(encTrue.result);
+    assert.equal(decTrue.error, '');
+
+    const encFalse = qcsdk.encodeRlp(false);
+    assert.equal(encFalse.error, '');
+    assert.ok(isHex0x(encFalse.result));
+    const decFalse = qcsdk.decodeRlp(encFalse.result);
+    assert.equal(decFalse.error, '');
+  });
+
+  test('encodeRlp/decodeRlp: hex string (0x48656c6c6f = "Hello")', () => {
+    const enc = qcsdk.encodeRlp('0x48656c6c6f');
+    assert.equal(enc.error, '');
+    assert.ok(isHex0x(enc.result));
+    const dec = qcsdk.decodeRlp(enc.result);
+    assert.equal(dec.error, '');
+  });
+
+  test('encodeRlp/decodeRlp: empty array', () => {
+    const enc = qcsdk.encodeRlp([]);
+    assert.equal(enc.error, '');
+    assert.ok(isHex0x(enc.result));
+    const dec = qcsdk.decodeRlp(enc.result);
+    assert.equal(dec.error, '');
+    const decoded = JSON.parse(dec.result);
+    assert.ok(Array.isArray(decoded));
+    assert.equal(decoded.length, 0);
+  });
+
+  test('encodeRlp/decodeRlp: nested array', () => {
+    const enc = qcsdk.encodeRlp([['inner', 1], 'outer']);
+    assert.equal(enc.error, '');
+    assert.ok(isHex0x(enc.result));
+    const dec = qcsdk.decodeRlp(enc.result);
+    assert.equal(dec.error, '');
+    const decoded = JSON.parse(dec.result);
+    assert.ok(Array.isArray(decoded));
+    assert.equal(decoded.length, 2);
+    assert.ok(Array.isArray(decoded[0]));
+  });
+
+  test('decodeRlp: empty string input returns error', () => {
+    const dec = qcsdk.decodeRlp('');
+    assert.notEqual(dec.error, '');
+  });
+
+  // --- createAddress / createAddress2 extended tests (ported from Go) ---
+
+  test('createAddress: different nonces produce different addresses', () => {
+    const w = qcsdk.newWallet();
+    const addresses = new Set();
+    for (let nonce = 0; nonce < 5; nonce++) {
+      const addr = qcsdk.createAddress(w.address, nonce);
+      assert.ok(addr && isHex0x(addr));
+      addresses.add(addr.toLowerCase());
+    }
+    assert.equal(addresses.size, 5, 'nonces 0-4 should produce 5 distinct addresses');
+  });
+
+  test('createAddress: different deployer addresses produce different contract addresses', () => {
+    const w1 = qcsdk.newWallet();
+    const w2 = qcsdk.newWallet();
+    const a1 = qcsdk.createAddress(w1.address, 0);
+    const a2 = qcsdk.createAddress(w2.address, 0);
+    assert.ok(a1 && a2);
+    assert.notEqual(a1.toLowerCase(), a2.toLowerCase());
+  });
+
+  test('createAddress2: different salts produce different addresses', () => {
+    const w = qcsdk.newWallet();
+    const initHash = '0x' + '11'.repeat(32);
+    const salt1 = '0x' + '01'.repeat(32);
+    const salt2 = '0x' + '02'.repeat(32);
+    const a1 = qcsdk.createAddress2(w.address, salt1, initHash);
+    const a2 = qcsdk.createAddress2(w.address, salt2, initHash);
+    assert.ok(a1 && a2);
+    assert.notEqual(a1.toLowerCase(), a2.toLowerCase());
+  });
+
+  test('createAddress2: different initHashes produce different addresses', () => {
+    const w = qcsdk.newWallet();
+    const salt = '0x' + '22'.repeat(32);
+    const initHash1 = '0x' + '11'.repeat(32);
+    const initHash2 = '0x' + '33'.repeat(32);
+    const a1 = qcsdk.createAddress2(w.address, salt, initHash1);
+    const a2 = qcsdk.createAddress2(w.address, salt, initHash2);
+    assert.ok(a1 && a2);
+    assert.notEqual(a1.toLowerCase(), a2.toLowerCase());
   });
 
   test('contract address calculation: createAddress + createAddress2 basic validity and determinism', () => {

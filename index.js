@@ -122,9 +122,10 @@ class Wallet {
      * Creates a Wallet class. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
      * @param {string} address - Address of the wallet
      * @param {number[]} privateKey - Private Key byte array of the wallet
-     * @param {number[]} publicKey - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
+     * @param {number[]} publicKey - Public Key byte array of the wallet
+     * @param {Uint8Array|number[]|null} [preExpansionSeed=null] - Optional pre-expansion seed bytes. Non-null only for seed-derived wallets.
      */
-    constructor(address, privateKey, publicKey) {
+    constructor(address, privateKey, publicKey, preExpansionSeed) {
 
         /**
          * Address of the wallet. Is 66 bytes in length including 0x (if the wallet is valid).
@@ -146,6 +147,13 @@ class Wallet {
          * @public
         */
         this.publicKey = publicKey;
+
+        /**
+         * Pre-expansion seed bytes. Can be null if the wallet was not created from a seed.
+         * @type {Uint8Array|number[]|null}
+         * @public
+        */
+        this.preExpansionSeed = preExpansionSeed || null;
     }
 }
 
@@ -1092,7 +1100,7 @@ function openWalletFromSeed(seedArray) {
     const publicKey = keyPairRes.result.publicKey instanceof Uint8Array ? Array.from(keyPairRes.result.publicKey) : keyPairRes.result.publicKey;
     const privateKey = keyPairRes.result.privateKey instanceof Uint8Array ? Array.from(keyPairRes.result.privateKey) : keyPairRes.result.privateKey;
     const address = PublicKeyToAddress(publicKey);
-    return new Wallet(address, privateKey, publicKey);
+    return new Wallet(address, privateKey, publicKey, seedU8);
 }
 
 /**
@@ -1186,6 +1194,10 @@ function deserializeEncryptedWallet(walletJsonString, passphrase) {
 
     let privateKeyArray = base64ToBytes(keyPairSplit[0]);
     let publicKeyArray = base64ToBytes(keyPairSplit[1]);
+    let preExpansionSeed = null;
+    if (keyPairSplit.length >= 3 && keyPairSplit[2].length > 0) {
+        preExpansionSeed = base64ToBytes(keyPairSplit[2]);
+    }
     let address = PublicKeyToAddress(publicKeyArray);
     if (address == null) {
         console.error('deserializeEncryptedWallet: failed to derive address from public key');
@@ -1205,7 +1217,7 @@ function deserializeEncryptedWallet(walletJsonString, passphrase) {
         return null;
     }
 
-    let wallet = new Wallet(address, privateKeyArray, publicKeyArray);
+    let wallet = new Wallet(address, privateKeyArray, publicKeyArray, preExpansionSeed);
 
     return wallet;
 }
@@ -1237,7 +1249,17 @@ function serializeEncryptedWallet(wallet, passphrase) {
         return null;
     }
 
-    let walletJsonString = KeyPairToWalletJson(wallet.privateKey, wallet.publicKey, passphrase);
+    let walletJsonString;
+    if (wallet.preExpansionSeed != null && wallet.preExpansionSeed.length > 0) {
+        const seedU8 = wallet.preExpansionSeed instanceof Uint8Array ? wallet.preExpansionSeed : new Uint8Array(wallet.preExpansionSeed);
+        const result = EncryptPreExpansionSeed(seedU8, passphrase);
+        if (result == null || result instanceof Error) {
+            return null;
+        }
+        walletJsonString = result;
+    } else {
+        walletJsonString = KeyPairToWalletJson(wallet.privateKey, wallet.publicKey, passphrase);
+    }
 
     let walletJson = JSON.parse(walletJsonString);
     let addressCheck = "0x" + walletJson.address;
@@ -1414,6 +1436,10 @@ function serializeWallet(wallet) {
         "publicKey": bytesToBase64(wallet.publicKey),
     }
 
+    if (wallet.preExpansionSeed != null && wallet.preExpansionSeed.length > 0) {
+        walletJson.preExpansionSeed = bytesToBase64(wallet.preExpansionSeed);
+    }
+
     return JSON.stringify(walletJson);
 }
 
@@ -1431,7 +1457,12 @@ function deserializeWallet(walletJson) {
 
     var tempWallet = JSON.parse(walletJson);
 
-    var wallet = new Wallet(tempWallet.address, base64ToBytes(tempWallet.privateKey), base64ToBytes(tempWallet.publicKey));
+    var preExpansionSeed = null;
+    if (tempWallet.preExpansionSeed != null && tempWallet.preExpansionSeed.length > 0) {
+        preExpansionSeed = base64ToBytes(tempWallet.preExpansionSeed);
+    }
+
+    var wallet = new Wallet(tempWallet.address, base64ToBytes(tempWallet.privateKey), base64ToBytes(tempWallet.publicKey), preExpansionSeed);
 
     if (verifyWallet(wallet) == false) {
         return null;
