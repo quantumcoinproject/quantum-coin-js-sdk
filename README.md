@@ -1,32 +1,11 @@
 <a name="module_quantum-coin-js-sdk"></a>
 
 ## quantum-coin-js-sdk
-Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.
-[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
+Quantum Coin JS SDK provides low level functionality to interact with the Quantum Coin Blockchain.[Example Project](https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example)
 
 **Example**  
 ```js
-Requires Node.js version v20.18.1 or higher
-
-Installation:
-npm install quantum-coin-js-sdk --save
-
-//Adding reference:
-var qcsdk = require('quantum-coin-js-sdk');
-
-//Example initialization with defaults for mainnet
-//Initialize the SDK first before invoking any other function
-qcsdk.initialize(null).then((initResult) => {
-  
-}
-
-//Example initialization with specific values
-//Initialize the SDK first before invoking any other function
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
-qcsdk.initialize(clientConfigVal).then((initResult) => {
-
-}
-Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
+Requires Node.js version v20.18.1 or higherInstallation:npm install quantum-coin-js-sdk --save//Adding reference:var qcsdk = require('quantum-coin-js-sdk');//Example initialization with defaults for mainnet//Initialize the SDK first before invoking any other functionqcsdk.initialize(null).then((initResult) => {  }//Example initialization with specific values//Initialize the SDK first before invoking any other functionvar clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)qcsdk.initialize(clientConfigVal).then((initResult) => {}Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
 ```
 
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
@@ -38,10 +17,11 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
         * [.readApiKey](#module_quantum-coin-js-sdk..Config+readApiKey) : <code>string</code>
         * [.writeApiKey](#module_quantum-coin-js-sdk..Config+writeApiKey) : <code>string</code>
     * [~Wallet](#module_quantum-coin-js-sdk..Wallet)
-        * [new Wallet(address, privateKey, publicKey)](#new_module_quantum-coin-js-sdk..Wallet_new)
+        * [new Wallet(address, privateKey, publicKey, [preExpansionSeed])](#new_module_quantum-coin-js-sdk..Wallet_new)
         * [.address](#module_quantum-coin-js-sdk..Wallet+address) : <code>string</code>
         * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey) : <code>Array.&lt;number&gt;</code>
         * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey) : <code>Array.&lt;number&gt;</code>
+        * [.preExpansionSeed](#module_quantum-coin-js-sdk..Wallet+preExpansionSeed) : <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> \| <code>null</code>
     * [~BlockDetails](#module_quantum-coin-js-sdk..BlockDetails)
         * [.blockNumber](#module_quantum-coin-js-sdk..BlockDetails+blockNumber) : <code>number</code>
     * [~LatestBlockDetailsResult](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)
@@ -136,46 +116,46 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
         * [.error](#module_quantum-coin-js-sdk..EventLogEncodeResult+error) : <code>string</code>
         * [.result](#module_quantum-coin-js-sdk..EventLogEncodeResult+result) : <code>Object</code> \| <code>null</code>
     * [~circl](#module_quantum-coin-js-sdk..circl)
-    * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) → <code>Promise.&lt;boolean&gt;</code>
-    * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) → <code>boolean</code>
-    * [~getKeyTypeFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..getKeyTypeFromPrivateKey) → <code>number</code> \| <code>null</code>
-    * [~getKeyTypeFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..getKeyTypeFromPublicKey) → <code>number</code> \| <code>null</code>
-    * [~toUint8Array(key)](#module_quantum-coin-js-sdk..toUint8Array) → <code>Uint8Array</code>
-    * [~newWallet(keyType)](#module_quantum-coin-js-sdk..newWallet) → <code>Wallet</code> \| <code>number</code>
-    * [~newWalletSeed(keyType)](#module_quantum-coin-js-sdk..newWalletSeed) → <code>array</code> \| <code>number</code> \| <code>null</code>
-    * [~openWalletFromSeed(seedArray)](#module_quantum-coin-js-sdk..openWalletFromSeed) → <code>Wallet</code> \| <code>number</code>
-    * [~openWalletFromSeedWords(seedWordList)](#module_quantum-coin-js-sdk..openWalletFromSeedWords) → <code>Wallet</code> \| <code>number</code>
-    * [~deserializeEncryptedWallet(walletJsonString, passphrase)](#module_quantum-coin-js-sdk..deserializeEncryptedWallet) → <code>Wallet</code>
-    * [~serializeEncryptedWallet(wallet, passphrase)](#module_quantum-coin-js-sdk..serializeEncryptedWallet) → <code>string</code>
-    * [~serializeSeedAsEncryptedWallet(seedArray, passphrase)](#module_quantum-coin-js-sdk..serializeSeedAsEncryptedWallet) → <code>string</code> \| <code>number</code> \| <code>null</code>
-    * [~verifyWallet(wallet)](#module_quantum-coin-js-sdk..verifyWallet) → <code>boolean</code>
-    * [~serializeWallet(wallet)](#module_quantum-coin-js-sdk..serializeWallet) → <code>string</code>
-    * [~deserializeWallet(walletJson)](#module_quantum-coin-js-sdk..deserializeWallet) → <code>Wallet</code>
-    * [~postTransaction(txnData)](#module_quantum-coin-js-sdk..postTransaction) → <code>Promise.&lt;SendResult&gt;</code>
-    * [~getLatestBlockDetails()](#module_quantum-coin-js-sdk..getLatestBlockDetails) → <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
-    * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) → <code>Promise.&lt;AccountDetailsResult&gt;</code>
-    * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) → <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-    * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) → <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
-    * ~~[~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) → <code>SignResult</code>~~
-    * ~~[~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) → <code>SignResult</code>~~
-    * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) → <code>Uint8Array</code>
-    * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) → <code>SignResult</code>
-    * [~sign(privateKey, message, [signingContext])](#module_quantum-coin-js-sdk..sign) → <code>Object</code>
-    * [~verify(publicKey, signature, message)](#module_quantum-coin-js-sdk..verify) → <code>Object</code>
-    * ~~[~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) → <code>Promise.&lt;SendResult&gt;</code>~~
-    * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) → <code>string</code>
-    * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) → <code>string</code>
-    * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) → <code>string</code>
-    * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) → <code>string</code>
-    * [~packMethodData(abiJSON, methodName, ...args)](#module_quantum-coin-js-sdk..packMethodData) → <code>PackUnpackResult</code>
-    * [~unpackMethodData(abiJSON, methodName, hexData)](#module_quantum-coin-js-sdk..unpackMethodData) → <code>PackUnpackResult</code>
-    * [~packCreateContractData(abiJSON, bytecode, ...args)](#module_quantum-coin-js-sdk..packCreateContractData) → <code>PackUnpackResult</code>
-    * [~encodeEventLog(abiJSON, eventName, ...args)](#module_quantum-coin-js-sdk..encodeEventLog) → <code>EventLogEncodeResult</code>
-    * [~decodeEventLog(abiJSON, eventName, topics, data)](#module_quantum-coin-js-sdk..decodeEventLog) → <code>PackUnpackResult</code>
-    * [~encodeRlp(value)](#module_quantum-coin-js-sdk..encodeRlp) → <code>PackUnpackResult</code>
-    * [~decodeRlp(data)](#module_quantum-coin-js-sdk..decodeRlp) → <code>PackUnpackResult</code>
-    * [~createAddress(address, nonce)](#module_quantum-coin-js-sdk..createAddress) → <code>string</code> \| <code>null</code>
-    * [~createAddress2(address, salt, initHash)](#module_quantum-coin-js-sdk..createAddress2) → <code>string</code> \| <code>null</code>
+    * [~initialize(clientConfig)](#module_quantum-coin-js-sdk..initialize) ⇒ <code>Promise.&lt;boolean&gt;</code>
+    * [~isAddressValid(address)](#module_quantum-coin-js-sdk..isAddressValid) ⇒ <code>boolean</code>
+    * [~getKeyTypeFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..getKeyTypeFromPrivateKey) ⇒ <code>number</code> \| <code>null</code>
+    * [~getKeyTypeFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..getKeyTypeFromPublicKey) ⇒ <code>number</code> \| <code>null</code>
+    * [~toUint8Array(key)](#module_quantum-coin-js-sdk..toUint8Array) ⇒ <code>Uint8Array</code>
+    * [~newWallet(keyType)](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code> \| <code>number</code>
+    * [~newWalletSeed(keyType)](#module_quantum-coin-js-sdk..newWalletSeed) ⇒ <code>array</code> \| <code>number</code> \| <code>null</code>
+    * [~openWalletFromSeed(seedArray)](#module_quantum-coin-js-sdk..openWalletFromSeed) ⇒ <code>Wallet</code> \| <code>number</code>
+    * [~openWalletFromSeedWords(seedWordList)](#module_quantum-coin-js-sdk..openWalletFromSeedWords) ⇒ <code>Wallet</code> \| <code>number</code>
+    * [~deserializeEncryptedWallet(walletJsonString, passphrase)](#module_quantum-coin-js-sdk..deserializeEncryptedWallet) ⇒ <code>Wallet</code>
+    * [~serializeEncryptedWallet(wallet, passphrase)](#module_quantum-coin-js-sdk..serializeEncryptedWallet) ⇒ <code>string</code>
+    * [~serializeSeedAsEncryptedWallet(seedArray, passphrase)](#module_quantum-coin-js-sdk..serializeSeedAsEncryptedWallet) ⇒ <code>string</code> \| <code>number</code> \| <code>null</code>
+    * [~verifyWallet(wallet)](#module_quantum-coin-js-sdk..verifyWallet) ⇒ <code>boolean</code>
+    * [~serializeWallet(wallet)](#module_quantum-coin-js-sdk..serializeWallet) ⇒ <code>string</code>
+    * [~deserializeWallet(walletJson)](#module_quantum-coin-js-sdk..deserializeWallet) ⇒ <code>Wallet</code>
+    * [~postTransaction(txnData)](#module_quantum-coin-js-sdk..postTransaction) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+    * [~getLatestBlockDetails()](#module_quantum-coin-js-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
+    * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
+    * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
+    * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
+    * ~~[~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>SignResult</code>~~
+    * ~~[~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>SignResult</code>~~
+    * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) ⇒ <code>Uint8Array</code>
+    * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) ⇒ <code>SignResult</code>
+    * [~sign(privateKey, message, [signingContext])](#module_quantum-coin-js-sdk..sign) ⇒ <code>Object</code>
+    * [~verify(publicKey, signature, message)](#module_quantum-coin-js-sdk..verify) ⇒ <code>Object</code>
+    * ~~[~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
+    * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
+    * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
+    * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
+    * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) ⇒ <code>string</code>
+    * [~packMethodData(abiJSON, methodName, ...args)](#module_quantum-coin-js-sdk..packMethodData) ⇒ <code>PackUnpackResult</code>
+    * [~unpackMethodData(abiJSON, methodName, hexData)](#module_quantum-coin-js-sdk..unpackMethodData) ⇒ <code>PackUnpackResult</code>
+    * [~packCreateContractData(abiJSON, bytecode, ...args)](#module_quantum-coin-js-sdk..packCreateContractData) ⇒ <code>PackUnpackResult</code>
+    * [~encodeEventLog(abiJSON, eventName, ...args)](#module_quantum-coin-js-sdk..encodeEventLog) ⇒ <code>EventLogEncodeResult</code>
+    * [~decodeEventLog(abiJSON, eventName, topics, data)](#module_quantum-coin-js-sdk..decodeEventLog) ⇒ <code>PackUnpackResult</code>
+    * [~encodeRlp(value)](#module_quantum-coin-js-sdk..encodeRlp) ⇒ <code>PackUnpackResult</code>
+    * [~decodeRlp(data)](#module_quantum-coin-js-sdk..decodeRlp) ⇒ <code>PackUnpackResult</code>
+    * [~createAddress(address, nonce)](#module_quantum-coin-js-sdk..createAddress) ⇒ <code>string</code> \| <code>null</code>
+    * [~createAddress2(address, salt, initHash)](#module_quantum-coin-js-sdk..createAddress2) ⇒ <code>string</code> \| <code>null</code>
 
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
@@ -251,22 +231,24 @@ This class represents a Wallet. Use the verifyWallet function to verify if a wal
 **Access**: public  
 
 * [~Wallet](#module_quantum-coin-js-sdk..Wallet)
-    * [new Wallet(address, privateKey, publicKey)](#new_module_quantum-coin-js-sdk..Wallet_new)
+    * [new Wallet(address, privateKey, publicKey, [preExpansionSeed])](#new_module_quantum-coin-js-sdk..Wallet_new)
     * [.address](#module_quantum-coin-js-sdk..Wallet+address) : <code>string</code>
     * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey) : <code>Array.&lt;number&gt;</code>
     * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey) : <code>Array.&lt;number&gt;</code>
+    * [.preExpansionSeed](#module_quantum-coin-js-sdk..Wallet+preExpansionSeed) : <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> \| <code>null</code>
 
 <a name="new_module_quantum-coin-js-sdk..Wallet_new"></a>
 
-#### new Wallet(address, privateKey, publicKey)
+#### new Wallet(address, privateKey, publicKey, [preExpansionSeed])
 Creates a Wallet class. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
 
 
-| Param | Type | Description |
-| --- | --- | --- |
-| address | <code>string</code> | Address of the wallet |
-| privateKey | <code>Array.&lt;number&gt;</code> | Private Key byte array of the wallet |
-| publicKey | <code>Array.&lt;number&gt;</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| address | <code>string</code> |  | Address of the wallet |
+| privateKey | <code>Array.&lt;number&gt;</code> |  | Private Key byte array of the wallet |
+| publicKey | <code>Array.&lt;number&gt;</code> |  | Public Key byte array of the wallet |
+| [preExpansionSeed] | <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> \| <code>null</code> | <code></code> | Optional pre-expansion seed bytes. Non-null only for seed-derived wallets. |
 
 <a name="module_quantum-coin-js-sdk..Wallet+address"></a>
 
@@ -286,6 +268,13 @@ Private Key byte array of the wallet. Is 4064 bytes in length (if the wallet is 
 
 #### wallet.publicKey : <code>Array.&lt;number&gt;</code>
 Public Key byte array of the wallet. Is 1408 bytes in length (if the wallet is valid).
+
+**Kind**: instance property of [<code>Wallet</code>](#module_quantum-coin-js-sdk..Wallet)  
+**Access**: public  
+<a name="module_quantum-coin-js-sdk..Wallet+preExpansionSeed"></a>
+
+#### wallet.preExpansionSeed : <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> \| <code>null</code>
+Pre-expansion seed bytes. Can be null if the wallet was not created from a seed.
 
 **Kind**: instance property of [<code>Wallet</code>](#module_quantum-coin-js-sdk..Wallet)  
 **Access**: public  
@@ -475,9 +464,7 @@ Hash of the Transaction, to uniquely identify it. Is 66 bytes in length includin
 <a name="module_quantum-coin-js-sdk..SignResult+txnData"></a>
 
 #### signResult.txnData : <code>string</code>
-A payload representing the signed transaction. 
-To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. 
-This value is null if the value of resultCode is not 0.
+A payload representing the signed transaction. To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. This value is null if the value of resultCode is not 0.
 
 **Kind**: instance property of [<code>SignResult</code>](#module_quantum-coin-js-sdk..SignResult)  
 **Access**: public  
@@ -534,8 +521,7 @@ An error object if the operation resulted in an error and there was no response.
 <a name="module_quantum-coin-js-sdk..TransactionReceipt"></a>
 
 ### quantum-coin-js-sdk~TransactionReceipt
-This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. 
-While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
+This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
 
 **Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Access**: public  
@@ -1109,7 +1095,7 @@ CIRCL WASM namespace (set after InitAccountsWebAssembly). Use getCircl() for acc
 **Kind**: inner property of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 <a name="module_quantum-coin-js-sdk..initialize"></a>
 
-### quantum-coin-js-sdk~initialize(clientConfig) → <code>Promise.&lt;boolean&gt;</code>
+### quantum-coin-js-sdk~initialize(clientConfig) ⇒ <code>Promise.&lt;boolean&gt;</code>
 The initialize function has to be called before attempting to invoke any other function. This function should be called only once.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1121,7 +1107,7 @@ The initialize function has to be called before attempting to invoke any other f
 
 <a name="module_quantum-coin-js-sdk..isAddressValid"></a>
 
-### quantum-coin-js-sdk~isAddressValid(address) → <code>boolean</code>
+### quantum-coin-js-sdk~isAddressValid(address) ⇒ <code>boolean</code>
 The isAddressValid function validates whether an address is valid or not. An address is of length 66 characters including 0x.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1133,7 +1119,7 @@ The isAddressValid function validates whether an address is valid or not. An add
 
 <a name="module_quantum-coin-js-sdk..getKeyTypeFromPrivateKey"></a>
 
-### quantum-coin-js-sdk~getKeyTypeFromPrivateKey(privateKey) → <code>number</code> \| <code>null</code>
+### quantum-coin-js-sdk~getKeyTypeFromPrivateKey(privateKey) ⇒ <code>number</code> \| <code>null</code>
 Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASLHDSA5) from private key length.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1145,7 +1131,7 @@ Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASL
 
 <a name="module_quantum-coin-js-sdk..getKeyTypeFromPublicKey"></a>
 
-### quantum-coin-js-sdk~getKeyTypeFromPublicKey(publicKey) → <code>number</code> \| <code>null</code>
+### quantum-coin-js-sdk~getKeyTypeFromPublicKey(publicKey) ⇒ <code>number</code> \| <code>null</code>
 Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASLHDSA5) from public key length.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1157,7 +1143,7 @@ Internal: get key type (KEY_TYPE_HYBRIDEDMLDSASLHDSA or KEY_TYPE_HYBRIDEDMLDSASL
 
 <a name="module_quantum-coin-js-sdk..toUint8Array"></a>
 
-### quantum-coin-js-sdk~toUint8Array(key) → <code>Uint8Array</code>
+### quantum-coin-js-sdk~toUint8Array(key) ⇒ <code>Uint8Array</code>
 Convert key (number[] or Uint8Array) to Uint8Array for CIRCL.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1168,7 +1154,7 @@ Convert key (number[] or Uint8Array) to Uint8Array for CIRCL.
 
 <a name="module_quantum-coin-js-sdk..newWallet"></a>
 
-### quantum-coin-js-sdk~newWallet(keyType) → <code>Wallet</code> \| <code>number</code>
+### quantum-coin-js-sdk~newWallet(keyType) ⇒ <code>Wallet</code> \| <code>number</code>
 The newWallet function creates a new Wallet.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1180,7 +1166,7 @@ The newWallet function creates a new Wallet.
 
 <a name="module_quantum-coin-js-sdk..newWalletSeed"></a>
 
-### quantum-coin-js-sdk~newWalletSeed(keyType) → <code>array</code> \| <code>number</code> \| <code>null</code>
+### quantum-coin-js-sdk~newWalletSeed(keyType) ⇒ <code>array</code> \| <code>number</code> \| <code>null</code>
 The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1192,9 +1178,8 @@ The newWalletSeed function creates a new Wallet seed word list. The return array
 
 <a name="module_quantum-coin-js-sdk..openWalletFromSeed"></a>
 
-### quantum-coin-js-sdk~openWalletFromSeed(seedArray) → <code>Wallet</code> \| <code>number</code>
-The openWalletFromSeed function creates a wallet from a raw seed byte array.
-Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
+### quantum-coin-js-sdk~openWalletFromSeed(seedArray) ⇒ <code>Wallet</code> \| <code>number</code>
+The openWalletFromSeed function creates a wallet from a raw seed byte array.Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Wallet</code> \| <code>number</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
@@ -1205,9 +1190,8 @@ Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes 
 
 <a name="module_quantum-coin-js-sdk..openWalletFromSeedWords"></a>
 
-### quantum-coin-js-sdk~openWalletFromSeedWords(seedWordList) → <code>Wallet</code> \| <code>number</code>
-The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
-Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
+### quantum-coin-js-sdk~openWalletFromSeedWords(seedWordList) ⇒ <code>Wallet</code> \| <code>number</code>
+The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Wallet</code> \| <code>number</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
@@ -1218,7 +1202,7 @@ Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed
 
 <a name="module_quantum-coin-js-sdk..deserializeEncryptedWallet"></a>
 
-### quantum-coin-js-sdk~deserializeEncryptedWallet(walletJsonString, passphrase) → <code>Wallet</code>
+### quantum-coin-js-sdk~deserializeEncryptedWallet(walletJsonString, passphrase) ⇒ <code>Wallet</code>
 The deserializeEncryptedWallet function opens a wallet backed-up using an application such as the Desktop/Mobile/CLI/Web wallet. This function can take upto a minute or so to execute. You should open wallets only from trusted sources.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1231,7 +1215,7 @@ The deserializeEncryptedWallet function opens a wallet backed-up using an applic
 
 <a name="module_quantum-coin-js-sdk..serializeEncryptedWallet"></a>
 
-### quantum-coin-js-sdk~serializeEncryptedWallet(wallet, passphrase) → <code>string</code>
+### quantum-coin-js-sdk~serializeEncryptedWallet(wallet, passphrase) ⇒ <code>string</code>
 The serializeEncryptedWallet function encrypts and serializes a Wallet object to a JSON string readable by the Desktop/Mobile/Web/CLI wallet applications. You can save this string to a file and open the file in one of these wallet applications. You may also open this string using the deserializeEncryptedWallet function. If you loose the passphrase, you will be unable to open the wallet. This function can take upto a minute or so to execute.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1244,11 +1228,8 @@ The serializeEncryptedWallet function encrypts and serializes a Wallet object to
 
 <a name="module_quantum-coin-js-sdk..serializeSeedAsEncryptedWallet"></a>
 
-### quantum-coin-js-sdk~serializeSeedAsEncryptedWallet(seedArray, passphrase) → <code>string</code> \| <code>number</code> \| <code>null</code>
-The serializeSeedAsEncryptedWallet function encrypts a raw seed byte array into a wallet JSON string
-that can be opened with deserializeEncryptedWallet or Desktop/Mobile/Web/CLI wallet applications.
-The seed is stored in its pre-expansion form (version 5 wallet format). This function can take
-up to a minute or so to execute due to key derivation.
+### quantum-coin-js-sdk~serializeSeedAsEncryptedWallet(seedArray, passphrase) ⇒ <code>string</code> \| <code>number</code> \| <code>null</code>
+The serializeSeedAsEncryptedWallet function encrypts a raw seed byte array into a wallet JSON stringthat can be opened with deserializeEncryptedWallet or Desktop/Mobile/Web/CLI wallet applications.The seed is stored in its pre-expansion form (version 5 wallet format). This function can takeup to a minute or so to execute due to key derivation.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>string</code> \| <code>number</code> \| <code>null</code> - Returns the encrypted wallet JSON string. Returns -1000 if not initialized, null if the operation failed.  
@@ -1260,7 +1241,7 @@ up to a minute or so to execute due to key derivation.
 
 <a name="module_quantum-coin-js-sdk..verifyWallet"></a>
 
-### quantum-coin-js-sdk~verifyWallet(wallet) → <code>boolean</code>
+### quantum-coin-js-sdk~verifyWallet(wallet) ⇒ <code>boolean</code>
 The verifyWallet function verifies whether a Wallet is valid or not. To mitigate spoofing and other attachs, it is highly recommended to verify a wallet, especially if it is from an untrusted source.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1272,7 +1253,7 @@ The verifyWallet function verifies whether a Wallet is valid or not. To mitigate
 
 <a name="module_quantum-coin-js-sdk..serializeWallet"></a>
 
-### quantum-coin-js-sdk~serializeWallet(wallet) → <code>string</code>
+### quantum-coin-js-sdk~serializeWallet(wallet) ⇒ <code>string</code>
 The serializeWallet function serializes a Wallet object to a JSON string. You should encrypt the string before saving it to disk or a database.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1284,7 +1265,7 @@ The serializeWallet function serializes a Wallet object to a JSON string. You sh
 
 <a name="module_quantum-coin-js-sdk..deserializeWallet"></a>
 
-### quantum-coin-js-sdk~deserializeWallet(walletJson) → <code>Wallet</code>
+### quantum-coin-js-sdk~deserializeWallet(walletJson) ⇒ <code>Wallet</code>
 The deserializeWallet function creates a Wallet object from a JSON string.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1296,9 +1277,8 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 
 <a name="module_quantum-coin-js-sdk..postTransaction"></a>
 
-### quantum-coin-js-sdk~postTransaction(txnData) → <code>Promise.&lt;SendResult&gt;</code>
-The postTransaction function posts a signed transaction to the blockchain. 
-This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
+### quantum-coin-js-sdk~postTransaction(txnData) ⇒ <code>Promise.&lt;SendResult&gt;</code>
+The postTransaction function posts a signed transaction to the blockchain. This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult. txnHash will be null in SendResult.  
@@ -1309,14 +1289,14 @@ This method can be used in conjunction with the signSendCoinTransaction method t
 
 <a name="module_quantum-coin-js-sdk..getLatestBlockDetails"></a>
 
-### quantum-coin-js-sdk~getLatestBlockDetails() → <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
+### quantum-coin-js-sdk~getLatestBlockDetails() ⇒ <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
 The getLatestBlockDetails function returns details of the latest block of the blockchain.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;LatestBlockDetailsResult&gt;</code> - Returns a promise of an object of type BlockDetailsResult.  
 <a name="module_quantum-coin-js-sdk..getAccountDetails"></a>
 
-### quantum-coin-js-sdk~getAccountDetails(address) → <code>Promise.&lt;AccountDetailsResult&gt;</code>
+### quantum-coin-js-sdk~getAccountDetails(address) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
 The getAccountDetails function returns details of an account corresponding to the address.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1328,13 +1308,8 @@ The getAccountDetails function returns details of an account corresponding to th
 
 <a name="module_quantum-coin-js-sdk..getTransactionDetails"></a>
 
-### quantum-coin-js-sdk~getTransactionDetails(txnHash) → <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-The getTransactionDetails function returns details of a transaction posted to the blockchain. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the getTransactionDetails function. 
-You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). 
-The transactionReceipt field can be null unless the transaction is registered with the blockchain.
+### quantum-coin-js-sdk~getTransactionDetails(txnHash) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
+The getTransactionDetails function returns details of a transaction posted to the blockchain. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the getTransactionDetails function. You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). The transactionReceipt field can be null unless the transaction is registered with the blockchain.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a promise of type type TransactionDetailsResult.  
@@ -1345,14 +1320,8 @@ The transactionReceipt field can be null unless the transaction is registered wi
 
 <a name="module_quantum-coin-js-sdk..listAccountTransactions"></a>
 
-### quantum-coin-js-sdk~listAccountTransactions(address, pageNumber) → <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
-The listAccountTransactions function returns a list of transactions for a specific account. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
-You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). 
-Both transactions from and transactions to the address will be returned in the list.
-Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
+### quantum-coin-js-sdk~listAccountTransactions(address, pageNumber) ⇒ <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code>
+The listAccountTransactions function returns a list of transactions for a specific account. Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.Some transactions that have lower balance than the minimum required for gas fees may be discarded. In these cases, the transactions may not be returned when invoking the listAccountTransactions function. You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). Both transactions from and transactions to the address will be returned in the list.Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;ListAccountTransactionsResponse&gt;</code> - Returns a promise of type type ListAccountTransactionsResponse.  
@@ -1364,13 +1333,10 @@ Use the getTransactionDetails function, passing the hash of the transaction to g
 
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
-### ~~quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) → <code>SignResult</code>~~
+### ~~quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>SignResult</code>~~
 ***Use signRawTransaction instead.***
 
-The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1384,13 +1350,10 @@ Another usecase for this function is when you want to first store a signed trans
 
 <a name="module_quantum-coin-js-sdk..signTransaction"></a>
 
-### ~~quantum-coin-js-sdk~signTransaction(wallet, toAddress, coins, nonce, data) → <code>SignResult</code>~~
+### ~~quantum-coin-js-sdk~signTransaction(wallet, toAddress, coins, nonce, data) ⇒ <code>SignResult</code>~~
 ***Use signRawTransaction instead.***
 
-The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1405,7 +1368,7 @@ Another usecase for this function is when you want to first store a signed trans
 
 <a name="module_quantum-coin-js-sdk..hexStringToUint8Array"></a>
 
-### quantum-coin-js-sdk~hexStringToUint8Array(hex) → <code>Uint8Array</code>
+### quantum-coin-js-sdk~hexStringToUint8Array(hex) ⇒ <code>Uint8Array</code>
 Helper function to convert a hex string to Uint8Array
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1417,13 +1380,8 @@ Helper function to convert a hex string to Uint8Array
 
 <a name="module_quantum-coin-js-sdk..signRawTransaction"></a>
 
-### quantum-coin-js-sdk~signRawTransaction(transactionSigningRequest) → <code>SignResult</code>
-The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.
-With this function, you can set the gasLimit explicitly compared to signTransaction.
-You can also pass data to be signed, such as when creating or invoking a smart contract.
-Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+### quantum-coin-js-sdk~signRawTransaction(transactionSigningRequest) ⇒ <code>SignResult</code>
+The signRawTransaction function returns a signed transaction. The chainId used for signing can be provided in the TransactionSigningRequest, or if null, the chainId specified in the initialize() function will be used.With this function, you can set the gasLimit explicitly compared to signTransaction.You can also pass data to be signed, such as when creating or invoking a smart contract.Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1434,7 +1392,7 @@ Another usecase for this function is when you want to first store a signed trans
 
 <a name="module_quantum-coin-js-sdk..sign"></a>
 
-### quantum-coin-js-sdk~sign(privateKey, message, [signingContext]) → <code>Object</code>
+### quantum-coin-js-sdk~sign(privateKey, message, [signingContext]) ⇒ <code>Object</code>
 Sign a message with a private key. Optional signingContext selects algorithm (same pattern as signRawTransaction); if null/omitted, derived from private key type.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1448,7 +1406,7 @@ Sign a message with a private key. Optional signingContext selects algorithm (sa
 
 <a name="module_quantum-coin-js-sdk..verify"></a>
 
-### quantum-coin-js-sdk~verify(publicKey, signature, message) → <code>Object</code>
+### quantum-coin-js-sdk~verify(publicKey, signature, message) ⇒ <code>Object</code>
 Verify a signature over a message with a public key. Algorithm is determined by the first byte of the signature: 1=hybrideds verifyCompact, 2=hybrideds verify, 3=hybridedmldsaslhdsa verifyCompact, 4=hybridedmldsaslhdsa verify, 5=hybridedmldsaslhdsa5 verify.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1462,13 +1420,10 @@ Verify a signature over a message with a public key. Algorithm is determined by 
 
 <a name="module_quantum-coin-js-sdk..sendCoins"></a>
 
-### ~~quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) → <code>Promise.&lt;SendResult&gt;</code>~~
+### ~~quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
 ***Use signRawTransaction and postTransaction instead.***
 
-The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
-Transactions are usually committed in less than 30 seconds.
+The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. Transactions are usually committed in less than 30 seconds.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
@@ -1482,7 +1437,7 @@ Transactions are usually committed in less than 30 seconds.
 
 <a name="module_quantum-coin-js-sdk..publicKeyFromSignature"></a>
 
-### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) → <code>string</code>
+### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) ⇒ <code>string</code>
 The publicKeyFromSignature extracts the public key from a signature.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1495,7 +1450,7 @@ The publicKeyFromSignature extracts the public key from a signature.
 
 <a name="module_quantum-coin-js-sdk..publicKeyFromPrivateKey"></a>
 
-### quantum-coin-js-sdk~publicKeyFromPrivateKey(privateKey) → <code>string</code>
+### quantum-coin-js-sdk~publicKeyFromPrivateKey(privateKey) ⇒ <code>string</code>
 The publicKeyFromPrivateKey extracts the public key from a private key.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1507,7 +1462,7 @@ The publicKeyFromPrivateKey extracts the public key from a private key.
 
 <a name="module_quantum-coin-js-sdk..addressFromPublicKey"></a>
 
-### quantum-coin-js-sdk~addressFromPublicKey(publicKey) → <code>string</code>
+### quantum-coin-js-sdk~addressFromPublicKey(publicKey) ⇒ <code>string</code>
 The addressFromPublicKey returns the address corresponding to the public key.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1519,7 +1474,7 @@ The addressFromPublicKey returns the address corresponding to the public key.
 
 <a name="module_quantum-coin-js-sdk..combinePublicKeySignature"></a>
 
-### quantum-coin-js-sdk~combinePublicKeySignature(publicKey, signature) → <code>string</code>
+### quantum-coin-js-sdk~combinePublicKeySignature(publicKey, signature) ⇒ <code>string</code>
 The combinePublicKeySignature combines the public key and signature.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
@@ -1532,9 +1487,8 @@ The combinePublicKeySignature combines the public key and signature.
 
 <a name="module_quantum-coin-js-sdk..packMethodData"></a>
 
-### quantum-coin-js-sdk~packMethodData(abiJSON, methodName, ...args) → <code>PackUnpackResult</code>
-The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.
-It returns the transaction data as a hex string that can be included in a transaction.
+### quantum-coin-js-sdk~packMethodData(abiJSON, methodName, ...args) ⇒ <code>PackUnpackResult</code>
+The packMethodData function packs a Solidity method call with the given ABI, method name, and arguments.It returns the transaction data as a hex string that can be included in a transaction.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the packed transaction data as a hex string.  
@@ -1547,9 +1501,8 @@ It returns the transaction data as a hex string that can be included in a transa
 
 <a name="module_quantum-coin-js-sdk..unpackMethodData"></a>
 
-### quantum-coin-js-sdk~unpackMethodData(abiJSON, methodName, hexData) → <code>PackUnpackResult</code>
-The unpackMethodData function unpacks the return values of a Solidity method call.
-It returns the unpacked values as a JavaScript array or object.
+### quantum-coin-js-sdk~unpackMethodData(abiJSON, methodName, hexData) ⇒ <code>PackUnpackResult</code>
+The unpackMethodData function unpacks the return values of a Solidity method call.It returns the unpacked values as a JavaScript array or object.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the unpacked return values as a JSON string.  
@@ -1562,10 +1515,8 @@ It returns the unpacked values as a JavaScript array or object.
 
 <a name="module_quantum-coin-js-sdk..packCreateContractData"></a>
 
-### quantum-coin-js-sdk~packCreateContractData(abiJSON, bytecode, ...args) → <code>PackUnpackResult</code>
-The packCreateContractData function packs constructor data for contract creation.
-It combines the contract bytecode with the ABI-encoded constructor parameters.
-This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
+### quantum-coin-js-sdk~packCreateContractData(abiJSON, bytecode, ...args) ⇒ <code>PackUnpackResult</code>
+The packCreateContractData function packs constructor data for contract creation.It combines the contract bytecode with the ABI-encoded constructor parameters.This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the packed contract creation data as a hex string.  
@@ -1578,9 +1529,8 @@ This matches the Go pattern: Pack("", params...) and append(bytecode, input...)
 
 <a name="module_quantum-coin-js-sdk..encodeEventLog"></a>
 
-### quantum-coin-js-sdk~encodeEventLog(abiJSON, eventName, ...args) → <code>EventLogEncodeResult</code>
-The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.
-It returns the topics array and data hex string that can be used to create event logs.
+### quantum-coin-js-sdk~encodeEventLog(abiJSON, eventName, ...args) ⇒ <code>EventLogEncodeResult</code>
+The encodeEventLog function encodes event parameters into topics and data according to the ABI specification.It returns the topics array and data hex string that can be used to create event logs.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>EventLogEncodeResult</code> - - Returns an EventLogEncodeResult object containing the error (if any) and the encoded event log with topics and data.  
@@ -1593,9 +1543,8 @@ It returns the topics array and data hex string that can be used to create event
 
 <a name="module_quantum-coin-js-sdk..decodeEventLog"></a>
 
-### quantum-coin-js-sdk~decodeEventLog(abiJSON, eventName, topics, data) → <code>PackUnpackResult</code>
-The decodeEventLog function decodes event log topics and data back into event parameters.
-It returns the decoded values as a JavaScript object.
+### quantum-coin-js-sdk~decodeEventLog(abiJSON, eventName, topics, data) ⇒ <code>PackUnpackResult</code>
+The decodeEventLog function decodes event log topics and data back into event parameters.It returns the decoded values as a JavaScript object.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the decoded event parameters as a JSON string.  
@@ -1609,10 +1558,8 @@ It returns the decoded values as a JavaScript object.
 
 <a name="module_quantum-coin-js-sdk..encodeRlp"></a>
 
-### quantum-coin-js-sdk~encodeRlp(value) → <code>PackUnpackResult</code>
-The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.
-Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.
-Returns a hex-encoded string of the RLP-encoded data.
+### quantum-coin-js-sdk~encodeRlp(value) ⇒ <code>PackUnpackResult</code>
+The encodeRlp function encodes a JavaScript value to RLP (Recursive Length Prefix) format.Supports: strings, numbers, booleans, arrays, objects (maps), and hex-encoded bytes.Returns a hex-encoded string of the RLP-encoded data.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the RLP-encoded data as a hex string.  
@@ -1623,9 +1570,8 @@ Returns a hex-encoded string of the RLP-encoded data.
 
 <a name="module_quantum-coin-js-sdk..decodeRlp"></a>
 
-### quantum-coin-js-sdk~decodeRlp(data) → <code>PackUnpackResult</code>
-The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.
-Takes a hex-encoded string and returns a JSON string representation of the decoded value.
+### quantum-coin-js-sdk~decodeRlp(data) ⇒ <code>PackUnpackResult</code>
+The decodeRlp function decodes RLP-encoded data back to a JavaScript-compatible value.Takes a hex-encoded string and returns a JSON string representation of the decoded value.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>PackUnpackResult</code> - - Returns a PackUnpackResult object containing the error (if any) and the decoded value as a JSON string.  
@@ -1636,9 +1582,8 @@ Takes a hex-encoded string and returns a JSON string representation of the decod
 
 <a name="module_quantum-coin-js-sdk..createAddress"></a>
 
-### quantum-coin-js-sdk~createAddress(address, nonce) → <code>string</code> \| <code>null</code>
-The createAddress function calculates the contract address that will be created by a transaction.
-This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
+### quantum-coin-js-sdk~createAddress(address, nonce) ⇒ <code>string</code> \| <code>null</code>
+The createAddress function calculates the contract address that will be created by a transaction.This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>string</code> \| <code>null</code> - - Returns the contract address as a hex string, or null if an error occurred.  
@@ -1650,9 +1595,8 @@ This uses the CREATE opcode address calculation: keccak256(RLP(sender, nonce))
 
 <a name="module_quantum-coin-js-sdk..createAddress2"></a>
 
-### quantum-coin-js-sdk~createAddress2(address, salt, initHash) → <code>string</code> \| <code>null</code>
-The createAddress2 function calculates the contract address using the CREATE2 opcode.
-This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
+### quantum-coin-js-sdk~createAddress2(address, salt, initHash) ⇒ <code>string</code> \| <code>null</code>
+The createAddress2 function calculates the contract address using the CREATE2 opcode.This allows deterministic contract address calculation: keccak256(0xff || sender || salt || keccak256(init_code))
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>string</code> \| <code>null</code> - - Returns the contract address as a hex string, or null if an error occurred.  

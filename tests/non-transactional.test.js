@@ -393,6 +393,172 @@ describe('non-transactional', () => {
     assert.equal(qcsdk.serializeSeedAsEncryptedWallet(TEST_SEED_ARRAY_32, 12345), null);
   });
 
+  // --- preExpansionSeed field tests ---
+
+  test('Wallet class: constructor without preExpansionSeed defaults to null', () => {
+    const w = new qcsdk.Wallet('0xabc', [1, 2], [3, 4]);
+    assert.equal(w.preExpansionSeed, null);
+  });
+
+  test('Wallet class: constructor with preExpansionSeed stores it', () => {
+    const seed = new Uint8Array([10, 20, 30]);
+    const w = new qcsdk.Wallet('0xabc', [1, 2], [3, 4], seed);
+    assert.ok(w.preExpansionSeed != null);
+    assert.equal(w.preExpansionSeed.length, 3);
+    assert.equal(w.preExpansionSeed[0], 10);
+  });
+
+  test('newWallet: wallet has preExpansionSeed === null', () => {
+    const w = qcsdk.newWallet();
+    assert.ok(w && typeof w === 'object');
+    assert.equal(w.preExpansionSeed, null);
+  });
+
+  test('openWalletFromSeed: 64-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 64);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeed: 72-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_36);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 72);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_36);
+    for (let i = 0; i < 72; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeed: 96-byte seed — preExpansionSeed is byte-equal to input', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_48);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 96);
+    const inputU8 = new Uint8Array(TEST_SEED_ARRAY_48);
+    for (let i = 0; i < 96; i++) assert.equal(wallet.preExpansionSeed[i], inputU8[i]);
+  });
+
+  test('openWalletFromSeedWords: wallet has non-null preExpansionSeed', () => {
+    const wallet = qcsdk.openWalletFromSeedWords(TEST_SEED_WORDS);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    assert.equal(wallet.preExpansionSeed.length, 96);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (64-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 64);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (72-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_36);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 72);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_36);
+    for (let i = 0; i < 72; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: seed wallet (96-byte) preserves preExpansionSeed and produces V5', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_48);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 5, 'seed wallet should produce V5 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 96);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_48);
+    for (let i = 0; i < 96; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeEncryptedWallet roundtrip: non-seed wallet has null preExpansionSeed and produces V4', () => {
+    const wallet = qcsdk.newWallet();
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    const json = qcsdk.serializeEncryptedWallet(wallet, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.version, 4, 'non-seed wallet should produce V4 encrypted JSON');
+    const restored = qcsdk.deserializeEncryptedWallet(json, SEED_WALLET_TEST_PASSPHRASE);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
+  test('serializeWallet/deserializeWallet roundtrip: seed wallet preserves preExpansionSeed', () => {
+    const wallet = qcsdk.openWalletFromSeed(TEST_SEED_ARRAY_32);
+    assert.ok(wallet && wallet.preExpansionSeed != null);
+    const json = qcsdk.serializeWallet(wallet);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.ok(parsed.preExpansionSeed, 'serialized JSON should contain preExpansionSeed field');
+    const restored = qcsdk.deserializeWallet(json);
+    assert.ok(restored);
+    assert.equal(restored.address.toLowerCase(), wallet.address.toLowerCase());
+    assert.ok(restored.preExpansionSeed != null);
+    assert.equal(restored.preExpansionSeed.length, 64);
+    const origSeed = new Uint8Array(TEST_SEED_ARRAY_32);
+    for (let i = 0; i < 64; i++) assert.equal(restored.preExpansionSeed[i], origSeed[i]);
+  });
+
+  test('serializeWallet/deserializeWallet roundtrip: non-seed wallet has null preExpansionSeed and no field in JSON', () => {
+    const wallet = qcsdk.newWallet();
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    const json = qcsdk.serializeWallet(wallet);
+    assert.ok(json && typeof json === 'string');
+    const parsed = JSON.parse(json);
+    assert.equal(parsed.preExpansionSeed, undefined, 'non-seed wallet JSON should not contain preExpansionSeed');
+    const restored = qcsdk.deserializeWallet(json);
+    assert.ok(restored);
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
+  test('backward compat: deserializeEncryptedWallet on V4 JSON (no seed) returns wallet with null preExpansionSeed', () => {
+    const wallet = qcsdk.deserializeEncryptedWallet(EXAMPLE_WALLET_ENCRYPTED_JSON, EXAMPLE_WALLET_PASSPHRASE);
+    assert.ok(wallet);
+    assert.equal(wallet.preExpansionSeed, null);
+    assert.equal(qcsdk.verifyWallet(wallet), true);
+  });
+
+  test('backward compat: deserializeWallet on JSON without preExpansionSeed field returns null seed', () => {
+    const wallet = qcsdk.newWallet();
+    const jsonWithoutSeed = JSON.stringify({
+      address: wallet.address,
+      privateKey: Array.from(wallet.privateKey).map(b => String.fromCodePoint(b)).join(''),
+      publicKey: Array.from(wallet.publicKey).map(b => String.fromCodePoint(b)).join(''),
+    });
+    const w = qcsdk.newWallet();
+    const json = qcsdk.serializeWallet(w);
+    const parsed = JSON.parse(json);
+    delete parsed.preExpansionSeed;
+    const cleanJson = JSON.stringify(parsed);
+    const restored = qcsdk.deserializeWallet(cleanJson);
+    assert.ok(restored);
+    assert.equal(restored.preExpansionSeed, null);
+  });
+
   // Hardcoded encrypted wallet JSON (from openWalletFromSeedWords + serializeEncryptedWallet with SEED_WALLET_TEST_PASSPHRASE).
   // Deserialize and verify addresses match. Uses fixtures in tests/ (encrypted-48.json, encrypted-32.json, encrypted-36.json).
   test('seed words: deserializeEncryptedWallet from serialized 48/32/36 seed wallets — addresses match', () => {
