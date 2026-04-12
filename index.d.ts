@@ -220,9 +220,10 @@ export class Wallet {
      * Creates a Wallet class. The constructor does not verify the wallet. To verify a wallet, call the verifyWallet function explicitly.
      * @param {string} address - Address of the wallet
      * @param {number[]} privateKey - Private Key byte array of the wallet
-     * @param {number[]} publicKey - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
+     * @param {number[]} publicKey - Public Key byte array of the wallet
+     * @param {Uint8Array|number[]|null} [preExpansionSeed=null] - Optional pre-expansion seed bytes. Non-null only for seed-derived wallets.
      */
-    constructor(address: string, privateKey: number[], publicKey: number[]);
+    constructor(address: string, privateKey: number[], publicKey: number[], preExpansionSeed?: Uint8Array | number[] | null);
     /**
      * Address of the wallet. Is 66 bytes in length including 0x (if the wallet is valid).
      * @type {string}
@@ -241,6 +242,12 @@ export class Wallet {
      * @public
     */
     public publicKey: number[];
+    /**
+     * Pre-expansion seed bytes. Can be null if the wallet was not created from a seed.
+     * @type {Uint8Array|number[]|null}
+     * @public
+    */
+    public preExpansionSeed: Uint8Array | number[] | null;
 }
 /**
  * @class
