@@ -143,7 +143,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~getKeyTypeFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..getKeyTypeFromPublicKey) ⇒ <code>number</code> \| <code>null</code>
     * [~toUint8Array(key)](#module_quantum-coin-js-sdk..toUint8Array) ⇒ <code>Uint8Array</code>
     * [~newWallet(keyType)](#module_quantum-coin-js-sdk..newWallet) ⇒ <code>Wallet</code> \| <code>number</code>
-    * [~newWalletSeedWords(keyType)](#module_quantum-coin-js-sdk..newWalletSeedWords) ⇒ <code>string[]</code> \| <code>number</code> \| <code>null</code>
+    * [~newWalletSeedWords(keyType)](#module_quantum-coin-js-sdk..newWalletSeedWords) ⇒ <code>Array.&lt;string&gt;</code> \| <code>number</code> \| <code>null</code>
     * [~openWalletFromSeed(seedArray)](#module_quantum-coin-js-sdk..openWalletFromSeed) ⇒ <code>Wallet</code> \| <code>number</code> \| <code>null</code>
     * [~openWalletFromSeedWords(seedWordList)](#module_quantum-coin-js-sdk..openWalletFromSeedWords) ⇒ <code>Wallet</code> \| <code>number</code> \| <code>null</code>
     * [~deserializeEncryptedWallet(walletJsonString, passphrase)](#module_quantum-coin-js-sdk..deserializeEncryptedWallet) ⇒ <code>Wallet</code>
@@ -151,7 +151,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~serializeSeedAsEncryptedWallet(seedArray, passphrase)](#module_quantum-coin-js-sdk..serializeSeedAsEncryptedWallet) ⇒ <code>string</code> \| <code>number</code> \| <code>null</code>
     * [~verifyWallet(wallet)](#module_quantum-coin-js-sdk..verifyWallet) ⇒ <code>boolean</code>
     * [~serializeWallet(wallet)](#module_quantum-coin-js-sdk..serializeWallet) ⇒ <code>string</code>
-    * [~deserializeWallet(walletJson)](#module_quantum-coin-js-sdk..deserializeWallet) ⇒ <code>Wallet</code>
+    * [~deserializeWallet(walletJson)](#module_quantum-coin-js-sdk..deserializeWallet) ⇒ <code>Wallet</code> \| <code>null</code>
     * [~postTransaction(txnData)](#module_quantum-coin-js-sdk..postTransaction) ⇒ <code>Promise.&lt;SendResult&gt;</code>
     * [~getLatestBlockDetails()](#module_quantum-coin-js-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
     * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
@@ -1190,11 +1190,11 @@ The newWallet function creates a new Wallet.
 
 <a name="module_quantum-coin-js-sdk..newWalletSeedWords"></a>
 
-### quantum-coin-js-sdk~newWalletSeedWords(keyType) ⇒ <code>string[]</code> \| <code>number</code> \| <code>null</code>
+### quantum-coin-js-sdk~newWalletSeedWords(keyType) ⇒ <code>Array.&lt;string&gt;</code> \| <code>number</code> \| <code>null</code>
 The newWalletSeedWords function creates a new wallet seed word list. The returned array can then be passed to the openWalletFromSeedWords function to create a new wallet.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>string[]</code> \| <code>number</code> \| <code>null</code> - Returns an array of seed words (32 or 36 words depending on keyType). Returns -1000 if not initialized, null on failure.  
+**Returns**: <code>Array.&lt;string&gt;</code> \| <code>number</code> \| <code>null</code> - Returns an array of seed words (32 or 36 words depending on keyType). Returns -1000 if not initialized, null on failure.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1207,7 +1207,7 @@ The openWalletFromSeed function creates a wallet from a raw seed byte array.
 Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Wallet</code> \| <code>number</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
+**Returns**: <code>Wallet</code> \| <code>number</code> \| <code>null</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1220,11 +1220,11 @@ The openWalletFromSeedWords function creates a wallet from a seed word list. The
 Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Wallet</code> \| <code>number</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
+**Returns**: <code>Wallet</code> \| <code>number</code> \| <code>null</code> - Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| seedWordList | <code>array</code> | An array of seed words. Length 48, 36, or 32 depending on scheme. |
+| seedWordList | <code>Array.&lt;string&gt;</code> | An array of seed words. Length 48, 36, or 32 depending on scheme. |
 
 <a name="module_quantum-coin-js-sdk..deserializeEncryptedWallet"></a>
 
@@ -1294,11 +1294,11 @@ The serializeWallet function serializes a Wallet object to a JSON string. You sh
 
 <a name="module_quantum-coin-js-sdk..deserializeWallet"></a>
 
-### quantum-coin-js-sdk~deserializeWallet(walletJson) ⇒ <code>Wallet</code>
+### quantum-coin-js-sdk~deserializeWallet(walletJson) ⇒ <code>Wallet</code> \| <code>null</code>
 The deserializeWallet function creates a Wallet object from a JSON string.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Wallet</code> - Returns the Wallet corresponding to the walletJson. If the wallet is invalid, null is returned.  
+**Returns**: <code>Wallet</code> \| <code>null</code> - Returns the Wallet corresponding to the walletJson. If the wallet is invalid or the JSON is malformed, null is returned.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1360,7 +1360,7 @@ The listAccountTransactions function returns a list of transactions for a specif
 Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
 Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
 In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
-You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success). 
+You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
 Both transactions from and transactions to the address will be returned in the list.
 Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
 
@@ -1383,7 +1383,7 @@ This function is useful for offline (cold storage) wallets, where you can sign a
 Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.
+**Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1403,7 +1403,7 @@ This function is useful for offline (cold storage) wallets, where you can sign a
 Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.
+**Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.  
 
 | Param | Type | Description |
 | --- | --- | --- |
