@@ -194,9 +194,9 @@ describe('non-transactional', () => {
     assert.equal(qcsdk.isAddressValid(wallet.address), true);
   });
 
-  test('seed words: newWalletSeed/openWalletFromSeedWords (static fixture)', () => {
+  test('seed words: newWalletSeedWords/openWalletFromSeedWords (static fixture)', () => {
     assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded and verifyWallet(newWallet()) must pass');
-    const seedWords = qcsdk.newWalletSeed();
+    const seedWords = qcsdk.newWalletSeedWords();
     assert.ok(seedWords);
     assert.ok(Array.isArray(seedWords) || typeof seedWords === 'string');
 

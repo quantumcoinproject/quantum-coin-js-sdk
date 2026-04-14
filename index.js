@@ -1081,13 +1081,13 @@ function newWallet(keyType) {
 }
 
 /**
- * The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
+ * The newWalletSeedWords function creates a new wallet seed word list. The returned array can then be passed to the openWalletFromSeedWords function to create a new wallet.
  *
- * @function newWalletSeed
+ * @function newWalletSeedWords
  * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
- * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
+ * @return {string[]|number|null} Returns an array of seed words (32 or 36 words depending on keyType). Returns -1000 if not initialized, null on failure.
  */
-function newWalletSeed(keyType) {
+function newWalletSeedWords(keyType) {
     if (isInitialized === false) {
         return -1000;
     }
@@ -1498,25 +1498,27 @@ function deserializeWallet(walletJson) {
         return -1000;
     }
 
-    var tempWallet;
     try {
-        tempWallet = JSON.parse(walletJson);
+        var tempWallet = JSON.parse(walletJson);
+        if (tempWallet == null || typeof tempWallet !== 'object') {
+            return null;
+        }
+
+        var preExpansionSeed = null;
+        if (tempWallet.preExpansionSeed != null && tempWallet.preExpansionSeed.length > 0) {
+            preExpansionSeed = base64ToBytes(tempWallet.preExpansionSeed);
+        }
+
+        var wallet = new Wallet(tempWallet.address, base64ToBytes(tempWallet.privateKey), base64ToBytes(tempWallet.publicKey), preExpansionSeed);
+
+        if (verifyWallet(wallet) === false) {
+            return null;
+        }
+
+        return wallet;
     } catch (e) {
         return null;
     }
-
-    var preExpansionSeed = null;
-    if (tempWallet.preExpansionSeed != null && tempWallet.preExpansionSeed.length > 0) {
-        preExpansionSeed = base64ToBytes(tempWallet.preExpansionSeed);
-    }
-
-    var wallet = new Wallet(tempWallet.address, base64ToBytes(tempWallet.privateKey), base64ToBytes(tempWallet.publicKey), preExpansionSeed);
-
-    if (verifyWallet(wallet) === false) {
-        return null;
-    }
-
-    return wallet;
 }
 
 function transactionGetSigningHash(fromaddress, nonce, toaddress, amount, gas, chainid, data) {
@@ -3117,7 +3119,7 @@ module.exports = {
     AccountTransactionsResult, 
     ListAccountTransactionsResponse, 
     AccountTransactionCompact,
-    newWalletSeed,
+    newWalletSeedWords,
     openWalletFromSeed,
     openWalletFromSeedWords,
     publicKeyFromSignature,

@@ -676,13 +676,13 @@ export class AccountTransactionCompact {
     public status: string;
 }
 /**
- * The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
+ * The newWalletSeedWords function creates a new wallet seed word list. The returned array can then be passed to the openWalletFromSeedWords function to create a new wallet.
  *
- * @function newWalletSeed
+ * @function newWalletSeedWords
  * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
- * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
+ * @return {string[]|number|null} Returns an array of seed words (32 or 36 words depending on keyType). Returns -1000 if not initialized, null on failure.
  */
-export function newWalletSeed(keyType: number | null): array | number | null;
+export function newWalletSeedWords(keyType: number | null): string[] | number | null;
 /**
  * The openWalletFromSeed function creates a wallet from a raw seed byte array.
  * Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
