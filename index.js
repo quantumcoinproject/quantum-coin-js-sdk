@@ -1123,7 +1123,7 @@ function newWalletSeedWords(keyType) {
  *
  * @function openWalletFromSeed
  * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length 96, 72, or 64 depending on scheme.
- * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ * @return {Wallet|number|null} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
 function openWalletFromSeed(seedArray) {
     if (isInitialized === false) {
@@ -1177,8 +1177,8 @@ function openWalletFromSeed(seedArray) {
  * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *
  * @function openWalletFromSeedWords
- * @param {array} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
- * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ * @param {string[]} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
+ * @return {Wallet|number|null} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
 function openWalletFromSeedWords(seedWordList) {
     if (isInitialized === false) {
@@ -1490,8 +1490,8 @@ function serializeWallet(wallet) {
  * The deserializeWallet function creates a Wallet object from a JSON string. 
  *
  * @function deserializeWallet
- * @param {string} walletJson - A Wallet object representing the wallet to deserialize.
- * @return {Wallet} Returns the Wallet corresponding to the walletJson. If the wallet is invalid, null is returned.
+ * @param {string} walletJson - A JSON string representing the wallet to deserialize.
+ * @return {Wallet|null} Returns the Wallet corresponding to the walletJson. If the wallet is invalid or the JSON is malformed, null is returned.
  */
 function deserializeWallet(walletJson) {
     if (isInitialized === false) {
@@ -1666,7 +1666,7 @@ async function postTransaction(txnData) {
  *
  * @async
  * @function getLatestBlockDetails
- * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type BlockDetailsResult.
+ * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type LatestBlockDetailsResult.
  */
 async function getLatestBlockDetails() {
     if (isInitialized === false) {
@@ -1828,7 +1828,7 @@ async function getAccountDetails(address) {
  * @async
  * @function getTransactionDetails
  * @param {string} txnHash - The hash of the transaction to retrieve.
- * @return {Promise<TransactionDetailsResult>}  Returns a promise of type type TransactionDetailsResult. 
+ * @return {Promise<TransactionDetailsResult>}  Returns a promise of type TransactionDetailsResult.
  */
 async function getTransactionDetails(txnHash) {
     if (isInitialized === false) {
@@ -1919,14 +1919,14 @@ async function getTransactionDetails(txnHash) {
  * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
  * Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
  * In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
- * You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success). 
+ * You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
  * Both transactions from and transactions to the address will be returned in the list.
  * Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
  * @async
  * @function listAccountTransactions
  * @param {string} address - The address for which the transactions have to be listed.
  * @param {number} pageNumber - The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page.
- * @return {Promise<ListAccountTransactionsResponse>}  Returns a promise of type type ListAccountTransactionsResponse. 
+ * @return {Promise<AccountTransactionsResult>}  Returns a promise of type AccountTransactionsResult.
  */
 async function listAccountTransactions(address, pageNumber) {
     if (isInitialized === false) {
@@ -2023,7 +2023,7 @@ async function listAccountTransactions(address, pageNumber) {
  * @param {string} toAddress - The address to which the coins should be sent. 
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
  * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
- * @return {SignResult}  Returns a promise of type SignResult. 
+ * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
 async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
     if (isInitialized === false) {
@@ -2104,8 +2104,8 @@ async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
  * @param {string} toAddress - The address to which the coins should be sent.
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
  * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
- * @param {number} data - The data to be signed.
- * @return {SignResult}  Returns a promise of type SignResult.
+ * @param {string} data - Ignored. This parameter is accepted but not used. Use signRawTransaction to pass contract data.
+ * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
 async function signTransaction(wallet, toAddress, coins, nonce, data) {
     if (isInitialized === false) {
