@@ -19,10 +19,10 @@ export function serializeWallet(wallet: Wallet): string;
  * The deserializeWallet function creates a Wallet object from a JSON string.
  *
  * @function deserializeWallet
- * @param {string} walletJson - A Wallet object representing the wallet to deserialize.
- * @return {Wallet} Returns the Wallet corresponding to the walletJson. If the wallet is invalid, null is returned.
+ * @param {string} walletJson - A JSON string representing the wallet to deserialize.
+ * @return {Wallet|null} Returns the Wallet corresponding to the walletJson. If the wallet is invalid or the JSON is malformed, null is returned.
  */
-export function deserializeWallet(walletJson: string): Wallet;
+export function deserializeWallet(walletJson: string): Wallet | null;
 /**
  * The serializeEncryptedWallet function encrypts and serializes a Wallet object to a JSON string readable by the Desktop/Mobile/Web/CLI wallet applications. You can save this string to a file and open the file in one of these wallet applications. You may also open this string using the deserializeEncryptedWallet function. If you loose the passphrase, you will be unable to open the wallet. This function can take upto a minute or so to execute.
  *
@@ -103,7 +103,7 @@ export function getAccountDetails(address: string): Promise<AccountDetailsResult
  * @async
  * @function getTransactionDetails
  * @param {string} txnHash - The hash of the transaction to retrieve.
- * @return {Promise<TransactionDetailsResult>}  Returns a promise of type type TransactionDetailsResult.
+ * @return {Promise<TransactionDetailsResult>}  Returns a promise of type TransactionDetailsResult.
  */
 export function getTransactionDetails(txnHash: string): Promise<TransactionDetailsResult>;
 /**
@@ -119,7 +119,7 @@ export function isAddressValid(address: string): boolean;
  *
  * @async
  * @function getLatestBlockDetails
- * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type BlockDetailsResult.
+ * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type LatestBlockDetailsResult.
  */
 export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
 /**
@@ -134,24 +134,24 @@ export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
  * @param {string} toAddress - The address to which the coins should be sent.
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
  * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
- * @return {SignResult}  Returns a promise of type SignResult.
+ * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
-export function signSendCoinTransaction(wallet: Wallet, toAddress: string, coins: string, nonce: number): SignResult;
+export function signSendCoinTransaction(wallet: Wallet, toAddress: string, coins: string, nonce: number): Promise<SignResult>;
 /**
  * The listAccountTransactions function returns a list of transactions for a specific account.
  * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
  * Some transactions that have lower balance than the minimum required for gas fees may be discarded.
  * In these cases, the transactions may not be returned when invoking the listAccountTransactions function.
- * You should consider the transaction as succeeded only if the status field AccountDetailsCompact object is 0x1 (success).
+ * You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
  * Both transactions from and transactions to the address will be returned in the list.
  * Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
  * @async
  * @function listAccountTransactions
  * @param {string} address - The address for which the transactions have to be listed.
  * @param {number} pageNumber - The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page.
- * @return {Promise<ListAccountTransactionsResponse>}  Returns a promise of type type ListAccountTransactionsResponse.
+ * @return {Promise<AccountTransactionsResult>}  Returns a promise of type AccountTransactionsResult.
  */
-export function listAccountTransactions(address: string, pageNumber: number): Promise<ListAccountTransactionsResponse>;
+export function listAccountTransactions(address: string, pageNumber: number): Promise<AccountTransactionsResult>;
 /**
  * The postTransaction function posts a signed transaction to the blockchain.
  * This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
@@ -676,31 +676,31 @@ export class AccountTransactionCompact {
     public status: string;
 }
 /**
- * The newWalletSeed function creates a new Wallet seed word list. The return array can then be passed to the openWalletFromSeedWords function to create a new wallet.
+ * The newWalletSeedWords function creates a new wallet seed word list. The returned array can then be passed to the openWalletFromSeedWords function to create a new wallet.
  *
- * @function newWalletSeed
+ * @function newWalletSeedWords
  * @param {number|null} keyType - Optional. KEY_TYPE_HYBRIDEDMLDSASLHDSA (3) or KEY_TYPE_HYBRIDEDMLDSASLHDSA5 (5). null/undefined defaults to 3.
- * @return {array|number|null} Returns an array of seed words (32 or 36 words). Returns -1000 if not initialized, null on failure.
+ * @return {string[]|number|null} Returns an array of seed words (32 or 36 words depending on keyType). Returns -1000 if not initialized, null on failure.
  */
-export function newWalletSeed(keyType: number | null): array | number | null;
+export function newWalletSeedWords(keyType: number | null): string[] | number | null;
 /**
  * The openWalletFromSeed function creates a wallet from a raw seed byte array.
  * Determines the key scheme from the array length: 96 bytes (hybrideds), 72 bytes (hybrid5), or 64 bytes (hybrid).
  *
  * @function openWalletFromSeed
  * @param {Array<number>|Uint8Array} seedArray - The raw seed bytes. Length 96, 72, or 64 depending on scheme.
- * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ * @return {Wallet|number|null} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
-export function openWalletFromSeed(seedArray: Array<number> | Uint8Array): Wallet | number;
+export function openWalletFromSeed(seedArray: Array<number> | Uint8Array): Wallet | number | null;
 /**
  * The openWalletFromSeedWords function creates a wallet from a seed word list. The seed word list is available for wallets created from Desktop/Web/Mobile wallets.
  * Supports 48 words (hybrideds), 36 words (hybrid5), or 32 words (hybrid) per seed length.
  *
  * @function openWalletFromSeedWords
- * @param {array} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
- * @return {Wallet|number} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
+ * @param {string[]} seedWordList - An array of seed words. Length 48, 36, or 32 depending on scheme.
+ * @return {Wallet|number|null} Returns a Wallet object. Returns -1000 if not initialized, null if the operation failed.
  */
-export function openWalletFromSeedWords(seedWordList: array): Wallet | number;
+export function openWalletFromSeedWords(seedWordList: string[]): Wallet | number | null;
 /**
  * The publicKeyFromSignature extracts the public key from a signature.
  *

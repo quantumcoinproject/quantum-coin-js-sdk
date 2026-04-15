@@ -366,9 +366,9 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
     });
 
     //Create a new seed word list
-    let seedWords = qcsdk.newWalletSeed();
+    let seedWords = qcsdk.newWalletSeedWords();
     if (seedWords === null) {
-        console.error("newWalletSeed failed");
+        console.error("newWalletSeedWords failed");
         return;
     }
     console.log ("SeedWords: " + seedWords);
