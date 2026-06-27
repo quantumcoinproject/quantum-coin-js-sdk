@@ -161,6 +161,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * ~~[~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>Promise.&lt;SignResult&gt;</code>~~
     * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) ⇒ <code>Uint8Array</code>
     * [~signRawTransaction(transactionSigningRequest)](#module_quantum-coin-js-sdk..signRawTransaction) ⇒ <code>SignResult</code>
+    * [~getGasPrice(keyType, [fullSign])](#module_quantum-coin-js-sdk..getGasPrice) ⇒ <code>Object</code>
     * [~sign(privateKey, message, [signingContext])](#module_quantum-coin-js-sdk..sign) ⇒ <code>Object</code>
     * [~verify(publicKey, signature, message)](#module_quantum-coin-js-sdk..verify) ⇒ <code>Object</code>
     * ~~[~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
@@ -1441,6 +1442,19 @@ Another usecase for this function is when you want to first store a signed trans
 | Param | Type | Description |
 | --- | --- | --- |
 | transactionSigningRequest | <code>TransactionSigningRequest</code> | An object of type TransactionSigningRequest with the transaction signing details. |
+
+<a name="module_quantum-coin-js-sdk..getGasPrice"></a>
+
+### quantum-coin-js-sdk~getGasPrice(keyType, [fullSign]) ⇒ <code>Object</code>
+Returns the gas price per unit of gas (per-gas-unit), in wei, for the signing context implied by keyType and fullSign. This is NOT the total transaction fee (total fee = gasPrice * gasLimit). fullSign is ignored for keyType 5 (always context 1); it only affects keyType 3 (false = compact/context 0, true = full/context 2).
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Object</code> - { resultCode, gasPrice }: resultCode 0 and gasPrice as a decimal wei string on success; negative resultCode with null gasPrice on invalid keyType.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| keyType | <code>number</code> | 3 (HYBRIDEDMLDSASLHDSA) or 5 (HYBRIDEDMLDSASLHDSA5). |
+| [fullSign] | <code>boolean</code> \| <code>null</code> | Optional. Use full (non-compact) signing for keyType 3. Ignored for keyType 5. Defaults to false. |
 
 <a name="module_quantum-coin-js-sdk..sign"></a>
 

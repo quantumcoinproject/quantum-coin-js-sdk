@@ -1,5 +1,4 @@
 const qcsdk = require('quantum-coin-js-sdk');
-const ethers = require('ethers');
 
 
 var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet

@@ -1,5 +1,4 @@
 const qcsdk = require('quantum-coin-js-sdk');
-const ethers = require('ethers');
 
 var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
 

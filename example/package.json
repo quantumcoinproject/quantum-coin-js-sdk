@@ -9,7 +9,7 @@
   "author": "Quantum Coin Community",
   "license": "MIT",
   "dependencies": {
-    "ethers": "^6.13.4",
+    "quantumcoin": "^7.0.14",
     "quantum-coin-js-sdk": "file:.."
   }
 }

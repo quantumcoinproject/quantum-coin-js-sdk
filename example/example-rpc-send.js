@@ -1,5 +1,4 @@
 const qcsdk = require('quantum-coin-js-sdk');
-const ethers = require('ethers');
 
 //This example shows how to manage wallets, sign a transaction and send a transaction using JSON RPC
 //You may use empty values for the read and write URLs

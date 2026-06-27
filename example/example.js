@@ -1,5 +1,5 @@
 const qcsdk = require('quantum-coin-js-sdk');
-const ethers = require('ethers');
+const { formatEther, parseEther } = require('quantumcoin');
 
 var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
 
@@ -22,10 +22,10 @@ let hexValue = "0x56BC75E2D63100000";
 let weiValueExample = BigInt(hexValue).toString(); //convert hex to wei
 console.log("hex to wei example: hex:" + hexValue + ", wei: " + weiValueExample);
 
-let ethValueExample = ethers.formatEther(weiValueExample); //convert wei to eth
+let ethValueExample = formatEther(weiValueExample); //convert wei to eth
 console.log("wei to eth example: wei:" + weiValueExample + ", eth (coins): " + ethValueExample);
 
-let weiValueExample2 = ethers.parseUnits(ethValueExample, "ether"); //convert eth to wei
+let weiValueExample2 = parseEther(ethValueExample); //convert eth to wei
 console.log("eth to wei example: eth (coins):" + ethValueExample + ", wei: " + weiValueExample2);
 
 //Initialize the SDK
@@ -65,7 +65,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
         console.log("     address: " + accountDetailsResult.accountDetails.address);
 
         console.log("     balance (wei): " + accountDetailsResult.accountDetails.balance);
-        var etherValue = ethers.formatEther(accountDetailsResult.accountDetails.balance)
+        var etherValue = formatEther(accountDetailsResult.accountDetails.balance)
         console.log("     balance coins (ether): " + etherValue);
 
         console.log("     nonce: " + accountDetailsResult.accountDetails.nonce);
@@ -265,7 +265,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
             console.log("          To Address: " + txn.to);
 
             let weiValueExample = BigInt(txn.value).toString(); //value is in hex. convert hex to wei
-            let ethValueExample = ethers.formatEther(weiValueExample); //convert wei to eth
+            let ethValueExample = formatEther(weiValueExample); //convert wei to eth
             console.log("          Value (hex): " + txn.value + " , (wei): " + weiValueExample + " , coins (eth): " + ethValueExample);            
 
             console.log("          Status: " + txn.status);

@@ -827,6 +827,22 @@ export class TransactionSigningRequest {
  */
 export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
 /**
+ * Returns the gas price per unit of gas (per-gas-unit), in wei, for the signing context implied by keyType and fullSign.
+ * The returned gasPrice is the price PER UNIT OF GAS, NOT the total transaction fee (total fee = gasPrice * gasLimit).
+ * This mirrors the dynamic-fee gas price logic in quantum-coin-go core/types/dynamic_fee_tx.go.
+ *
+ * fullSign is ignored for keyType 5 (which always uses signing context 1). For keyType 3, fullSign selects the scheme: false = compact (context 0), true = full (context 2).
+ *
+ * @function getGasPrice
+ * @param {number} keyType - 3 (HYBRIDEDMLDSASLHDSA) or 5 (HYBRIDEDMLDSASLHDSA5).
+ * @param {boolean|null} [fullSign] - Optional. Use full (non-compact) signing for keyType 3. Ignored for keyType 5. Defaults to false.
+ * @returns {{ resultCode: number, gasPrice: string|null }} resultCode 0 and gasPrice as a decimal wei string (per gas unit) on success; resultCode -940 with gasPrice null for an invalid keyType.
+ */
+export function getGasPrice(keyType: number, fullSign?: boolean | null): {
+    resultCode: number;
+    gasPrice: string | null;
+};
+/**
  * Sign a message with a private key. Optional signingContext selects algorithm (same pattern as signRawTransaction); if null/omitted, derived from private key type.
  * @param {number[]|Uint8Array} privateKey - Private key bytes.
  * @param {number[]|Uint8Array} message - Message bytes (e.g. 32-byte hash).

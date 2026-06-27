@@ -1,5 +1,4 @@
 const qcsdk = require('quantum-coin-js-sdk');
-const ethers = require('ethers');
 
 /**
  * Example: Token Pack/Unpack Operations

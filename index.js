@@ -44,6 +44,14 @@ const DEFAULT_GAS = 21000;
 const API_KEY_HEADER_NAME = "X-API-KEY";
 const REQUEST_ID_HEADER_NAME = "X-REQUEST-ID";
 
+// Dynamic-fee gas pricing (mirrors quantum-coin-go core/types/dynamic_fee_tx.go).
+// Base dynamic price = defaults.DEFAULT_PRICE / 10. BigInt is used because the
+// level multipliers push the value above Number.MAX_SAFE_INTEGER.
+const DEFAULT_PRICE_WEI = 47619047619047600n;
+const DYNAMIC_BASE_GAS_PRICE_WEI = DEFAULT_PRICE_WEI / 10n;
+const SIGNING_CONTEXT_LEVEL1_MULTIPLIER = 20n;
+const SIGNING_CONTEXT_LEVEL2_MULTIPLIER = 30n;
+
 // Key type and seed constants (CIRCL migration; see pqc-circl-migration.md)
 const KEY_TYPE_HYBRIDEDMLDSASLHDSA = 3;
 const KEY_TYPE_HYBRIDEDMLDSASLHDSA5 = 5;
@@ -2364,6 +2372,35 @@ function signRawTransaction(transactionSigningRequest) {
 }
 
 /**
+ * Returns the gas price per unit of gas (per-gas-unit), in wei, for the signing context implied by keyType and fullSign.
+ * The returned value is the price PER UNIT OF GAS, NOT the total transaction fee (total fee = gasPrice * gasLimit).
+ * This mirrors the dynamic-fee gas price logic in quantum-coin-go core/types/dynamic_fee_tx.go.
+ *
+ * fullSign is IGNORED for keyType 5 (KEY_TYPE_HYBRIDEDMLDSASLHDSA5), which always uses signing context 1.
+ * For keyType 3 (KEY_TYPE_HYBRIDEDMLDSASLHDSA), fullSign selects the scheme: false = compact (context 0), true = full (context 2).
+ *
+ * @function getGasPrice
+ * @param {number} keyType - 3 (KEY_TYPE_HYBRIDEDMLDSASLHDSA) or 5 (KEY_TYPE_HYBRIDEDMLDSASLHDSA5).
+ * @param {boolean|null} [fullSign] - Optional. Use full (non-compact) signing for keyType 3. Ignored for keyType 5. Defaults to false.
+ * @returns {{ resultCode: number, gasPrice: string|null }} resultCode 0 and gasPrice as a decimal wei string (per gas unit) on success; resultCode -940 with gasPrice null for an invalid keyType.
+ */
+function getGasPrice(keyType, fullSign) {
+    const useFullSign = fullSign === true;
+    let multiplier;
+    if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA) {
+        // signing context 0 (compact) or 2 (full)
+        multiplier = useFullSign ? SIGNING_CONTEXT_LEVEL2_MULTIPLIER : 1n;
+    } else if (keyType === KEY_TYPE_HYBRIDEDMLDSASLHDSA5) {
+        // signing context 1; fullSign is not applicable for this key type
+        multiplier = SIGNING_CONTEXT_LEVEL1_MULTIPLIER;
+    } else {
+        return { resultCode: -940, gasPrice: null };
+    }
+    const price = DYNAMIC_BASE_GAS_PRICE_WEI * multiplier;
+    return { resultCode: 0, gasPrice: price.toString() };
+}
+
+/**
  * Sign a message with a private key. Optional signingContext selects algorithm (same pattern as signRawTransaction); if null/omitted, derived from private key type.
  * @param {number[]|Uint8Array} privateKey - Private key bytes.
  * @param {number[]|Uint8Array} message - Message bytes (e.g. 32-byte hash).
@@ -3128,6 +3165,7 @@ module.exports = {
     combinePublicKeySignature,
     TransactionSigningRequest,
     signRawTransaction,
+    getGasPrice,
     sign,
     verify,
     packMethodData,
