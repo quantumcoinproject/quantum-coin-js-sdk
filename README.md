@@ -168,6 +168,7 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
     * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
+    * [~scryptDeriveKey(secret, salt, N, r, p, dkLen)](#module_quantum-coin-js-sdk..scryptDeriveKey) ⇒ <code>Array.&lt;number&gt;</code>
     * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) ⇒ <code>string</code>
     * [~packMethodData(abiJSON, methodName, ...args)](#module_quantum-coin-js-sdk..packMethodData) ⇒ <code>PackUnpackResult</code>
     * [~unpackMethodData(abiJSON, methodName, hexData)](#module_quantum-coin-js-sdk..unpackMethodData) ⇒ <code>PackUnpackResult</code>
@@ -1540,6 +1541,25 @@ The addressFromPublicKey returns the address corresponding to the public key.
 | Param | Type | Description |
 | --- | --- | --- |
 | publicKey | <code>Array.&lt;number&gt;</code> | An array of bytes containing the public key. |
+
+<a name="module_quantum-coin-js-sdk..scryptDeriveKey"></a>
+
+### quantum-coin-js-sdk~scryptDeriveKey(secret, salt, N, r, p, dkLen) ⇒ <code>Array.&lt;number&gt;</code>
+The scryptDeriveKey function derives a key from a secret and salt using the scrypt KDF.
+
+Note: Only the specific scrypt parameter set N=262144, r=8, p=1, dkLen=32 is supported currently. Passing any other values returns null.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - Returns the 32-byte derived key as a byte array. Returns null if the operation failed or the parameters are unsupported.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| secret | <code>string</code> | The secret/passphrase to derive the key from. |
+| salt | <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The salt as a byte array. |
+| N | <code>number</code> | The scrypt CPU/memory cost parameter. Must be 262144. |
+| r | <code>number</code> | The scrypt block size parameter. Must be 8. |
+| p | <code>number</code> | The scrypt parallelization parameter. Must be 1. |
+| dkLen | <code>number</code> | The derived key length in bytes. Must be 32. |
 
 <a name="module_quantum-coin-js-sdk..combinePublicKeySignature"></a>
 

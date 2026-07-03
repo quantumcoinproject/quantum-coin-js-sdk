@@ -727,6 +727,22 @@ export function publicKeyFromPrivateKey(privateKey: number[]): string;
  */
 export function addressFromPublicKey(publicKey: number[]): string;
 /**
+ * The scryptDeriveKey function derives a key from a secret and salt using the scrypt KDF.
+ *
+ * Note: Only the specific scrypt parameter set N=262144, r=8, p=1, dkLen=32 is supported
+ * currently. Passing any other values returns null.
+ *
+ * @function scryptDeriveKey
+ * @param {string} secret - The secret/passphrase to derive the key from.
+ * @param {Uint8Array|number[]} salt - The salt as a byte array.
+ * @param {number} N - The scrypt CPU/memory cost parameter. Must be 262144.
+ * @param {number} r - The scrypt block size parameter. Must be 8.
+ * @param {number} p - The scrypt parallelization parameter. Must be 1.
+ * @param {number} dkLen - The derived key length in bytes. Must be 32.
+ * @return {number[]} - Returns the 32-byte derived key as a byte array. Returns null if the operation failed or the parameters are unsupported.
+ */
+export function scryptDeriveKey(secret: string, salt: Uint8Array | number[], N: number, r: number, p: number, dkLen: number): number[];
+/**
  * The combinePublicKeySignature combines the public key and signature.
  *
  * @function combinePublicKeySignature
