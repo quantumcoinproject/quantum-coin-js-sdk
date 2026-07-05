@@ -7,9 +7,6 @@ const fs = require('fs');
 const path = require('path');
 
 const MAINNET_CHAIN_ID = 123123;
-const READ_RELAY_URL = 'https://sdk.readrelay.quantumcoinapi.com';
-const WRITE_RELAY_URL = 'https://sdk.writerelay.quantumcoinapi.com';
-
 const TEST_SEED_WORDS_32 = [
   'cylamidal', 'suculate', 'sealmate', 'radiploid', 'equifaxis', 'and', 'antipoise', 'stitchesy', 'perelade', 'lite',
   'gourtarel', 'thursat', 'overdrome', 'cogulate', 'nonviva', 'stewnut', 'floribund', 'enduivist', 'decatary', 'elvenwort',
@@ -32,7 +29,7 @@ function toArray(arr) {
 }
 
 async function main() {
-  const cfg = new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', '');
+  const cfg = new qcsdk.Config(MAINNET_CHAIN_ID);
   await qcsdk.initialize(cfg);
 
   const out = {};

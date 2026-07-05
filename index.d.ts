@@ -69,44 +69,6 @@ export function verifyWallet(wallet: Wallet): boolean;
  */
 export function newWallet(keyType: number | null): Wallet | number;
 /**
- * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
- * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
- * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function.
- * Transactions are usually committed in less than 30 seconds.
- *
- * @deprecated Use signRawTransaction and postTransaction instead.
- * @async
- * @function sendCoins
- * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
- * @param {string} toAddress - The address to which the coins should be sent.
- * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
- * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
- * @return {Promise<SendResult>}  Returns a promise of type SendResult.
- */
-export function sendCoins(wallet: Wallet, toAddress: string, coins: string, nonce: number): Promise<SendResult>;
-/**
- * The getAccountDetails function returns details of an account corresponding to the address.
- *
- * @async
- * @function getAccountDetails
- * @param {string} address - The address of the account of which the details have to be retrieved.
- * @return {Promise<AccountDetailsResult>}  Returns a promise of type AccountDetailsResult.
- */
-export function getAccountDetails(address: string): Promise<AccountDetailsResult>;
-/**
- * The getTransactionDetails function returns details of a transaction posted to the blockchain.
- * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
- * Some transactions that have lower balance than the minimum required for gas fees may be discarded.
- * In these cases, the transactions may not be returned when invoking the getTransactionDetails function.
- * You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success).
- * The transactionReceipt field can be null unless the transaction is registered with the blockchain.
- * @async
- * @function getTransactionDetails
- * @param {string} txnHash - The hash of the transaction to retrieve.
- * @return {Promise<TransactionDetailsResult>}  Returns a promise of type TransactionDetailsResult.
- */
-export function getTransactionDetails(txnHash: string): Promise<TransactionDetailsResult>;
-/**
  * The isAddressValid function validates whether an address is valid or not. An address is of length 66 characters including 0x.
  *
  * @function isAddressValid
@@ -115,99 +77,38 @@ export function getTransactionDetails(txnHash: string): Promise<TransactionDetai
  */
 export function isAddressValid(address: string): boolean;
 /**
- * The getLatestBlockDetails function returns details of the latest block of the blockchain.
- *
- * @async
- * @function getLatestBlockDetails
- * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type LatestBlockDetailsResult.
- */
-export function getLatestBlockDetails(): Promise<LatestBlockDetailsResult>;
-/**
  * The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
- * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
- * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
  *
  * @deprecated Use signRawTransaction instead.
  * @function signSendCoinTransaction
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
  * @param {string} toAddress - The address to which the coins should be sent.
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
- * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
+ * @param {number} nonce - A monotonically increasing number representing the nonce of the account. You have to carefully manage the state of the nonce to avoid sending the coins multiple times, such as when retrying after an error.
  * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
 export function signSendCoinTransaction(wallet: Wallet, toAddress: string, coins: string, nonce: number): Promise<SignResult>;
 /**
- * The listAccountTransactions function returns a list of transactions for a specific account.
- * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
- * Some transactions that have lower balance than the minimum required for gas fees may be discarded.
- * In these cases, the transactions may not be returned when invoking the listAccountTransactions function.
- * You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
- * Both transactions from and transactions to the address will be returned in the list.
- * Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
- * @async
- * @function listAccountTransactions
- * @param {string} address - The address for which the transactions have to be listed.
- * @param {number} pageNumber - The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page.
- * @return {Promise<AccountTransactionsResult>}  Returns a promise of type AccountTransactionsResult.
- */
-export function listAccountTransactions(address: string, pageNumber: number): Promise<AccountTransactionsResult>;
-/**
- * The postTransaction function posts a signed transaction to the blockchain.
- * This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
- *
- * @async
- * @function postTransaction
- * @param {string} txnData - A signed transaction string returned by the signSendCoinTransaction function.
- * @return {Promise<SendResult>}  Returns a promise of type SendResult. txnHash will be null in SendResult.
- */
-export function postTransaction(txnData: string): Promise<SendResult>;
-/**
  * @class
  * @constructor
  * @public
- * @classdesc This is the configuration class required to initialize and interact with Quantum Coin blockchain
+ * @classdesc This is the configuration class required to initialize the Quantum Coin SDK for offline operations such as wallet management and transaction signing.
  */
 export class Config {
     /**
      * Creates a config class
-     * @param {string} readUrl - The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.readrelay.quantumcoinapi.com
-     * @param {string} writeUrl - The Write API URL pointing to a write relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.writerelay.quantumcoinapi.com
      * @param {number} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
-     * @param {string} readApiKey - Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization.
-     * @param {string} writeApiKey - Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization.
      */
-    constructor(readUrl: string, writeUrl: string, chainId: number, readApiKey: string, writeApiKey: string);
-    /**
-     * The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-     * @type {string}
-     * @public
-    */
-    public readUrl: string;
-    /**
-     * The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-     * @type {string}
-     * @public
-    */
-    public writeUrl: string;
+    constructor(chainId: number);
     /**
      * The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
      * @type {number}
      * @public
     */
     public chainId: number;
-    /**
-     * API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
-     * @type {string}
-     * @public
-    */
-    public readApiKey: string;
-    /**
-     * API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
-     * @type {string}
-     * @public
-    */
-    public writeApiKey: string;
 }
 /**
  * @class
@@ -248,432 +149,6 @@ export class Wallet {
      * @public
     */
     public preExpansionSeed: Uint8Array | number[] | null;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a Block.
- */
-export class BlockDetails {
-    constructor(blockNumber: any);
-    /**
-     * Block Number of the block
-     * @type {number}
-     * @public
-    */
-    public blockNumber: number;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getLatestBlock function.
- */
-export class LatestBlockDetailsResult {
-    constructor(resultCode: any, blockDetails: any, response: any, requestId: any, err: any);
-    /**
-     * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-     * @type {number}
-     * @public
-    */
-    public resultCode: number;
-    /**
-     * An object of type BlockDetails representing the block. This value is null if the value of resultCode is not 0.
-     * @type {BlockDetails}
-     * @public
-    */
-    public blockDetails: BlockDetails;
-    /**
-     * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-     * @type {Object}
-     * @public
-    */
-    public response: Object;
-    /**
-     * An unique id to represent the request. This can be null if request failed before it could be sent.
-     * @type {string}
-     * @public
-    */
-    public requestId: string;
-    /**
-     * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-     * @type {Error}
-     * @public
-    */
-    public err: Error;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents an Account.
- */
-export class AccountDetails {
-    constructor(address: any, balance: any, nonce: any, blockNumber: any);
-    /**
-     * Address of the wallet. Is 66 bytes in length including 0x.
-     * @type {string}
-     * @public
-    */
-    public address: string;
-    /**
-     * Balance of the account in wei. To convert this to ethers, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
-     * @type {string}
-     * @public
-    */
-    public balance: string;
-    /**
-     * A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-     * @type {number}
-     * @public
-    */
-    public nonce: number;
-    /**
-     * The block number as of which the Account details was retrieved.
-     * @type {number}
-     * @public
-    */
-    public blockNumber: number;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getAccountDetails function.
- */
-export class AccountDetailsResult {
-    constructor(resultCode: any, accountDetails: any, response: any, requestId: any, err: any);
-    /**
-     * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-     * @type {number}
-     * @public
-    */
-    public resultCode: number;
-    /**
-     * An object of type AccountDetails representing the block. This value is null if the value of resultCode is not 0.
-     * @type {AccountDetails}
-     * @public
-    */
-    public accountDetails: AccountDetails;
-    /**
-     * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-     * @type {Object}
-     * @public
-    */
-    public response: Object;
-    /**
-     * An unique id to represent the request. This can be null if request failed before it could be sent.
-     * @type {string}
-     * @public
-    */
-    public requestId: string;
-    /**
-     * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-     * @type {Error}
-     * @public
-    */
-    public err: Error;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the sendCoins function.
- */
-export class SendResult {
-    constructor(resultCode: any, txnHash: any, response: any, requestId: any, err: any);
-    /**
-     * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-     * @type {number}
-     * @public
-    */
-    public resultCode: number;
-    /**
-     * Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x. This value is null if the value of resultCode is not 0.
-     * @type {string}
-     * @public
-    */
-    public txnHash: string;
-    /**
-     * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-     * @type {Object}
-     * @public
-    */
-    public response: Object;
-    /**
-     * An unique id to represent the request. This can be null if request failed before it could be sent.
-     * @type {string}
-     * @public
-    */
-    public requestId: string;
-    /**
-     * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-     * @type {Error}
-     * @public
-    */
-    public err: Error;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain.
- * While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
- */
-export class TransactionReceipt {
-    /**
-     * A hexadecimal string representing the total amount of gas used when this transaction was executed in the block.
-     * @type {string}
-     * @public
-    */
-    public cumulativeGasUsed: string;
-    /**
-     * A hexadecimal string representing the sum of the base fee and tip paid per unit of gas.
-     * @type {string}
-     * @public
-    */
-    public effectiveGasPrice: string;
-    /**
-     * A hexadecimal string representing the amount of gas used by this specific transaction alone.
-     * @type {string}
-     * @public
-    */
-    public gasUsed: string;
-    /**
-     * A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-     * @type {string}
-     * @public
-    */
-    public status: string;
-    /**
-     * Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x.
-     * @type {string}
-     * @public
-    */
-    public hash: string;
-    /**
-     * A hexadecimal string representing the transaction type. 0x0 is DefaultFeeTxType.
-     * @type {string}
-     * @public
-    */
-    public type: string;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents details of a transaction. You should consider the transaction as succeeded only if the status field of the receipt object is 0x1 (success).
- */
-export class TransactionDetails {
-    /**
-     * A hexadecimal string representing the hash of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-     * @type {string}
-     * @public
-    */
-    public blockHash: string;
-    /**
-     * The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-     * @type {number}
-     * @public
-    */
-    public blockNumber: number;
-    /**
-     * A 66 character hexadecimal string representing the address the transaction is sent from.
-     * @type {string}
-     * @public
-    */
-    public from: string;
-    /**
-     * A hexadecimal string representing the gas provided for the transaction execution.
-     * @type {string}
-     * @public
-    */
-    public gas: string;
-    /**
-     * A hexadecimal string representing the gasPrice used for each paid gas, in Wei.
-     * @type {string}
-     * @public
-    */
-    public gasPrice: string;
-    /**
-     * A 66 character hexadecimal string representing the hash of the transaction.
-     * @type {string}
-     * @public
-    */
-    public hash: string;
-    /**
-     * A hexadecimal string representing the compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-     * @type {string}
-     * @public
-    */
-    public input: string;
-    /**
-     * A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-     * @type {number}
-     * @public
-    */
-    public nonce: number;
-    /**
-     * A 66 character hexadecimal string representing address the transaction is directed to.
-     * @type {string}
-     * @public
-    */
-    public to: string;
-    /**
-     * A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.
-     * @type {string}
-     * @public
-    */
-    public value: string;
-    /**
-     * The receipt of the transaction. This field will be null while the transaction is pending (not yet registered in the blockchain).
-     * @type {TransactionReceipt}
-     * @public
-    */
-    public receipt: TransactionReceipt;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getTransactionDetails function. If transactions get discarded by the blockchain, for reasons such as due to lower than minimum gas fees or invalid nonce, the resultCode will always contain a non-zero value (failure).
- */
-export class TransactionDetailsResult {
-    constructor(resultCode: any, transactionDetails: any, response: any, requestId: any, err: any);
-    /**
-     * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-     * @type {number}
-     * @public
-    */
-    public resultCode: number;
-    /**
-     * An object of type TransactionDetails representing the transaction. This value is null if the value of resultCode is not 0.
-     * @type {TransactionDetails}
-     * @public
-    */
-    public transactionDetails: TransactionDetails;
-    /**
-     * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-     * @type {Object}
-     * @public
-    */
-    public response: Object;
-    /**
-     * An unique id to represent the request. This can be null if request failed before it could be sent.
-     * @type {string}
-     * @public
-    */
-    public requestId: string;
-    /**
-     * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-     * @type {Error}
-     * @public
-    */
-    public err: Error;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the listAccountTransactionDetails function.
- */
-export class AccountTransactionsResult {
-    constructor(resultCode: any, listAccountTransactionsResponse: any, response: any, requestId: any, err: any);
-    /**
-     * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-     * @type {number}
-     * @public
-    */
-    public resultCode: number;
-    /**
-     * An object of type ListAccountTransactionsResponse representing the list of transactions along with metadata. This value is null if the value of resultCode is not 0.
-     * @type {ListAccountTransactionsResponse}
-     * @public
-    */
-    public listAccountTransactionsResponse: ListAccountTransactionsResponse;
-    /**
-     * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-     * @type {Object}
-     * @public
-    */
-    public response: Object;
-    /**
-     * An unique id to represent the request. This can be null if request failed before it could be sent.
-     * @type {string}
-     * @public
-    */
-    public requestId: string;
-    /**
-     * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-     * @type {Error}
-     * @public
-    */
-    public err: Error;
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a list of account transactions returned by the listAccountTransactionDetails function.
- */
-export class ListAccountTransactionsResponse {
-    /**
-     * The number of pages available for listing.
-     * @type {number}
-     * @public
-    */
-    public pageCount: number;
-    /**
-     * An array of type AccountTransactionCompact, containing the list of transactions. Can be null if no items are available.
-     * @type {(AccountTransactionCompact|Array)}
-     * @public
-    */
-    public items: (AccountTransactionCompact | any[]);
-}
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a transaction of an account. You should consider the transaction as succeeded only if the status field is 0x1 (success).
- */
-export class AccountTransactionCompact {
-    /**
-     * The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-     * @type {number}
-     * @public
-    */
-    public blockNumber: number;
-    /**
-     * A 66 character hexadecimal string representing the address the transaction is sent from.
-     * @type {string}
-     * @public
-    */
-    public from: string;
-    /**
-     * A 66 character hexadecimal string representing the hash of the transaction.
-     * @type {string}
-     * @public
-    */
-    public hash: string;
-    /**
-     * A 66 character hexadecimal string representing address the transaction is directed to.
-     * @type {string}
-     * @public
-    */
-    public to: string;
-    /**
-     * A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.
-     * @type {string}
-     * @public
-    */
-    public value: string;
-    /**
-     * A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-     * @type {string}
-     * @public
-    */
-    public status: string;
 }
 /**
  * The newWalletSeedWords function creates a new wallet seed word list. The returned array can then be passed to the openWalletFromSeedWords function to create a new wallet.
@@ -729,19 +204,65 @@ export function addressFromPublicKey(publicKey: number[]): string;
 /**
  * The scryptDeriveKey function derives a key from a secret and salt using the scrypt KDF.
  *
- * Note: Only the specific scrypt parameter set N=262144, r=8, p=1, dkLen=32 is supported
- * currently. Passing any other values returns null.
+ * Arbitrary scrypt parameters are supported. The classic set N=262144, r=8, p=1, dkLen=32
+ * remains fully supported and byte-for-byte compatible with previous versions.
  *
  * @function scryptDeriveKey
- * @param {string} secret - The secret/passphrase to derive the key from.
+ * @param {string|Uint8Array|number[]} secret - The secret/passphrase. A string is encoded as UTF-8 bytes.
  * @param {Uint8Array|number[]} salt - The salt as a byte array.
- * @param {number} N - The scrypt CPU/memory cost parameter. Must be 262144.
- * @param {number} r - The scrypt block size parameter. Must be 8.
- * @param {number} p - The scrypt parallelization parameter. Must be 1.
- * @param {number} dkLen - The derived key length in bytes. Must be 32.
- * @return {number[]} - Returns the 32-byte derived key as a byte array. Returns null if the operation failed or the parameters are unsupported.
+ * @param {number} N - The scrypt CPU/memory cost parameter (power of two, > 1).
+ * @param {number} r - The scrypt block size parameter.
+ * @param {number} p - The scrypt parallelization parameter.
+ * @param {number} dkLen - The derived key length in bytes.
+ * @return {number[]} - Returns the derived key as a byte array. Returns null if the operation failed or the parameters are invalid.
  */
-export function scryptDeriveKey(secret: string, salt: Uint8Array | number[], N: number, r: number, p: number, dkLen: number): number[];
+export function scryptDeriveKey(secret: string | Uint8Array | number[], salt: Uint8Array | number[], N: number, r: number, p: number, dkLen: number): number[];
+/**
+ * The sha256 function computes the SHA-256 digest of the input.
+ *
+ * @function sha256
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 32-byte digest as a byte array. Returns null on invalid input.
+ */
+export function sha256(data: string | Uint8Array | number[]): number[];
+/**
+ * The sha512 function computes the SHA-512 digest of the input.
+ *
+ * @function sha512
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 64-byte digest as a byte array. Returns null on invalid input.
+ */
+export function sha512(data: string | Uint8Array | number[]): number[];
+/**
+ * The ripemd160 function computes the RIPEMD-160 digest of the input.
+ *
+ * @function ripemd160
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 20-byte digest as a byte array. Returns null on invalid input.
+ */
+export function ripemd160(data: string | Uint8Array | number[]): number[];
+/**
+ * The computeHmac function computes an HMAC over the data using the given key.
+ *
+ * @function computeHmac
+ * @param {string} algorithm - The hash algorithm: "sha256" or "sha512".
+ * @param {string|Uint8Array|number[]} key - The HMAC key (string -> UTF-8 bytes).
+ * @param {string|Uint8Array|number[]} data - The data to authenticate (string -> UTF-8 bytes).
+ * @return {number[]} - The HMAC as a byte array. Returns null on invalid input.
+ */
+export function computeHmac(algorithm: string, key: string | Uint8Array | number[], data: string | Uint8Array | number[]): number[];
+/**
+ * The pbkdf2 function derives a key using PBKDF2.
+ *
+ * @function pbkdf2
+ * @param {string|Uint8Array|number[]} password - The password (string -> UTF-8 bytes).
+ * @param {Uint8Array|number[]} salt - The salt as a byte array.
+ * @param {number} iterations - The iteration count (positive integer).
+ * @param {number} keylen - The derived key length in bytes (positive integer).
+ * @param {string} algorithm - The PRF hash algorithm: "sha256" or "sha512".
+ * @return {number[]} - The derived key as a byte array. Returns null on invalid input.
+ */
+export function pbkdf2(password: string | Uint8Array | number[], salt: Uint8Array | number[], iterations: number, keylen: number, algorithm: string): number[];
 /**
  * The combinePublicKeySignature combines the public key and signature.
  *
@@ -834,8 +355,8 @@ export class TransactionSigningRequest {
  * With this function, you can set the gasLimit explicitly compared to signTransaction.
  * You can also pass data to be signed, such as when creating or invoking a smart contract.
  * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
- * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
- * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
  *
  * @function signRawTransaction
  * @param {TransactionSigningRequest} transactionSigningRequest - An object of type TransactionSigningRequest with the transaction signing details.
@@ -844,13 +365,14 @@ export class TransactionSigningRequest {
 export function signRawTransaction(transactionSigningRequest: TransactionSigningRequest): SignResult;
 /**
  * Returns the gas price per unit of gas (per-gas-unit), in wei, for the signing context implied by keyType and fullSign.
- * The returned gasPrice is the price PER UNIT OF GAS, NOT the total transaction fee (total fee = gasPrice * gasLimit).
+ * The returned value is the price PER UNIT OF GAS, NOT the total transaction fee (total fee = gasPrice * gasLimit).
  * This mirrors the dynamic-fee gas price logic in quantum-coin-go core/types/dynamic_fee_tx.go.
  *
- * fullSign is ignored for keyType 5 (which always uses signing context 1). For keyType 3, fullSign selects the scheme: false = compact (context 0), true = full (context 2).
+ * fullSign is IGNORED for keyType 5 (KEY_TYPE_HYBRIDEDMLDSASLHDSA5), which always uses signing context 1.
+ * For keyType 3 (KEY_TYPE_HYBRIDEDMLDSASLHDSA), fullSign selects the scheme: false = compact (context 0), true = full (context 2).
  *
  * @function getGasPrice
- * @param {number} keyType - 3 (HYBRIDEDMLDSASLHDSA) or 5 (HYBRIDEDMLDSASLHDSA5).
+ * @param {number} keyType - 3 (KEY_TYPE_HYBRIDEDMLDSASLHDSA) or 5 (KEY_TYPE_HYBRIDEDMLDSASLHDSA5).
  * @param {boolean|null} [fullSign] - Optional. Use full (non-compact) signing for keyType 3. Ignored for keyType 5. Defaults to false.
  * @returns {{ resultCode: number, gasPrice: string|null }} resultCode 0 and gasPrice as a decimal wei string (per gas unit) on success; resultCode -940 with gasPrice null for an invalid keyType.
  */
@@ -1053,7 +575,7 @@ declare class SignResult {
     public txnHash: string;
     /**
      * A payload representing the signed transaction.
-     * To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function.
+     * To actually send a transaction, this payload can then be broadcast to the blockchain from a connected device (for example, via a relay or RPC endpoint).
      * This value is null if the value of resultCode is not 0.
      * @type {string}
      * @public

@@ -8,7 +8,7 @@ const qcsdk = require('quantum-coin-js-sdk');
  */
 
 // Configuration
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
+var clientConfigVal = new qcsdk.Config(123123); //Mainnet
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
 /**

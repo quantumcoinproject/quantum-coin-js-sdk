@@ -53,8 +53,7 @@ describe('transactional', { concurrency: 1 }, () => {
     'RPC submit signed raw tx: must succeed or fail only for insufficient gas',
     { timeout: 120_000 },
     async () => {
-      // For RPC-only flows, read/write URLs can be empty strings (see examples)
-      const initOk = await qcsdk.initialize(new qcsdk.Config('', '', MAINNET_CHAIN_ID, '', ''));
+      const initOk = await qcsdk.initialize(new qcsdk.Config(MAINNET_CHAIN_ID));
       assert.equal(initOk, true);
 
       assert.ok(isCirclAvailable(), 'CIRCL WASM must be loaded and verifyWallet(newWallet()) must pass');

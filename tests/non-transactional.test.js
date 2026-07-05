@@ -9,8 +9,6 @@ const fs = require('fs');
 const qcsdk = require('..');
 
 const MAINNET_CHAIN_ID = 123123;
-const READ_RELAY_URL = 'https://sdk.readrelay.quantumcoinapi.com';
-const WRITE_RELAY_URL = 'https://sdk.writerelay.quantumcoinapi.com';
 const PUBLIC_RPC_URL = 'https://public.rpc.quantumcoinapi.com';
 
 const VALID_ADDRESS_EXAMPLE =
@@ -19,12 +17,6 @@ const VALID_ADDRESS_EXAMPLE_UPPER =
   '0X6F605C4142F1CB037F967101A5B28CCD00B27CCE4516190356BAAF284D20E667';
 const TO_ADDRESS_EXAMPLE =
   '0x8293cd9b6ac502d2fe077b0c157dad39f36a5e546525b053151dced633634612';
-const ACCOUNT_ADDRESS_EXAMPLE =
-  '0x0000000000000000000000000000000000000000000000000000000000001000';
-const ACCOUNT_TX_LIST_EXAMPLE =
-  '0x0000000000000000000000000000000000000000000000000000000000002000';
-const TX_HASH_EXAMPLE =
-  '0xe6fbabc178adaaab6b9dbda086de53deaced1d6fe40e7db9539fe9e85695d1be';
 
 // Example seed words (48) from `example/example.js`
 const SEED_WORD_LIST =
@@ -102,20 +94,9 @@ function hexToBytes(hex) {
 describe('non-transactional', () => {
   test('exports: all classes are constructible (and not callable without new)', () => {
     const classExports = [
-      'AccountDetails',
-      'AccountDetailsResult',
-      'AccountTransactionCompact',
-      'AccountTransactionsResult',
-      'BlockDetails',
       'Config',
       'EventLogEncodeResult',
-      'LatestBlockDetailsResult',
-      'ListAccountTransactionsResponse',
       'PackUnpackResult',
-      'SendResult',
-      'TransactionDetails',
-      'TransactionDetailsResult',
-      'TransactionReceipt',
       'TransactionSigningRequest',
       'Wallet',
     ];
@@ -129,13 +110,13 @@ describe('non-transactional', () => {
   });
 
   before(async () => {
-    const cfg = new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', '');
+    const cfg = new qcsdk.Config(MAINNET_CHAIN_ID);
     const initResult = await qcsdk.initialize(cfg);
     assert.equal(initResult, true, 'SDK initialize should succeed');
   });
 
   test('initialize: calling initialize twice returns false', async () => {
-    const cfg = new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', '');
+    const cfg = new qcsdk.Config(MAINNET_CHAIN_ID);
     const init2 = await qcsdk.initialize(cfg);
     assert.equal(init2, false);
   });
@@ -1333,57 +1314,5 @@ describe('non-transactional', () => {
     assert.equal(res.resultCode, -909, 'invalid hex remarks must return -909');
   });
 
-  test('relay read-only APIs: getLatestBlockDetails/getAccountDetails/listAccountTransactions/getTransactionDetails', async () => {
-    const latest = await qcsdk.getLatestBlockDetails();
-    assert.ok(latest);
-    assert.equal(typeof latest.resultCode, 'number');
-    assert.equal(latest.resultCode, 0);
-    assert.ok(latest.blockDetails && typeof latest.blockDetails.blockNumber === 'number');
-
-    const acct = await qcsdk.getAccountDetails(ACCOUNT_ADDRESS_EXAMPLE);
-    assert.ok(acct);
-    assert.equal(typeof acct.resultCode, 'number');
-    // If the relay is healthy, this should be 0 for a valid address.
-    assert.equal(acct.resultCode, 0);
-    assert.ok(acct.accountDetails);
-    assert.equal(acct.accountDetails.address.toLowerCase(), ACCOUNT_ADDRESS_EXAMPLE.toLowerCase());
-
-    const txList = await qcsdk.listAccountTransactions(ACCOUNT_TX_LIST_EXAMPLE, 0);
-    assert.ok(txList);
-    assert.equal(typeof txList.resultCode, 'number');
-    assert.equal(txList.resultCode, 0);
-    assert.ok(txList.listAccountTransactionsResponse);
-    assert.equal(typeof txList.listAccountTransactionsResponse.pageCount, 'number');
-
-    const txd = await qcsdk.getTransactionDetails(TX_HASH_EXAMPLE);
-    assert.ok(txd);
-    assert.equal(typeof txd.resultCode, 'number');
-    // This should normally succeed; if the transaction no longer exists, it may be a 404.
-    if (txd.resultCode === 0) {
-      assert.ok(txd.transactionDetails);
-      assert.ok(isHex0x(txd.transactionDetails.hash));
-    } else {
-      // Negative-but-expected fallback: it must be a "not found" style response.
-      assert.ok(txd.response && typeof txd.response.status === 'number');
-      assert.equal(txd.response.status, 404);
-    }
-
-    // Negative: invalid address/hash inputs
-    const badAcct = await qcsdk.getAccountDetails('bad');
-    assert.notEqual(badAcct.resultCode, 0);
-    const badList = await qcsdk.listAccountTransactions('bad', 0);
-    assert.notEqual(badList.resultCode, 0);
-    const badTx = await qcsdk.getTransactionDetails('bad');
-    assert.notEqual(badTx.resultCode, 0);
-  });
-
-  test('transactional API negative validation (no network send): postTransaction/sendCoins', async () => {
-    const postNull = await qcsdk.postTransaction(null);
-    assert.ok(postNull);
-    assert.notEqual(postNull.resultCode, 0);
-
-    const sendBad = await qcsdk.sendCoins(null, TO_ADDRESS_EXAMPLE, '1', 0);
-    assert.notEqual(sendBad.resultCode, 0);
-  });
 });
 

@@ -8,9 +8,6 @@ const assert = require('node:assert/strict');
 const qcsdk = require('..');
 
 const MAINNET_CHAIN_ID = 123123;
-const READ_RELAY_URL = 'https://sdk.readrelay.quantumcoinapi.com';
-const WRITE_RELAY_URL = 'https://sdk.writerelay.quantumcoinapi.com';
-
 // 32-byte message (CIRCL expects fixed length where applicable)
 const MESSAGE_32 = new Uint8Array(32);
 for (let i = 0; i < 32; i++) MESSAGE_32[i] = (i + 1) & 0xff;
@@ -32,7 +29,7 @@ function toByteArray(buf) {
 
 describe('sign and verify', () => {
   before(async () => {
-    const cfg = new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', '');
+    const cfg = new qcsdk.Config(MAINNET_CHAIN_ID);
     const initResult = await qcsdk.initialize(cfg);
     assert.equal(initResult, true, 'SDK initialize should succeed');
   });

@@ -1,17 +1,13 @@
 const qcsdk = require('quantum-coin-js-sdk');
 
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
+var clientConfigVal = new qcsdk.Config(123123); //Mainnet
 
 //Initialize the client configuration
-//var clientConfigVal = new qcsdk.Config("https://t4-relayread.quantumcoin.org", "https://t4-relaywrite.quantumcoin.org", 310324, "", ""); //Testnet T4
+//var clientConfigVal = new qcsdk.Config(310324); //Testnet T4
 //Testnet T4 Block Explorer: https://t4.scan.quantumcoin.org
 
 //For mainnet, use the following configuration
-//var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Mainnet
-//Mainnet Block Explorer: https://scan.quantumcoin.org
-
-//Local testing configuration
-//var clientConfigVal = new qcsdk.Config("http://127.0.0.1:9090", "http://127.0.0.1:9091", 123123, "", ""); //local testing
+//var clientConfigVal = new qcsdk.Config(123123); //Mainnet
 //Mainnet Block Explorer: https://scan.quantumcoin.org
 
 //Initialize the SDK

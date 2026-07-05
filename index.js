@@ -23,7 +23,7 @@
  *
  * //Example initialization with specific values
  * //Initialize the SDK first before invoking any other function
- * var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
+ * var clientConfigVal = new qcsdk.Config(123123); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
  * qcsdk.initialize(clientConfigVal).then((initResult) => {
  *
  * }
@@ -33,7 +33,6 @@
 
 var wasmexec = require('./wasm_exec');
 var wasmBase64 = require('./wasmBase64');
-const crypto = require("crypto");
 var seedwords = require('seed-words');
 
 var config = null;
@@ -41,8 +40,6 @@ var isInitialized = false;
 /** CIRCL WASM namespace (set after InitAccountsWebAssembly). Use getCircl() for access. */
 var circl = null;
 const DEFAULT_GAS = 21000;
-const API_KEY_HEADER_NAME = "X-API-KEY";
-const REQUEST_ID_HEADER_NAME = "X-REQUEST-ID";
 
 // Dynamic-fee gas pricing (mirrors quantum-coin-go core/types/dynamic_fee_tx.go).
 // Base dynamic price = defaults.DEFAULT_PRICE / 10. BigInt is used because the
@@ -68,59 +65,26 @@ const SCRYPT_SUPPORTED_P = 1;
 const SCRYPT_SUPPORTED_DKLEN = 32;
 const INVALID_KEY_TYPE = -1001;
 const CIRCL_CRYPTO_FAILURE = -1002;
-const EXPECTED_WASM_SHA256 = "17aff465c5879e2ff94d33e8ce9d98d6ad6a70849b3e3cad7cccbcc9728e5a02";
+const EXPECTED_WASM_SHA256 = "8902a254d13930a8c82aa256468f7a72d613888b9032afb47e9430223886a052";
 
 /**
  * @class
  * @constructor
  * @public
- * @classdesc This is the configuration class required to initialize and interact with Quantum Coin blockchain
+ * @classdesc This is the configuration class required to initialize the Quantum Coin SDK for offline operations such as wallet management and transaction signing.
  */
 class Config {
     /**
      * Creates a config class
-     * @param {string} readUrl - The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.readrelay.quantumcoinapi.com
-     * @param {string} writeUrl - The Write API URL pointing to a write relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.writerelay.quantumcoinapi.com
      * @param {number} chainId - The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
-     * @param {string} readApiKey - Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization.
-     * @param {string} writeApiKey - Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization.
      */
-    
-    constructor(readUrl, writeUrl, chainId, readApiKey, writeApiKey) {
-        /**
-         * The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-         * @type {string}
-         * @public
-        */
-        this.readUrl = readUrl;
-
-        /**
-         * The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-         * @type {string}
-         * @public
-        */
-        this.writeUrl = writeUrl;
-
+    constructor(chainId) {
         /**
          * The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
          * @type {number}
          * @public
         */
         this.chainId = chainId;
-
-        /**
-         * API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
-         * @type {string}
-         * @public
-        */
-        this.readApiKey = readApiKey;
-
-        /**
-         * API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
-         * @type {string}
-         * @public
-        */
-        this.writeApiKey = writeApiKey;
     }
 }
 
@@ -174,151 +138,6 @@ class Wallet {
  * @class
  * @constructor
  * @public
- * @classdesc This class represents a Block.
- */
-class BlockDetails {
-    constructor(blockNumber) {
-        /**
-         * Block Number of the block
-         * @type {number}
-         * @public
-        */
-        this.blockNumber = blockNumber;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getLatestBlock function.
- */
-class LatestBlockDetailsResult {
-    constructor(resultCode, blockDetails, response, requestId, err) {
-        /**
-         * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-         * @type {number}
-         * @public
-        */
-        this.resultCode = resultCode;
-
-        /**
-         * An object of type BlockDetails representing the block. This value is null if the value of resultCode is not 0.
-         * @type {BlockDetails}
-         * @public
-        */
-        this.blockDetails = blockDetails;
-
-        /**
-         * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-         * @type {Object}
-         * @public
-        */
-        this.response = response;
-
-        /**
-         * An unique id to represent the request. This can be null if request failed before it could be sent.
-         * @type {string}
-         * @public
-        */
-        this.requestId = requestId;
-
-        /**
-         * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-         * @type {Error}
-         * @public
-        */
-        this.err = err;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents an Account.
- */
-class AccountDetails {
-    constructor(address, balance, nonce, blockNumber) {
-        /**
-         * Address of the wallet. Is 66 bytes in length including 0x.
-         * @type {string}
-         * @public
-        */
-        this.address = address;
-
-        /**
-         * Balance of the account in wei. To convert this to ethers, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
-         * @type {string}
-         * @public
-        */
-        this.balance = balance;
-
-        /**
-         * A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-         * @type {number}
-         * @public
-        */
-        this.nonce = nonce;
-
-        /**
-         * The block number as of which the Account details was retrieved.
-         * @type {number}
-         * @public
-        */
-        this.blockNumber = blockNumber;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getAccountDetails function.
- */
-class AccountDetailsResult {
-    constructor(resultCode, accountDetails, response, requestId, err) {
-        /**
-         * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-         * @type {number}
-         * @public
-        */
-        this.resultCode = resultCode;
-
-        /**
-         * An object of type AccountDetails representing the block. This value is null if the value of resultCode is not 0.
-         * @type {AccountDetails}
-         * @public
-        */
-        this.accountDetails = accountDetails;
-
-        /**
-         * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-         * @type {Object}
-         * @public
-        */
-        this.response = response;
-
-        /**
-         * An unique id to represent the request. This can be null if request failed before it could be sent.
-         * @type {string}
-         * @public
-        */
-        this.requestId = requestId;
-
-        /**
-         * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-         * @type {Error}
-         * @public
-        */
-        this.err = err;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
  * @classdesc This class represents a result from invoking the signSendCoinTransaction function.
  */
 class SignResult {
@@ -339,367 +158,12 @@ class SignResult {
 
         /**
          * A payload representing the signed transaction. 
-         * To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. 
+         * To actually send a transaction, this payload can then be broadcast to the blockchain from a connected device (for example, via a relay or RPC endpoint). 
          * This value is null if the value of resultCode is not 0.
          * @type {string}
          * @public
         */
         this.txnData = txnData;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the sendCoins function.
- */
-class SendResult {
-    constructor(resultCode, txnHash, response, requestId, err) {
-        /**
-         * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-         * @type {number}
-         * @public
-        */
-        this.resultCode = resultCode;
-
-        /**
-         * Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x. This value is null if the value of resultCode is not 0.
-         * @type {string}
-         * @public
-        */
-        this.txnHash = txnHash;
-
-        /**
-         * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-         * @type {Object}
-         * @public
-        */
-        this.response = response;
-
-        /**
-         * An unique id to represent the request. This can be null if request failed before it could be sent.
-         * @type {string}
-         * @public
-        */
-        this.requestId = requestId;
-
-        /**
-         * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-         * @type {Error}
-         * @public
-        */
-        this.err = err;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. 
- * While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
- */
-class TransactionReceipt {
-    constructor() {
-        /**
-         * A hexadecimal string representing the total amount of gas used when this transaction was executed in the block.
-         * @type {string}
-         * @public
-        */
-        this.cumulativeGasUsed = null;
-
-        /**
-         * A hexadecimal string representing the sum of the base fee and tip paid per unit of gas.
-         * @type {string}
-         * @public
-        */
-        this.effectiveGasPrice = null;
-
-        /**
-         * A hexadecimal string representing the amount of gas used by this specific transaction alone.
-         * @type {string}
-         * @public
-        */
-        this.gasUsed = null;
-
-        /**
-         * A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-         * @type {string}
-         * @public
-        */
-        this.status = null;
-
-        /**
-         * Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x.
-         * @type {string}
-         * @public
-        */
-        this.hash = null;
-
-        /**
-         * A hexadecimal string representing the transaction type. 0x0 is DefaultFeeTxType.
-         * @type {string}
-         * @public
-        */
-        this.type = null;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents details of a transaction. You should consider the transaction as succeeded only if the status field of the receipt object is 0x1 (success).
- */
-class TransactionDetails {
-    constructor() {
-        /**
-         * A hexadecimal string representing the hash of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-         * @type {string}
-         * @public
-        */
-        this.blockHash = null;
-
-        /**
-         * The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-         * @type {number}
-         * @public
-        */
-        this.blockNumber = null;
-
-        /**
-         * A 66 character hexadecimal string representing the address the transaction is sent from.
-         * @type {string}
-         * @public
-        */
-        this.from = null;
-
-        /**
-         * A hexadecimal string representing the gas provided for the transaction execution.
-         * @type {string}
-         * @public
-        */
-        this.gas = null;
-
-        /**
-         * A hexadecimal string representing the gasPrice used for each paid gas, in Wei.
-         * @type {string}
-         * @public
-        */
-        this.gasPrice = null;
-
-        /**
-         * A 66 character hexadecimal string representing the hash of the transaction.
-         * @type {string}
-         * @public
-        */
-        this.hash = null;
-
-        /**
-         * A hexadecimal string representing the compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-         * @type {string}
-         * @public
-        */
-        this.input = null;
-
-        /**
-         * A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-         * @type {number}
-         * @public
-        */
-        this.nonce = null;
-
-        /**
-         * A 66 character hexadecimal string representing address the transaction is directed to.
-         * @type {string}
-         * @public
-        */
-        this.to = null;
-
-        /**
-         * A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.  
-         * @type {string}
-         * @public
-        */
-        this.value = null;
-
-        /**
-         * The receipt of the transaction. This field will be null while the transaction is pending (not yet registered in the blockchain).
-         * @type {TransactionReceipt}
-         * @public
-        */
-        this.receipt = null;
-    }
-
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the getTransactionDetails function. If transactions get discarded by the blockchain, for reasons such as due to lower than minimum gas fees or invalid nonce, the resultCode will always contain a non-zero value (failure).
- */
-class TransactionDetailsResult {
-    constructor(resultCode, transactionDetails, response, requestId, err) {
-        /**
-         * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-         * @type {number}
-         * @public
-        */
-
-        this.resultCode = resultCode;
-
-        /**
-         * An object of type TransactionDetails representing the transaction. This value is null if the value of resultCode is not 0.
-         * @type {TransactionDetails}
-         * @public
-        */
-        this.transactionDetails = transactionDetails;
-
-        /**
-         * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-         * @type {Object}
-         * @public
-        */
-        this.response = response;
-
-        /**
-         * An unique id to represent the request. This can be null if request failed before it could be sent.
-         * @type {string}
-         * @public
-        */
-        this.requestId = requestId;
-
-        /**
-         * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-         * @type {Error}
-         * @public
-        */
-        this.err = err;
-    }
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a transaction of an account. You should consider the transaction as succeeded only if the status field is 0x1 (success).
- */
-class AccountTransactionCompact {
-    constructor() {
-        /**
-         * The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-         * @type {number}
-         * @public
-        */
-        this.blockNumber = null;
-
-        /**
-         * A 66 character hexadecimal string representing the address the transaction is sent from.
-         * @type {string}
-         * @public
-        */
-        this.from = null;
-
-        /**
-         * A 66 character hexadecimal string representing the hash of the transaction.
-         * @type {string}
-         * @public
-        */
-        this.hash = null;
-
-        /**
-         * A 66 character hexadecimal string representing address the transaction is directed to.
-         * @type {string}
-         * @public
-        */
-        this.to = null;
-
-        /**
-         * A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.  
-         * @type {string}
-         * @public
-        */
-        this.value = null;
-
-        /**
-         * A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-         * @type {string}
-         * @public
-        */
-        this.status = null;
-    }
-
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a list of account transactions returned by the listAccountTransactionDetails function.
- */
-class ListAccountTransactionsResponse {
-    constructor() {
-        /**
-         * The number of pages available for listing.
-         * @type {number}
-         * @public
-        */
-        this.pageCount = null;
-
-        /**
-         * An array of type AccountTransactionCompact, containing the list of transactions. Can be null if no items are available.
-         * @type {(AccountTransactionCompact|Array)}
-         * @public
-        */
-        this.items = null;
-    }
-
-}
-
-/**
- * @class
- * @constructor
- * @public
- * @classdesc This class represents a result from invoking the listAccountTransactionDetails function.
- */
-class AccountTransactionsResult {
-    constructor(resultCode, listAccountTransactionsResponse, response, requestId, err) {
-        /**
-         * Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-         * @type {number}
-         * @public
-        */
-        this.resultCode = resultCode;
-
-        /**
-         * An object of type ListAccountTransactionsResponse representing the list of transactions along with metadata. This value is null if the value of resultCode is not 0.
-         * @type {ListAccountTransactionsResponse}
-         * @public
-        */
-        this.listAccountTransactionsResponse = listAccountTransactionsResponse;
-
-        /**
-         * An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-         * @type {Object}
-         * @public
-        */
-        this.response = response;
-
-        /**
-         * An unique id to represent the request. This can be null if request failed before it could be sent.
-         * @type {string}
-         * @public
-        */
-        this.requestId = requestId;
-
-        /**
-         * An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-         * @type {Error}
-         * @public
-        */
-        this.err = err;
     }
 }
 
@@ -867,7 +331,11 @@ function getGlobalObject() {
 }
 
 async function InitAccountsWebAssembly() {
-    const go = new global.Go();
+    const GoCtor = getGlobalObject().Go;
+    if (typeof GoCtor !== 'function') {
+        throw new Error("Go WASM runtime not found (wasm_exec.js not loaded)");
+    }
+    const go = new GoCtor();
     let mod, inst;
     var base64wasm = wasmBase64.getBase64Wasm();
 
@@ -877,7 +345,11 @@ async function InitAccountsWebAssembly() {
     }
     const wasmBytes = Uint8Array.from(atob(base64wasm), c => c.charCodeAt(0));
 
-    const hashHex = crypto.createHash('sha256').update(wasmBytes).digest('hex');
+    // Platform-agnostic integrity check via the Web Crypto API (available in
+    // browsers and Node 16+ as globalThis.crypto.subtle). Runs before the WASM
+    // is initialized, so it cannot use the WASM's own Sha256.
+    const digest = await getGlobalObject().crypto.subtle.digest('SHA-256', wasmBytes);
+    const hashHex = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
     if (hashHex !== EXPECTED_WASM_SHA256) {
         throw new Error("WASM integrity check failed");
     }
@@ -960,9 +432,9 @@ async function initialize(clientConfig) {
         return false;
     }
     if (clientConfig === null || clientConfig === undefined) {
-        clientConfig = new Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //default
+        clientConfig = new Config(123123); //default
     }
-    if (clientConfig.readUrl === null || clientConfig.writeUrl === null || clientConfig.chainId === null) {
+    if (clientConfig.chainId === null || clientConfig.chainId === undefined) {
         return false;
     }
     await InitAccountsWebAssembly();
@@ -1390,15 +862,32 @@ function bytesToBase64(bytes) {
     return btoa(binString);
 }
 
-function getRandomRequestId() {
-    return crypto.randomBytes(20).toString('hex');
-}
-
 function isByteArray(array) {
     if (!array) return false;
     if (array.byteLength !== undefined) return true;
     if (typeof array.length === 'number' && array.length >= 0) return true;
     return false;
+}
+
+// Normalizes a bytes-like value (Uint8Array or number[]) to a Uint8Array.
+// Returns null for unsupported inputs.
+function toU8Bytes(value) {
+    if (value instanceof Uint8Array) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return Uint8Array.from(value);
+    }
+    return null;
+}
+
+// Normalizes a secret-like value (string -> UTF-8 bytes, or bytes-like) to a
+// Uint8Array. Returns null for unsupported inputs.
+function toU8Secret(value) {
+    if (typeof value === 'string' || value instanceof String) {
+        return new TextEncoder().encode(String(value));
+    }
+    return toU8Bytes(value);
 }
 
 /**
@@ -1622,419 +1111,17 @@ function transactionGetData2(fromaddress, nonce, toaddress, valueInWeiHex, gas, 
 }
 
 /**
- * The postTransaction function posts a signed transaction to the blockchain. 
- * This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
- *
- * @async
- * @function postTransaction
- * @param {string} txnData - A signed transaction string returned by the signSendCoinTransaction function.
- * @return {Promise<SendResult>}  Returns a promise of type SendResult. txnHash will be null in SendResult.
- */
-async function postTransaction(txnData) {    
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    if (txnData == null) {
-        return new SendResult(-600, null, null, null);
-    }
-    var url = config.writeUrl + "/transactions";
-
-    let requestId = getRandomRequestId();
-
-    let reqHeaders = new Headers({
-        "Content-Type": "application/json"
-    });
-    reqHeaders.append(REQUEST_ID_HEADER_NAME, requestId);
-    if (config.writeApiKey !== null) {
-        reqHeaders.append(API_KEY_HEADER_NAME, config.writeApiKey);    }
-
-
-    let txnDataJson = JSON.stringify({ txnData: txnData });
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: reqHeaders,
-            body: txnDataJson
-        });
-
-        if (response == null) {
-            return new SendResult(-601, null, null, requestId);
-        }
-
-        if (response.status === 200 || response.status === 204) {
-            return new SendResult(0, null, response, requestId);
-        }
-
-        return new SendResult(-602, null, response, requestId);
-    } catch(error) {
-        return new SendResult(-10000, null, null, requestId, error);
-    }
-}
-
-/**
- * The getLatestBlockDetails function returns details of the latest block of the blockchain.
- *
- * @async
- * @function getLatestBlockDetails
- * @return {Promise<LatestBlockDetailsResult>}  Returns a promise of an object of type LatestBlockDetailsResult.
- */
-async function getLatestBlockDetails() {
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    let requestId = getRandomRequestId();
-
-    let reqHeaders = new Headers({
-        "Content-Type": "application/json"
-    });
-    reqHeaders.append(REQUEST_ID_HEADER_NAME, requestId);
-    if (config.readApiKey !== null) {
-        reqHeaders.append(API_KEY_HEADER_NAME, config.readApiKey);
-    }
-
-    var url = config.readUrl + "/latestblock";
-
-    try {    
-        const response = await fetch(url, {
-            headers: reqHeaders,
-        });
-    
-        if (response == null) {
-            return new LatestBlockDetailsResult(-100, null, response, requestId);
-        }
-        if (response.status !== 200) {
-            return new LatestBlockDetailsResult(-101, null, response, requestId);
-        }
-
-        const jsonObj = await response.json();
-        if (jsonObj == null) {
-            return new LatestBlockDetailsResult(-102, null, response, requestId);
-        }
-        const result = jsonObj.result;
-
-        if (result == null) {
-            return new LatestBlockDetailsResult(-103, null, response, requestId);
-        }
-
-        if (result.blockNumber == null) {
-            return new LatestBlockDetailsResult(-104, null, response, requestId);
-        }
-
-        let blockNumber = parseInt(result.blockNumber);
-        if (Number.isInteger(blockNumber) === false) {
-            return new LatestBlockDetailsResult(-105, null, response, requestId);
-        }
-
-        var blockDetails = new BlockDetails(blockNumber);
-        return new LatestBlockDetailsResult(0, blockDetails, response, requestId);
-    } catch (error) {
-        return new LatestBlockDetailsResult(-10000, null, null, requestId, error);
-    }
-}
-
-/**
- * The getAccountDetails function returns details of an account corresponding to the address.
- *
- * @async
- * @function getAccountDetails
- * @param {string} address - The address of the account of which the details have to be retrieved.
- * @return {Promise<AccountDetailsResult>}  Returns a promise of type AccountDetailsResult. 
- */
-async function getAccountDetails(address) {
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    if (address == null) {
-        return new AccountDetailsResult(-200, null, null, null);
-    }
-    if (isAddressValid(address) === false) {
-        return new AccountDetailsResult(-201, null, null, null);
-    }
-
-    let nonce = 0;
-    let balance = "0";
-    let requestId = getRandomRequestId();
-
-    let reqHeaders = new Headers({
-        "Content-Type": "application/json"
-    });
-    reqHeaders.append(REQUEST_ID_HEADER_NAME, requestId);
-    if(config.readApiKey !== null) {
-        reqHeaders.append(API_KEY_HEADER_NAME, config.readApiKey);
-    }
-    
-    var url = config.readUrl + "/account/" + address;
-
-    try {
-        const response = await fetch(url, {
-            headers: reqHeaders,
-        });
-
-        if(response == null) {
-            return new AccountDetailsResult(-202, null, response, requestId);
-        }
-        if (response.status !== 200) {
-            return new AccountDetailsResult(-203, null, response, requestId);
-        }
-
-        const jsonObj = await response.json();
-        if (jsonObj == null) {
-            return new AccountDetailsResult(-204, null, response, requestId);
-        }
-        const result = jsonObj.result;
-
-        if (result == null) {
-            return new AccountDetailsResult(-205, null, response, requestId);
-        }
-
-        if(result.blockNumber == null) {
-            return new AccountDetailsResult(-206, null, response, requestId);
-        }
-
-        let blockNumber = parseInt(result.blockNumber);
-        if (Number.isInteger(blockNumber) === false) {
-            return new AccountDetailsResult(-207, null, response, requestId);
-        }
-
-        if (result.nonce === null) {
-            nonce = 0;
-        } else {
-            let tempNonce = parseInt(result.nonce);
-            if (Number.isInteger(tempNonce) === true) {
-                nonce = tempNonce;
-                if (nonce < 0) {
-                    return new AccountDetailsResult(-208, null, response, requestId);
-                }
-            } else {
-                return new AccountDetailsResult(-209, null, response, requestId);
-            }
-        }
-
-        if (result.balance != null) {
-            if (isLargeNumber(result.balance) === false) {
-                return new AccountDetailsResult(-210, null, response, requestId);
-            } else {
-                balance = result.balance;
-            }
-        }
-
-        var accountDetails = new AccountDetails(address, balance, nonce, blockNumber);
-        return new AccountDetailsResult(0, accountDetails, response, requestId);
-
-     } catch (error) {
-        return new AccountDetailsResult(-10000, null, null, requestId, error);
-    }
-}
-
-/**
- * The getTransactionDetails function returns details of a transaction posted to the blockchain. 
- * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
- * Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
- * In these cases, the transactions may not be returned when invoking the getTransactionDetails function. 
- * You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). 
- * The transactionReceipt field can be null unless the transaction is registered with the blockchain.
- * @async
- * @function getTransactionDetails
- * @param {string} txnHash - The hash of the transaction to retrieve.
- * @return {Promise<TransactionDetailsResult>}  Returns a promise of type TransactionDetailsResult.
- */
-async function getTransactionDetails(txnHash) {
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    if (txnHash == null) {
-        return new TransactionDetailsResult(-300, null, null, null);
-    }
-    if (isAddressValid(txnHash) === false) {
-        return new TransactionDetailsResult(-301, null, null, null);
-    }
-
-    let requestId = getRandomRequestId();
-
-    let reqHeaders = new Headers({
-        "Content-Type": "application/json"
-    });
-    reqHeaders.append(REQUEST_ID_HEADER_NAME, requestId);
-    if (config.readApiKey !== null) {
-        reqHeaders.append(API_KEY_HEADER_NAME, config.readApiKey);
-    }
-
-    var url = config.readUrl + "/transaction/" + txnHash;
-
-    try {
-        const response = await fetch(url, {
-            headers: reqHeaders,
-        });
-
-        if (response == null) {
-            return new TransactionDetailsResult(-302, null, response, requestId);
-        }
-        if (response.status !== 200) {
-            return new TransactionDetailsResult(-303, null, response, requestId);
-        }
-
-        const jsonObj = await response.json();
-        if (jsonObj == null) {
-            return new TransactionDetailsResult(-304, null, response, requestId);
-        }
-        const result = jsonObj.result;
-
-        if (result == null) {
-            return new TransactionDetailsResult(-305, null, response, requestId);
-        }
-
-        var transactionDetails = new TransactionDetails();
-
-        if (result.blockNumber !== null) {
-            let tempBlockNumber = parseInt(result.blockNumber);
-            if (Number.isInteger(tempBlockNumber) === true) {
-                transactionDetails.blockNumber = tempBlockNumber;
-            }
-            if (tempBlockNumber < 0) {
-                return new TransactionDetailsResult(-306, null, response, requestId);
-            }
-        }
-
-        transactionDetails.blockHash = result.blockHash;
-        transactionDetails.from = result.from;
-        transactionDetails.gas = result.gas;
-        transactionDetails.gasPrice = result.gasPrice;
-        transactionDetails.hash = result.hash;
-        transactionDetails.input = result.input;
-        transactionDetails.nonce = result.nonce;
-        transactionDetails.to = result.to;
-        transactionDetails.value = result.value;
-
-        if(result.receipt !== null) {
-            transactionDetails.receipt = new TransactionReceipt();
-            transactionDetails.receipt.cumulativeGasUsed = result.receipt.cumulativeGasUsed;
-            transactionDetails.receipt.effectiveGasPrice = result.receipt.effectiveGasPrice;
-            transactionDetails.receipt.gasUsed = result.receipt.gasUsed;
-            transactionDetails.receipt.status = result.receipt.status;
-            transactionDetails.receipt.hash = result.receipt.hash;
-            transactionDetails.receipt.type = result.receipt.type;
-        }
-        
-        return new TransactionDetailsResult(0, transactionDetails, response, requestId);
-    } catch (error) {
-        return new TransactionDetailsResult(-10000, null, null, requestId, error);
-    }
-}
-
-/**
- * The listAccountTransactions function returns a list of transactions for a specific account. 
- * Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
- * Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
- * In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
- * You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
- * Both transactions from and transactions to the address will be returned in the list.
- * Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
- * @async
- * @function listAccountTransactions
- * @param {string} address - The address for which the transactions have to be listed.
- * @param {number} pageNumber - The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page.
- * @return {Promise<AccountTransactionsResult>}  Returns a promise of type AccountTransactionsResult.
- */
-async function listAccountTransactions(address, pageNumber) {
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    if (address === null) {
-        return new AccountTransactionsResult(-700, null, null, null);
-    }
-    if (isAddressValid(address) === false) {
-        return new AccountTransactionsResult(-701, null, null, null);
-    }
-
-    if (pageNumber === null) {
-        pageNumber = 0;
-    } else if (Number.isInteger(pageNumber) === false)  {
-        return new AccountTransactionsResult(-702, null, null, null);
-    }
-
-    let requestId = getRandomRequestId();
-
-    let reqHeaders = new Headers({
-        "Content-Type": "application/json"
-    });
-    reqHeaders.append(REQUEST_ID_HEADER_NAME, requestId);
-    if (config.readApiKey !== null) {
-        reqHeaders.append(API_KEY_HEADER_NAME, config.readApiKey);
-    }
-
-    var url = config.readUrl + "/account/" + address + "/transactions/" + pageNumber;
-
-    try {
-        const response = await fetch(url, {
-            headers: reqHeaders,
-        });
-
-        if (response === null) {
-            return new AccountTransactionsResult(-703, null, response, requestId);
-        }
-        if (response.status !== 200) {
-            return new AccountTransactionsResult(-704, null, response, requestId);
-        }
-
-        const jsonObj = await response.json();
-    
-        if (jsonObj === null) {
-            return new AccountTransactionsResult(-705, null, response, requestId);
-        }
-        const result = jsonObj;
-
-        if (result.pageCount === null) {
-            return new AccountTransactionsResult(-706, null, response, requestId);
-        }
-
-        var listAccountDetailsResponse = new ListAccountTransactionsResponse();
-    
-        let tempPageCount = parseInt(result.pageCount);
-        if (Number.isInteger(tempPageCount) === true) {
-            listAccountDetailsResponse.pageCount = tempPageCount;
-        }
-    
-        if (result.items !== null) {
-            if (Array.isArray(result.items) === false) {
-                return new AccountTransactionsResult(-707, null, response, requestId);
-            }
-            listAccountDetailsResponse.items = new Array();
-            for (const item of result.items) {
-                let txn = new AccountTransactionCompact();
-                txn.blockNumber = item.blockNumber;
-                txn.from = item.from;
-                txn.hash = item.hash;
-                txn.to = item.to;
-                txn.value = item.value;
-                txn.status = item.status;
-                listAccountDetailsResponse.items.push(txn);       
-            }        
-        }
-
-        return new AccountTransactionsResult(0, listAccountDetailsResponse, response, requestId);
-    } catch (error) {
-        return new AccountTransactionsResult(-10000, null, null, requestId, error);
-    }
-}
-
-/**
  * The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
- * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
- * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
  *
  * @deprecated Use signRawTransaction instead.
  * @function signSendCoinTransaction
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
  * @param {string} toAddress - The address to which the coins should be sent. 
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
- * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
+ * @param {number} nonce - A monotonically increasing number representing the nonce of the account. You have to carefully manage the state of the nonce to avoid sending the coins multiple times, such as when retrying after an error.
  * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
 async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
@@ -2107,15 +1194,15 @@ async function signSendCoinTransaction(wallet, toAddress, coins, nonce) {
 /**
  * The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
  * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
- * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
- * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
  *
  * @deprecated Use signRawTransaction instead.
  * @function signTransaction
  * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
  * @param {string} toAddress - The address to which the coins should be sent.
  * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
- * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
+ * @param {number} nonce - A monotonically increasing number representing the nonce of the account. You have to carefully manage the state of the nonce to avoid sending the coins multiple times, such as when retrying after an error.
  * @param {string} data - Ignored. This parameter is accepted but not used. Use signRawTransaction to pass contract data.
  * @return {Promise<SignResult>}  Returns a promise of type SignResult.
  */
@@ -2225,8 +1312,8 @@ function hexStringToUint8Array(hex) {
  * With this function, you can set the gasLimit explicitly compared to signTransaction.
  * You can also pass data to be signed, such as when creating or invoking a smart contract.
  * Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
- * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
- * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+ * This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+ * Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
  *
  * @function signRawTransaction
  * @param {TransactionSigningRequest} transactionSigningRequest - An object of type TransactionSigningRequest with the transaction signing details.
@@ -2499,104 +1586,6 @@ function verify(publicKey, signature, message) {
 }
 
 /**
- * The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
- * Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
- * It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
- * Transactions are usually committed in less than 30 seconds.
- *
- * @deprecated Use signRawTransaction and postTransaction instead.
- * @async
- * @function sendCoins
- * @param {Wallet} wallet - A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees.
- * @param {string} toAddress - The address to which the coins should be sent. 
- * @param {string} coins - The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
- * @param {number} nonce - The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error.
- * @return {Promise<SendResult>}  Returns a promise of type SendResult. 
- */
-async function sendCoins(wallet, toAddress, coins, nonce) {
-    if (isInitialized === false) {
-        return -1000;
-    }
-
-    if (wallet == null || toAddress == null || coins == null || nonce == null) {
-        return new SendResult(-1, null, null, null);
-    }
-
-    if (isAddressValid(toAddress) === false) {
-        return new SendResult(-2, null, null, null);
-    }
-
-    if (verifyWallet(wallet) === false) {
-        return new SendResult(-3, null, null, null);
-    }
-
-    if (isLargeNumber(coins) === false) {
-        return new SendResult(-4, null, null, null);
-    }
-
-    let tempNonce = parseInt(nonce);
-    if (Number.isInteger(tempNonce) === false) {
-        return new SendResult(-5, null, null, null);
-    }
-    nonce = tempNonce;
-    if (nonce < 0) {
-        return new SendResult(-6, null, null, null);
-    }
-
-    let accountDetailsResult = await getAccountDetails(wallet.address);
-    if (accountDetailsResult === null) {
-        return new SendResult(-7, null, null, null);
-    }
-
-    if (accountDetailsResult.resultCode !== 0) {
-        return new SendResult(-7, null, null, null);
-    }
-
-    if (accountDetailsResult.accountDetails.nonce !== nonce) {
-        return new SendResult(-8, null, null, null);
-    }
-
-    const contractData = null;
-
-    var txSigningHash = transactionGetSigningHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData);
-    if (txSigningHash == null) {
-        return new SendResult(-9, null, null, null);
-    }
-    const txSigningHashU8 = toUint8Array(txSigningHash);
-    const hybridedsNs = circl && circl.hybrideds;
-    if (!hybridedsNs) {
-        return new SendResult(-10, null, null, null);
-    }
-    const sigRes = hybridedsNs.signCompact(toUint8Array(wallet.privateKey), txSigningHashU8);
-    if (sigRes && sigRes.error) {
-        return new SendResult(-10, null, null, null);
-    }
-    const verRes = hybridedsNs.verifyCompact(toUint8Array(wallet.publicKey), txSigningHashU8, sigRes.result);
-    if (verRes && verRes.error) {
-        return new SendResult(-10, null, null, null);
-    }
-    if (verRes.result !== true) {
-        return new SendResult(-10, null, null, null);
-    }
-    const quantumSig = sigRes.result instanceof Uint8Array ? Array.from(sigRes.result) : sigRes.result;
-
-    var txHashHex = transactionGetTransactionHash(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData, wallet.publicKey, quantumSig);
-    if (txHashHex == null) {
-        return new SendResult(-11, null, null, null);
-    }
-
-    var txnData = transactionGetData(wallet.address, nonce, toAddress, coins, DEFAULT_GAS, config.chainId, contractData, wallet.publicKey, quantumSig);
-    if (txnData == null) {
-        return new SendResult(-12, null, null, null);
-    }
-
-    let sendResult = await postTransaction(txnData);
-    sendResult.txnHash = txHashHex;
-
-    return sendResult;
-}
-
-/**
  * The publicKeyFromSignature extracts the public key from a signature.
  *
  * @function publicKeyFromSignature
@@ -2665,24 +1654,25 @@ function addressFromPublicKey(publicKey) {
 /**
  * The scryptDeriveKey function derives a key from a secret and salt using the scrypt KDF.
  *
- * Note: Only the specific scrypt parameter set N=262144, r=8, p=1, dkLen=32 is supported
- * currently. Passing any other values returns null.
+ * Arbitrary scrypt parameters are supported. The classic set N=262144, r=8, p=1, dkLen=32
+ * remains fully supported and byte-for-byte compatible with previous versions.
  *
  * @function scryptDeriveKey
- * @param {string} secret - The secret/passphrase to derive the key from.
+ * @param {string|Uint8Array|number[]} secret - The secret/passphrase. A string is encoded as UTF-8 bytes.
  * @param {Uint8Array|number[]} salt - The salt as a byte array.
- * @param {number} N - The scrypt CPU/memory cost parameter. Must be 262144.
- * @param {number} r - The scrypt block size parameter. Must be 8.
- * @param {number} p - The scrypt parallelization parameter. Must be 1.
- * @param {number} dkLen - The derived key length in bytes. Must be 32.
- * @return {number[]} - Returns the 32-byte derived key as a byte array. Returns null if the operation failed or the parameters are unsupported.
+ * @param {number} N - The scrypt CPU/memory cost parameter (power of two, > 1).
+ * @param {number} r - The scrypt block size parameter.
+ * @param {number} p - The scrypt parallelization parameter.
+ * @param {number} dkLen - The derived key length in bytes.
+ * @return {number[]} - Returns the derived key as a byte array. Returns -1000 before initialize(), or null if the operation failed or the parameters are invalid.
  */
 function scryptDeriveKey(secret, salt, N, r, p, dkLen) {
     if (isInitialized === false) {
         return -1000;
     }
 
-    if (typeof secret !== 'string' && !(secret instanceof String)) {
+    const secretU8 = toU8Secret(secret);
+    if (secretU8 === null) {
         return null;
     }
 
@@ -2694,19 +1684,133 @@ function scryptDeriveKey(secret, salt, N, r, p, dkLen) {
         return null;
     }
 
-    if (N !== SCRYPT_SUPPORTED_N || r !== SCRYPT_SUPPORTED_R || p !== SCRYPT_SUPPORTED_P || dkLen !== SCRYPT_SUPPORTED_DKLEN) {
-        return null;
-    }
-
     const saltU8 = salt instanceof Uint8Array ? salt : new Uint8Array(salt);
+    const secretBase64 = bytesToBase64(secretU8);
     const saltBase64 = bytesToBase64(saltU8);
 
-    const derivedBase64 = Scrypt(secret, saltBase64);
+    const derivedBase64 = Scrypt(secretBase64, saltBase64, N, r, p, dkLen);
     if (derivedBase64 == null || (typeof derivedBase64 !== 'string' && !(derivedBase64 instanceof String))) {
         return null;
     }
 
     return Array.from(base64ToBytes(derivedBase64));
+}
+
+/**
+ * Computes a hash digest using the given WASM hash call.
+ * @param {function(string): *} wasmCall - Thunk invoking the WASM global with a base64 string.
+ *   Passed as a thunk so the (bare) WASM global is only referenced after the
+ *   isInitialized guard - before WASM init the global does not exist.
+ * @param {string|Uint8Array|number[]} data - Data to hash (string -> UTF-8 bytes).
+ * @return {number[]|number|null} Byte array digest, -1000 before init, or null on invalid input.
+ */
+function _digest(wasmCall, data) {
+    if (isInitialized === false) {
+        return -1000;
+    }
+    const dataU8 = toU8Secret(data);
+    if (dataU8 === null) {
+        return null;
+    }
+    const outBase64 = wasmCall(bytesToBase64(dataU8));
+    if (outBase64 == null || (typeof outBase64 !== 'string' && !(outBase64 instanceof String))) {
+        return null;
+    }
+    return Array.from(base64ToBytes(outBase64));
+}
+
+/**
+ * The sha256 function computes the SHA-256 digest of the input.
+ *
+ * @function sha256
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 32-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function sha256(data) {
+    return _digest((b64) => Sha256(b64), data);
+}
+
+/**
+ * The sha512 function computes the SHA-512 digest of the input.
+ *
+ * @function sha512
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 64-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function sha512(data) {
+    return _digest((b64) => Sha512(b64), data);
+}
+
+/**
+ * The ripemd160 function computes the RIPEMD-160 digest of the input.
+ *
+ * @function ripemd160
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 20-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function ripemd160(data) {
+    return _digest((b64) => Ripemd160(b64), data);
+}
+
+/**
+ * The computeHmac function computes an HMAC over the data using the given key.
+ *
+ * @function computeHmac
+ * @param {string} algorithm - The hash algorithm: "sha256" or "sha512".
+ * @param {string|Uint8Array|number[]} key - The HMAC key (string -> UTF-8 bytes).
+ * @param {string|Uint8Array|number[]} data - The data to authenticate (string -> UTF-8 bytes).
+ * @return {number[]} - The HMAC as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function computeHmac(algorithm, key, data) {
+    if (isInitialized === false) {
+        return -1000;
+    }
+    if (typeof algorithm !== 'string' && !(algorithm instanceof String)) {
+        return null;
+    }
+    const keyU8 = toU8Secret(key);
+    const dataU8 = toU8Secret(data);
+    if (keyU8 === null || dataU8 === null) {
+        return null;
+    }
+    const outBase64 = ComputeHmac(String(algorithm), bytesToBase64(keyU8), bytesToBase64(dataU8));
+    if (outBase64 == null || (typeof outBase64 !== 'string' && !(outBase64 instanceof String))) {
+        return null;
+    }
+    return Array.from(base64ToBytes(outBase64));
+}
+
+/**
+ * The pbkdf2 function derives a key using PBKDF2.
+ *
+ * @function pbkdf2
+ * @param {string|Uint8Array|number[]} password - The password (string -> UTF-8 bytes).
+ * @param {Uint8Array|number[]} salt - The salt as a byte array.
+ * @param {number} iterations - The iteration count (positive integer).
+ * @param {number} keylen - The derived key length in bytes (positive integer).
+ * @param {string} algorithm - The PRF hash algorithm: "sha256" or "sha512".
+ * @return {number[]} - The derived key as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function pbkdf2(password, salt, iterations, keylen, algorithm) {
+    if (isInitialized === false) {
+        return -1000;
+    }
+    const passwordU8 = toU8Secret(password);
+    if (passwordU8 === null || isByteArray(salt) === false) {
+        return null;
+    }
+    if (typeof iterations !== 'number' || typeof keylen !== 'number') {
+        return null;
+    }
+    if (typeof algorithm !== 'string' && !(algorithm instanceof String)) {
+        return null;
+    }
+    const saltU8 = salt instanceof Uint8Array ? salt : new Uint8Array(salt);
+    const outBase64 = Pbkdf2(bytesToBase64(passwordU8), bytesToBase64(saltU8), iterations, keylen, String(algorithm));
+    if (outBase64 == null || (typeof outBase64 !== 'string' && !(outBase64 instanceof String))) {
+        return null;
+    }
+    return Array.from(base64ToBytes(outBase64));
 }
 
 /**
@@ -3186,27 +2290,10 @@ module.exports = {
     deserializeEncryptedWallet,
     verifyWallet,
     newWallet,
-    sendCoins,
-    getAccountDetails,
-    getTransactionDetails,
     isAddressValid,
-    getLatestBlockDetails, 
     signSendCoinTransaction,
-    listAccountTransactions,
-    postTransaction,
     Config,
     Wallet, 
-    BlockDetails, 
-    LatestBlockDetailsResult, 
-    AccountDetails, 
-    AccountDetailsResult, 
-    SendResult, 
-    TransactionReceipt, 
-    TransactionDetails, 
-    TransactionDetailsResult,
-    AccountTransactionsResult, 
-    ListAccountTransactionsResponse, 
-    AccountTransactionCompact,
     newWalletSeedWords,
     openWalletFromSeed,
     openWalletFromSeedWords,
@@ -3214,6 +2301,11 @@ module.exports = {
     publicKeyFromPrivateKey,
     addressFromPublicKey,
     scryptDeriveKey,
+    sha256,
+    sha512,
+    ripemd160,
+    computeHmac,
+    pbkdf2,
     combinePublicKeySignature,
     TransactionSigningRequest,
     signRawTransaction,

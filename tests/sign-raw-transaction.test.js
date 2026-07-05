@@ -9,8 +9,6 @@ const assert = require('node:assert/strict');
 const qcsdk = require('..');
 
 const MAINNET_CHAIN_ID = 123123;
-const READ_RELAY_URL = 'https://sdk.readrelay.quantumcoinapi.com';
-const WRITE_RELAY_URL = 'https://sdk.writerelay.quantumcoinapi.com';
 const PUBLIC_RPC_URL = 'https://public.rpc.quantumcoinapi.com';
 const TO_ADDRESS_EXAMPLE =
   '0x8293cd9b6ac502d2fe077b0c157dad39f36a5e546525b053151dced633634612';
@@ -89,7 +87,7 @@ async function signAndSubmitRpc(wallet, signingContext) {
 
 describe('signRawTransaction', () => {
   before(async () => {
-    const cfg = new qcsdk.Config(READ_RELAY_URL, WRITE_RELAY_URL, MAINNET_CHAIN_ID, '', '');
+    const cfg = new qcsdk.Config(MAINNET_CHAIN_ID);
     const initResult = await qcsdk.initialize(cfg);
     assert.equal(initResult, true, 'SDK initialize should succeed');
   });

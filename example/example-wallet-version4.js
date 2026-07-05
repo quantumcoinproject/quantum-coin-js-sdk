@@ -1,7 +1,7 @@
 const qcsdk = require('quantum-coin-js-sdk');
 
 
-var clientConfigVal = new qcsdk.Config("", "", 123123, "", ""); //Mainnet
+var clientConfigVal = new qcsdk.Config(123123); //Mainnet
 
 //Initialize the SDK
 qcsdk.initialize(clientConfigVal).then((initResult) => {
@@ -22,7 +22,7 @@ qcsdk.initialize(clientConfigVal).then((initResult) => {
 
 
     var toAddressExample = "0x8293cd9b6ac502d2fe077b0c157dad39f36a5e546525b053151dced633634612";
-    var nonceExample = 0; //use the latest nonce for the address as shown in Block Explorer. If address does not exist, default to 0. You may also get the nonce programatically from  qcsdk.getAccountDetails like shown below
+    var nonceExample = 0; //use the latest nonce for the address as shown in Block Explorer. If address does not exist, default to 0.
     var coinsExample = "10"; //in ethers and not in wei
 
     //Sign a transaction

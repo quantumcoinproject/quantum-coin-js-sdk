@@ -22,97 +22,31 @@ qcsdk.initialize(null).then((initResult) => {
 
 //Example initialization with specific values
 //Initialize the SDK first before invoking any other function
-var clientConfigVal = new qcsdk.Config("https://sdk.readrelay.quantumcoinapi.com", "https://sdk.writerelay.quantumcoinapi.com", 123123, "", ""); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
+var clientConfigVal = new qcsdk.Config(123123); //Initialization with Mainnet Config (Block Explorer: https://QuantumScan.com)
 qcsdk.initialize(clientConfigVal).then((initResult) => {
 
 }
 Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/main/example
 ```
 
+## Browser usage
+
+The SDK runs in modern browsers as well as Node.js (Node 16+ / a browser with WebAssembly and the Web Crypto API). Load `wasm_exec.js` before `index.js` (or bundle them together) and call `initialize()` as usual.
+
 * [quantum-coin-js-sdk](#module_quantum-coin-js-sdk)
     * [~Config](#module_quantum-coin-js-sdk..Config)
-        * [new Config(readUrl, writeUrl, chainId, readApiKey, writeApiKey)](#new_module_quantum-coin-js-sdk..Config_new)
-        * [.readUrl](#module_quantum-coin-js-sdk..Config+readUrl) : <code>string</code>
-        * [.writeUrl](#module_quantum-coin-js-sdk..Config+writeUrl) : <code>string</code>
+        * [new Config(chainId)](#new_module_quantum-coin-js-sdk..Config_new)
         * [.chainId](#module_quantum-coin-js-sdk..Config+chainId) : <code>number</code>
-        * [.readApiKey](#module_quantum-coin-js-sdk..Config+readApiKey) : <code>string</code>
-        * [.writeApiKey](#module_quantum-coin-js-sdk..Config+writeApiKey) : <code>string</code>
     * [~Wallet](#module_quantum-coin-js-sdk..Wallet)
         * [new Wallet(address, privateKey, publicKey, [preExpansionSeed])](#new_module_quantum-coin-js-sdk..Wallet_new)
         * [.address](#module_quantum-coin-js-sdk..Wallet+address) : <code>string</code>
         * [.privateKey](#module_quantum-coin-js-sdk..Wallet+privateKey) : <code>Array.&lt;number&gt;</code>
         * [.publicKey](#module_quantum-coin-js-sdk..Wallet+publicKey) : <code>Array.&lt;number&gt;</code>
         * [.preExpansionSeed](#module_quantum-coin-js-sdk..Wallet+preExpansionSeed) : <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> \| <code>null</code>
-    * [~BlockDetails](#module_quantum-coin-js-sdk..BlockDetails)
-        * [.blockNumber](#module_quantum-coin-js-sdk..BlockDetails+blockNumber) : <code>number</code>
-    * [~LatestBlockDetailsResult](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)
-        * [.resultCode](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode) : <code>number</code>
-        * [.blockDetails](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+blockDetails) : <code>BlockDetails</code>
-        * [.response](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+response) : <code>Object</code>
-        * [.requestId](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId) : <code>string</code>
-        * [.err](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+err) : <code>Error</code>
-    * [~AccountDetails](#module_quantum-coin-js-sdk..AccountDetails)
-        * [.address](#module_quantum-coin-js-sdk..AccountDetails+address) : <code>string</code>
-        * [.balance](#module_quantum-coin-js-sdk..AccountDetails+balance) : <code>string</code>
-        * [.nonce](#module_quantum-coin-js-sdk..AccountDetails+nonce) : <code>number</code>
-        * [.blockNumber](#module_quantum-coin-js-sdk..AccountDetails+blockNumber) : <code>number</code>
-    * [~AccountDetailsResult](#module_quantum-coin-js-sdk..AccountDetailsResult)
-        * [.resultCode](#module_quantum-coin-js-sdk..AccountDetailsResult+resultCode) : <code>number</code>
-        * [.accountDetails](#module_quantum-coin-js-sdk..AccountDetailsResult+accountDetails) : <code>AccountDetails</code>
-        * [.response](#module_quantum-coin-js-sdk..AccountDetailsResult+response) : <code>Object</code>
-        * [.requestId](#module_quantum-coin-js-sdk..AccountDetailsResult+requestId) : <code>string</code>
-        * [.err](#module_quantum-coin-js-sdk..AccountDetailsResult+err) : <code>Error</code>
     * [~SignResult](#module_quantum-coin-js-sdk..SignResult)
         * [.resultCode](#module_quantum-coin-js-sdk..SignResult+resultCode) : <code>number</code>
         * [.txnHash](#module_quantum-coin-js-sdk..SignResult+txnHash) : <code>string</code>
         * [.txnData](#module_quantum-coin-js-sdk..SignResult+txnData) : <code>string</code>
-    * [~SendResult](#module_quantum-coin-js-sdk..SendResult)
-        * [.resultCode](#module_quantum-coin-js-sdk..SendResult+resultCode) : <code>number</code>
-        * [.txnHash](#module_quantum-coin-js-sdk..SendResult+txnHash) : <code>string</code>
-        * [.response](#module_quantum-coin-js-sdk..SendResult+response) : <code>Object</code>
-        * [.requestId](#module_quantum-coin-js-sdk..SendResult+requestId) : <code>string</code>
-        * [.err](#module_quantum-coin-js-sdk..SendResult+err) : <code>Error</code>
-    * [~TransactionReceipt](#module_quantum-coin-js-sdk..TransactionReceipt)
-        * [.cumulativeGasUsed](#module_quantum-coin-js-sdk..TransactionReceipt+cumulativeGasUsed) : <code>string</code>
-        * [.effectiveGasPrice](#module_quantum-coin-js-sdk..TransactionReceipt+effectiveGasPrice) : <code>string</code>
-        * [.gasUsed](#module_quantum-coin-js-sdk..TransactionReceipt+gasUsed) : <code>string</code>
-        * [.status](#module_quantum-coin-js-sdk..TransactionReceipt+status) : <code>string</code>
-        * [.hash](#module_quantum-coin-js-sdk..TransactionReceipt+hash) : <code>string</code>
-        * [.type](#module_quantum-coin-js-sdk..TransactionReceipt+type) : <code>string</code>
-    * [~TransactionDetails](#module_quantum-coin-js-sdk..TransactionDetails)
-        * [.blockHash](#module_quantum-coin-js-sdk..TransactionDetails+blockHash) : <code>string</code>
-        * [.blockNumber](#module_quantum-coin-js-sdk..TransactionDetails+blockNumber) : <code>number</code>
-        * [.from](#module_quantum-coin-js-sdk..TransactionDetails+from) : <code>string</code>
-        * [.gas](#module_quantum-coin-js-sdk..TransactionDetails+gas) : <code>string</code>
-        * [.gasPrice](#module_quantum-coin-js-sdk..TransactionDetails+gasPrice) : <code>string</code>
-        * [.hash](#module_quantum-coin-js-sdk..TransactionDetails+hash) : <code>string</code>
-        * [.input](#module_quantum-coin-js-sdk..TransactionDetails+input) : <code>string</code>
-        * [.nonce](#module_quantum-coin-js-sdk..TransactionDetails+nonce) : <code>number</code>
-        * [.to](#module_quantum-coin-js-sdk..TransactionDetails+to) : <code>string</code>
-        * [.value](#module_quantum-coin-js-sdk..TransactionDetails+value) : <code>string</code>
-        * [.receipt](#module_quantum-coin-js-sdk..TransactionDetails+receipt) : <code>TransactionReceipt</code>
-    * [~TransactionDetailsResult](#module_quantum-coin-js-sdk..TransactionDetailsResult)
-        * [.resultCode](#module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
-        * [.transactionDetails](#module_quantum-coin-js-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
-        * [.response](#module_quantum-coin-js-sdk..TransactionDetailsResult+response) : <code>Object</code>
-        * [.requestId](#module_quantum-coin-js-sdk..TransactionDetailsResult+requestId) : <code>string</code>
-        * [.err](#module_quantum-coin-js-sdk..TransactionDetailsResult+err) : <code>Error</code>
-    * [~AccountTransactionCompact](#module_quantum-coin-js-sdk..AccountTransactionCompact)
-        * [.blockNumber](#module_quantum-coin-js-sdk..AccountTransactionCompact+blockNumber) : <code>number</code>
-        * [.from](#module_quantum-coin-js-sdk..AccountTransactionCompact+from) : <code>string</code>
-        * [.hash](#module_quantum-coin-js-sdk..AccountTransactionCompact+hash) : <code>string</code>
-        * [.to](#module_quantum-coin-js-sdk..AccountTransactionCompact+to) : <code>string</code>
-        * [.value](#module_quantum-coin-js-sdk..AccountTransactionCompact+value) : <code>string</code>
-        * [.status](#module_quantum-coin-js-sdk..AccountTransactionCompact+status) : <code>string</code>
-    * [~ListAccountTransactionsResponse](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse)
-        * [.pageCount](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse+pageCount) : <code>number</code>
-        * [.items](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse+items) : <code>AccountTransactionCompact</code> \| <code>Array</code>
-    * [~AccountTransactionsResult](#module_quantum-coin-js-sdk..AccountTransactionsResult)
-        * [.resultCode](#module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode) : <code>number</code>
-        * [.listAccountTransactionsResponse](#module_quantum-coin-js-sdk..AccountTransactionsResult+listAccountTransactionsResponse) : <code>ListAccountTransactionsResponse</code>
-        * [.response](#module_quantum-coin-js-sdk..AccountTransactionsResult+response) : <code>Object</code>
-        * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
-        * [.err](#module_quantum-coin-js-sdk..AccountTransactionsResult+err) : <code>Error</code>
     * [~TransactionSigningRequest](#module_quantum-coin-js-sdk..TransactionSigningRequest)
         * [new TransactionSigningRequest(wallet, toAddress, valueInWei, nonce, data, gasLimit, remarks, chainId, signingContext)](#new_module_quantum-coin-js-sdk..TransactionSigningRequest_new)
         * [.wallet](#module_quantum-coin-js-sdk..TransactionSigningRequest+wallet) : <code>Wallet</code>
@@ -152,11 +86,6 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~verifyWallet(wallet)](#module_quantum-coin-js-sdk..verifyWallet) ⇒ <code>boolean</code>
     * [~serializeWallet(wallet)](#module_quantum-coin-js-sdk..serializeWallet) ⇒ <code>string</code>
     * [~deserializeWallet(walletJson)](#module_quantum-coin-js-sdk..deserializeWallet) ⇒ <code>Wallet</code> \| <code>null</code>
-    * [~postTransaction(txnData)](#module_quantum-coin-js-sdk..postTransaction) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-    * [~getLatestBlockDetails()](#module_quantum-coin-js-sdk..getLatestBlockDetails) ⇒ <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
-    * [~getAccountDetails(address)](#module_quantum-coin-js-sdk..getAccountDetails) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
-    * [~getTransactionDetails(txnHash)](#module_quantum-coin-js-sdk..getTransactionDetails) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-    * [~listAccountTransactions(address, pageNumber)](#module_quantum-coin-js-sdk..listAccountTransactions) ⇒ <code>Promise.&lt;AccountTransactionsResult&gt;</code>
     * ~~[~signSendCoinTransaction(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..signSendCoinTransaction) ⇒ <code>Promise.&lt;SignResult&gt;</code>~~
     * ~~[~signTransaction(wallet, toAddress, coins, nonce, data)](#module_quantum-coin-js-sdk..signTransaction) ⇒ <code>Promise.&lt;SignResult&gt;</code>~~
     * [~hexStringToUint8Array(hex)](#module_quantum-coin-js-sdk..hexStringToUint8Array) ⇒ <code>Uint8Array</code>
@@ -164,11 +93,15 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
     * [~getGasPrice(keyType, [fullSign])](#module_quantum-coin-js-sdk..getGasPrice) ⇒ <code>Object</code>
     * [~sign(privateKey, message, [signingContext])](#module_quantum-coin-js-sdk..sign) ⇒ <code>Object</code>
     * [~verify(publicKey, signature, message)](#module_quantum-coin-js-sdk..verify) ⇒ <code>Object</code>
-    * ~~[~sendCoins(wallet, toAddress, coins, nonce)](#module_quantum-coin-js-sdk..sendCoins) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
     * [~publicKeyFromSignature(digest, signature)](#module_quantum-coin-js-sdk..publicKeyFromSignature) ⇒ <code>string</code>
     * [~publicKeyFromPrivateKey(privateKey)](#module_quantum-coin-js-sdk..publicKeyFromPrivateKey) ⇒ <code>string</code>
     * [~addressFromPublicKey(publicKey)](#module_quantum-coin-js-sdk..addressFromPublicKey) ⇒ <code>string</code>
     * [~scryptDeriveKey(secret, salt, N, r, p, dkLen)](#module_quantum-coin-js-sdk..scryptDeriveKey) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~sha256(data)](#module_quantum-coin-js-sdk..sha256) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~sha512(data)](#module_quantum-coin-js-sdk..sha512) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~ripemd160(data)](#module_quantum-coin-js-sdk..ripemd160) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~computeHmac(algorithm, key, data)](#module_quantum-coin-js-sdk..computeHmac) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~pbkdf2(password, salt, iterations, keylen, algorithm)](#module_quantum-coin-js-sdk..pbkdf2) ⇒ <code>Array.&lt;number&gt;</code>
     * [~combinePublicKeySignature(publicKey, signature)](#module_quantum-coin-js-sdk..combinePublicKeySignature) ⇒ <code>string</code>
     * [~packMethodData(abiJSON, methodName, ...args)](#module_quantum-coin-js-sdk..packMethodData) ⇒ <code>PackUnpackResult</code>
     * [~unpackMethodData(abiJSON, methodName, hexData)](#module_quantum-coin-js-sdk..unpackMethodData) ⇒ <code>PackUnpackResult</code>
@@ -183,65 +116,29 @@ Example Project: https://github.com/quantumcoinproject/quantum-coin-js-sdk/tree/
 <a name="module_quantum-coin-js-sdk..Config"></a>
 
 ### quantum-coin-js-sdk~Config
-This is the configuration class required to initialize and interact with Quantum Coin blockchain
+This is the configuration class required to initialize the Quantum Coin SDK for offline operations such as wallet management and transaction signing.
 
 **Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Access**: public  
 
 * [~Config](#module_quantum-coin-js-sdk..Config)
-    * [new Config(readUrl, writeUrl, chainId, readApiKey, writeApiKey)](#new_module_quantum-coin-js-sdk..Config_new)
-    * [.readUrl](#module_quantum-coin-js-sdk..Config+readUrl) : <code>string</code>
-    * [.writeUrl](#module_quantum-coin-js-sdk..Config+writeUrl) : <code>string</code>
+    * [new Config(chainId)](#new_module_quantum-coin-js-sdk..Config_new)
     * [.chainId](#module_quantum-coin-js-sdk..Config+chainId) : <code>number</code>
-    * [.readApiKey](#module_quantum-coin-js-sdk..Config+readApiKey) : <code>string</code>
-    * [.writeApiKey](#module_quantum-coin-js-sdk..Config+writeApiKey) : <code>string</code>
 
 <a name="new_module_quantum-coin-js-sdk..Config_new"></a>
 
-#### new Config(readUrl, writeUrl, chainId, readApiKey, writeApiKey)
+#### new Config(chainId)
 Creates a config class
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| readUrl | <code>string</code> | The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.readrelay.quantumcoinapi.com |
-| writeUrl | <code>string</code> | The Write API URL pointing to a write relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay. The following URLs are community maintained. Please use your own relay service. Mainnet: https://sdk.writerelay.quantumcoinapi.com |
 | chainId | <code>number</code> | The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324. |
-| readApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
-| writeApiKey | <code>string</code> | Optional parameter if authorization is enabled for the relay service. API Key for authorization. Defaults to null which indicates no authorization. |
 
-<a name="module_quantum-coin-js-sdk..Config+readUrl"></a>
-
-#### config.readUrl : <code>string</code>
-The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-
-**Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..Config+writeUrl"></a>
-
-#### config.writeUrl : <code>string</code>
-The Read API URL pointing to a read relay. See https://github.com/quantumcoinproject/quantum-coin-go/tree/main/relay
-
-**Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
-**Access**: public  
 <a name="module_quantum-coin-js-sdk..Config+chainId"></a>
 
 #### config.chainId : <code>number</code>
 The chain id of the blockchain. Mainnet chainId is 123123. Testnet T4 chainId is 310324.
-
-**Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..Config+readApiKey"></a>
-
-#### config.readApiKey : <code>string</code>
-API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
-
-**Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..Config+writeApiKey"></a>
-
-#### config.writeApiKey : <code>string</code>
-API Key for authorization if authorization is enabled for the relay service. Defaults to null which indicates no authorization.
 
 **Kind**: instance property of [<code>Config</code>](#module_quantum-coin-js-sdk..Config)  
 **Access**: public  
@@ -301,162 +198,6 @@ Pre-expansion seed bytes. Can be null if the wallet was not created from a seed.
 
 **Kind**: instance property of [<code>Wallet</code>](#module_quantum-coin-js-sdk..Wallet)  
 **Access**: public  
-<a name="module_quantum-coin-js-sdk..BlockDetails"></a>
-
-### quantum-coin-js-sdk~BlockDetails
-This class represents a Block.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..BlockDetails+blockNumber"></a>
-
-#### blockDetails.blockNumber : <code>number</code>
-Block Number of the block
-
-**Kind**: instance property of [<code>BlockDetails</code>](#module_quantum-coin-js-sdk..BlockDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult"></a>
-
-### quantum-coin-js-sdk~LatestBlockDetailsResult
-This class represents a result from invoking the getLatestBlock function.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~LatestBlockDetailsResult](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)
-    * [.resultCode](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode) : <code>number</code>
-    * [.blockDetails](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+blockDetails) : <code>BlockDetails</code>
-    * [.response](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+response) : <code>Object</code>
-    * [.requestId](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId) : <code>string</code>
-    * [.err](#module_quantum-coin-js-sdk..LatestBlockDetailsResult+err) : <code>Error</code>
-
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+resultCode"></a>
-
-#### latestBlockDetailsResult.resultCode : <code>number</code>
-Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-
-**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+blockDetails"></a>
-
-#### latestBlockDetailsResult.blockDetails : <code>BlockDetails</code>
-An object of type BlockDetails representing the block. This value is null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+response"></a>
-
-#### latestBlockDetailsResult.response : <code>Object</code>
-An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+requestId"></a>
-
-#### latestBlockDetailsResult.requestId : <code>string</code>
-An unique id to represent the request. This can be null if request failed before it could be sent.
-
-**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..LatestBlockDetailsResult+err"></a>
-
-#### latestBlockDetailsResult.err : <code>Error</code>
-An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-
-**Kind**: instance property of [<code>LatestBlockDetailsResult</code>](#module_quantum-coin-js-sdk..LatestBlockDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetails"></a>
-
-### quantum-coin-js-sdk~AccountDetails
-This class represents an Account.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~AccountDetails](#module_quantum-coin-js-sdk..AccountDetails)
-    * [.address](#module_quantum-coin-js-sdk..AccountDetails+address) : <code>string</code>
-    * [.balance](#module_quantum-coin-js-sdk..AccountDetails+balance) : <code>string</code>
-    * [.nonce](#module_quantum-coin-js-sdk..AccountDetails+nonce) : <code>number</code>
-    * [.blockNumber](#module_quantum-coin-js-sdk..AccountDetails+blockNumber) : <code>number</code>
-
-<a name="module_quantum-coin-js-sdk..AccountDetails+address"></a>
-
-#### accountDetails.address : <code>string</code>
-Address of the wallet. Is 66 bytes in length including 0x.
-
-**Kind**: instance property of [<code>AccountDetails</code>](#module_quantum-coin-js-sdk..AccountDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetails+balance"></a>
-
-#### accountDetails.balance : <code>string</code>
-Balance of the account in wei. To convert this to ethers, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei
-
-**Kind**: instance property of [<code>AccountDetails</code>](#module_quantum-coin-js-sdk..AccountDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetails+nonce"></a>
-
-#### accountDetails.nonce : <code>number</code>
-A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-
-**Kind**: instance property of [<code>AccountDetails</code>](#module_quantum-coin-js-sdk..AccountDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetails+blockNumber"></a>
-
-#### accountDetails.blockNumber : <code>number</code>
-The block number as of which the Account details was retrieved.
-
-**Kind**: instance property of [<code>AccountDetails</code>](#module_quantum-coin-js-sdk..AccountDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult"></a>
-
-### quantum-coin-js-sdk~AccountDetailsResult
-This class represents a result from invoking the getAccountDetails function.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~AccountDetailsResult](#module_quantum-coin-js-sdk..AccountDetailsResult)
-    * [.resultCode](#module_quantum-coin-js-sdk..AccountDetailsResult+resultCode) : <code>number</code>
-    * [.accountDetails](#module_quantum-coin-js-sdk..AccountDetailsResult+accountDetails) : <code>AccountDetails</code>
-    * [.response](#module_quantum-coin-js-sdk..AccountDetailsResult+response) : <code>Object</code>
-    * [.requestId](#module_quantum-coin-js-sdk..AccountDetailsResult+requestId) : <code>string</code>
-    * [.err](#module_quantum-coin-js-sdk..AccountDetailsResult+err) : <code>Error</code>
-
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult+resultCode"></a>
-
-#### accountDetailsResult.resultCode : <code>number</code>
-Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-
-**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult+accountDetails"></a>
-
-#### accountDetailsResult.accountDetails : <code>AccountDetails</code>
-An object of type AccountDetails representing the block. This value is null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult+response"></a>
-
-#### accountDetailsResult.response : <code>Object</code>
-An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult+requestId"></a>
-
-#### accountDetailsResult.requestId : <code>string</code>
-An unique id to represent the request. This can be null if request failed before it could be sent.
-
-**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountDetailsResult+err"></a>
-
-#### accountDetailsResult.err : <code>Error</code>
-An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-
-**Kind**: instance property of [<code>AccountDetailsResult</code>](#module_quantum-coin-js-sdk..AccountDetailsResult)  
-**Access**: public  
 <a name="module_quantum-coin-js-sdk..SignResult"></a>
 
 ### quantum-coin-js-sdk~SignResult
@@ -488,401 +229,10 @@ Hash of the Transaction, to uniquely identify it. Is 66 bytes in length includin
 
 #### signResult.txnData : <code>string</code>
 A payload representing the signed transaction. 
-To actually send a transaction, this payload can then be taken to to a different device that is connected to the blockchain relay and then sent using the postTransaction function. 
+To actually send a transaction, this payload can then be broadcast to the blockchain from a connected device (for example, via a relay or RPC endpoint). 
 This value is null if the value of resultCode is not 0.
 
 **Kind**: instance property of [<code>SignResult</code>](#module_quantum-coin-js-sdk..SignResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..SendResult"></a>
-
-### quantum-coin-js-sdk~SendResult
-This class represents a result from invoking the sendCoins function.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~SendResult](#module_quantum-coin-js-sdk..SendResult)
-    * [.resultCode](#module_quantum-coin-js-sdk..SendResult+resultCode) : <code>number</code>
-    * [.txnHash](#module_quantum-coin-js-sdk..SendResult+txnHash) : <code>string</code>
-    * [.response](#module_quantum-coin-js-sdk..SendResult+response) : <code>Object</code>
-    * [.requestId](#module_quantum-coin-js-sdk..SendResult+requestId) : <code>string</code>
-    * [.err](#module_quantum-coin-js-sdk..SendResult+err) : <code>Error</code>
-
-<a name="module_quantum-coin-js-sdk..SendResult+resultCode"></a>
-
-#### sendResult.resultCode : <code>number</code>
-Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-
-**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..SendResult+txnHash"></a>
-
-#### sendResult.txnHash : <code>string</code>
-Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x. This value is null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..SendResult+response"></a>
-
-#### sendResult.response : <code>Object</code>
-An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..SendResult+requestId"></a>
-
-#### sendResult.requestId : <code>string</code>
-An unique id to represent the request. This can be null if request failed before it could be sent.
-
-**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..SendResult+err"></a>
-
-#### sendResult.err : <code>Error</code>
-An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-
-**Kind**: instance property of [<code>SendResult</code>](#module_quantum-coin-js-sdk..SendResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt"></a>
-
-### quantum-coin-js-sdk~TransactionReceipt
-This class represents a Receipt of a transaction that is registered in the blockchain. The transactionReceipt field can be null unless the transaction is registered with the blockchain. 
-While the transaction is pending, this field will be null. You should consider the transaction as succeeded only if the status field's value is 0x1 (success).
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~TransactionReceipt](#module_quantum-coin-js-sdk..TransactionReceipt)
-    * [.cumulativeGasUsed](#module_quantum-coin-js-sdk..TransactionReceipt+cumulativeGasUsed) : <code>string</code>
-    * [.effectiveGasPrice](#module_quantum-coin-js-sdk..TransactionReceipt+effectiveGasPrice) : <code>string</code>
-    * [.gasUsed](#module_quantum-coin-js-sdk..TransactionReceipt+gasUsed) : <code>string</code>
-    * [.status](#module_quantum-coin-js-sdk..TransactionReceipt+status) : <code>string</code>
-    * [.hash](#module_quantum-coin-js-sdk..TransactionReceipt+hash) : <code>string</code>
-    * [.type](#module_quantum-coin-js-sdk..TransactionReceipt+type) : <code>string</code>
-
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+cumulativeGasUsed"></a>
-
-#### transactionReceipt.cumulativeGasUsed : <code>string</code>
-A hexadecimal string representing the total amount of gas used when this transaction was executed in the block.
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+effectiveGasPrice"></a>
-
-#### transactionReceipt.effectiveGasPrice : <code>string</code>
-A hexadecimal string representing the sum of the base fee and tip paid per unit of gas.
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+gasUsed"></a>
-
-#### transactionReceipt.gasUsed : <code>string</code>
-A hexadecimal string representing the amount of gas used by this specific transaction alone.
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+status"></a>
-
-#### transactionReceipt.status : <code>string</code>
-A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+hash"></a>
-
-#### transactionReceipt.hash : <code>string</code>
-Hash of the Transaction, to uniquely identify it. Is 66 bytes in length including 0x.
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionReceipt+type"></a>
-
-#### transactionReceipt.type : <code>string</code>
-A hexadecimal string representing the transaction type. 0x0 is DefaultFeeTxType.
-
-**Kind**: instance property of [<code>TransactionReceipt</code>](#module_quantum-coin-js-sdk..TransactionReceipt)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails"></a>
-
-### quantum-coin-js-sdk~TransactionDetails
-This class represents details of a transaction. You should consider the transaction as succeeded only if the status field of the receipt object is 0x1 (success).
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~TransactionDetails](#module_quantum-coin-js-sdk..TransactionDetails)
-    * [.blockHash](#module_quantum-coin-js-sdk..TransactionDetails+blockHash) : <code>string</code>
-    * [.blockNumber](#module_quantum-coin-js-sdk..TransactionDetails+blockNumber) : <code>number</code>
-    * [.from](#module_quantum-coin-js-sdk..TransactionDetails+from) : <code>string</code>
-    * [.gas](#module_quantum-coin-js-sdk..TransactionDetails+gas) : <code>string</code>
-    * [.gasPrice](#module_quantum-coin-js-sdk..TransactionDetails+gasPrice) : <code>string</code>
-    * [.hash](#module_quantum-coin-js-sdk..TransactionDetails+hash) : <code>string</code>
-    * [.input](#module_quantum-coin-js-sdk..TransactionDetails+input) : <code>string</code>
-    * [.nonce](#module_quantum-coin-js-sdk..TransactionDetails+nonce) : <code>number</code>
-    * [.to](#module_quantum-coin-js-sdk..TransactionDetails+to) : <code>string</code>
-    * [.value](#module_quantum-coin-js-sdk..TransactionDetails+value) : <code>string</code>
-    * [.receipt](#module_quantum-coin-js-sdk..TransactionDetails+receipt) : <code>TransactionReceipt</code>
-
-<a name="module_quantum-coin-js-sdk..TransactionDetails+blockHash"></a>
-
-#### transactionDetails.blockHash : <code>string</code>
-A hexadecimal string representing the hash of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+blockNumber"></a>
-
-#### transactionDetails.blockNumber : <code>number</code>
-The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+from"></a>
-
-#### transactionDetails.from : <code>string</code>
-A 66 character hexadecimal string representing the address the transaction is sent from.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+gas"></a>
-
-#### transactionDetails.gas : <code>string</code>
-A hexadecimal string representing the gas provided for the transaction execution.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+gasPrice"></a>
-
-#### transactionDetails.gasPrice : <code>string</code>
-A hexadecimal string representing the gasPrice used for each paid gas, in Wei.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+hash"></a>
-
-#### transactionDetails.hash : <code>string</code>
-A 66 character hexadecimal string representing the hash of the transaction.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+input"></a>
-
-#### transactionDetails.input : <code>string</code>
-A hexadecimal string representing the compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+nonce"></a>
-
-#### transactionDetails.nonce : <code>number</code>
-A monotonically increasing number representing the nonce of the account. After each transaction from the account that gets registered in the blockchain, the nonce increases by 1.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+to"></a>
-
-#### transactionDetails.to : <code>string</code>
-A 66 character hexadecimal string representing address the transaction is directed to.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+value"></a>
-
-#### transactionDetails.value : <code>string</code>
-A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetails+receipt"></a>
-
-#### transactionDetails.receipt : <code>TransactionReceipt</code>
-The receipt of the transaction. This field will be null while the transaction is pending (not yet registered in the blockchain).
-
-**Kind**: instance property of [<code>TransactionDetails</code>](#module_quantum-coin-js-sdk..TransactionDetails)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult"></a>
-
-### quantum-coin-js-sdk~TransactionDetailsResult
-This class represents a result from invoking the getTransactionDetails function. If transactions get discarded by the blockchain, for reasons such as due to lower than minimum gas fees or invalid nonce, the resultCode will always contain a non-zero value (failure).
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~TransactionDetailsResult](#module_quantum-coin-js-sdk..TransactionDetailsResult)
-    * [.resultCode](#module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode) : <code>number</code>
-    * [.transactionDetails](#module_quantum-coin-js-sdk..TransactionDetailsResult+transactionDetails) : <code>TransactionDetails</code>
-    * [.response](#module_quantum-coin-js-sdk..TransactionDetailsResult+response) : <code>Object</code>
-    * [.requestId](#module_quantum-coin-js-sdk..TransactionDetailsResult+requestId) : <code>string</code>
-    * [.err](#module_quantum-coin-js-sdk..TransactionDetailsResult+err) : <code>Error</code>
-
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+resultCode"></a>
-
-#### transactionDetailsResult.resultCode : <code>number</code>
-Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-
-**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+transactionDetails"></a>
-
-#### transactionDetailsResult.transactionDetails : <code>TransactionDetails</code>
-An object of type TransactionDetails representing the transaction. This value is null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+response"></a>
-
-#### transactionDetailsResult.response : <code>Object</code>
-An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+requestId"></a>
-
-#### transactionDetailsResult.requestId : <code>string</code>
-An unique id to represent the request. This can be null if request failed before it could be sent.
-
-**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..TransactionDetailsResult+err"></a>
-
-#### transactionDetailsResult.err : <code>Error</code>
-An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-
-**Kind**: instance property of [<code>TransactionDetailsResult</code>](#module_quantum-coin-js-sdk..TransactionDetailsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact"></a>
-
-### quantum-coin-js-sdk~AccountTransactionCompact
-This class represents a transaction of an account. You should consider the transaction as succeeded only if the status field is 0x1 (success).
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~AccountTransactionCompact](#module_quantum-coin-js-sdk..AccountTransactionCompact)
-    * [.blockNumber](#module_quantum-coin-js-sdk..AccountTransactionCompact+blockNumber) : <code>number</code>
-    * [.from](#module_quantum-coin-js-sdk..AccountTransactionCompact+from) : <code>string</code>
-    * [.hash](#module_quantum-coin-js-sdk..AccountTransactionCompact+hash) : <code>string</code>
-    * [.to](#module_quantum-coin-js-sdk..AccountTransactionCompact+to) : <code>string</code>
-    * [.value](#module_quantum-coin-js-sdk..AccountTransactionCompact+value) : <code>string</code>
-    * [.status](#module_quantum-coin-js-sdk..AccountTransactionCompact+status) : <code>string</code>
-
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+blockNumber"></a>
-
-#### accountTransactionCompact.blockNumber : <code>number</code>
-The number of the block that registered the transaction. This field can be null if the transaction was not registered in the blockchain.
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+from"></a>
-
-#### accountTransactionCompact.from : <code>string</code>
-A 66 character hexadecimal string representing the address the transaction is sent from.
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+hash"></a>
-
-#### accountTransactionCompact.hash : <code>string</code>
-A 66 character hexadecimal string representing the hash of the transaction.
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+to"></a>
-
-#### accountTransactionCompact.to : <code>string</code>
-A 66 character hexadecimal string representing address the transaction is directed to.
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+value"></a>
-
-#### accountTransactionCompact.value : <code>string</code>
-A hexadecimal string representing the value sent with this transaction. The value can be 0 for smart contract transactions, since it only represents the number of coins sent.
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionCompact+status"></a>
-
-#### accountTransactionCompact.status : <code>string</code>
-A hexadecimal string representing either 0x1 (success) or 0x0 (failure). Failed transactions can also incur gas fee. You should consider the transaction as succeeded only if the status value is 0x1 (success).
-
-**Kind**: instance property of [<code>AccountTransactionCompact</code>](#module_quantum-coin-js-sdk..AccountTransactionCompact)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..ListAccountTransactionsResponse"></a>
-
-### quantum-coin-js-sdk~ListAccountTransactionsResponse
-This class represents a list of account transactions returned by the listAccountTransactionDetails function.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~ListAccountTransactionsResponse](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse)
-    * [.pageCount](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse+pageCount) : <code>number</code>
-    * [.items](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse+items) : <code>AccountTransactionCompact</code> \| <code>Array</code>
-
-<a name="module_quantum-coin-js-sdk..ListAccountTransactionsResponse+pageCount"></a>
-
-#### listAccountTransactionsResponse.pageCount : <code>number</code>
-The number of pages available for listing.
-
-**Kind**: instance property of [<code>ListAccountTransactionsResponse</code>](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..ListAccountTransactionsResponse+items"></a>
-
-#### listAccountTransactionsResponse.items : <code>AccountTransactionCompact</code> \| <code>Array</code>
-An array of type AccountTransactionCompact, containing the list of transactions. Can be null if no items are available.
-
-**Kind**: instance property of [<code>ListAccountTransactionsResponse</code>](#module_quantum-coin-js-sdk..ListAccountTransactionsResponse)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult"></a>
-
-### quantum-coin-js-sdk~AccountTransactionsResult
-This class represents a result from invoking the listAccountTransactionDetails function.
-
-**Kind**: inner class of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Access**: public  
-
-* [~AccountTransactionsResult](#module_quantum-coin-js-sdk..AccountTransactionsResult)
-    * [.resultCode](#module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode) : <code>number</code>
-    * [.listAccountTransactionsResponse](#module_quantum-coin-js-sdk..AccountTransactionsResult+listAccountTransactionsResponse) : <code>ListAccountTransactionsResponse</code>
-    * [.response](#module_quantum-coin-js-sdk..AccountTransactionsResult+response) : <code>Object</code>
-    * [.requestId](#module_quantum-coin-js-sdk..AccountTransactionsResult+requestId) : <code>string</code>
-    * [.err](#module_quantum-coin-js-sdk..AccountTransactionsResult+err) : <code>Error</code>
-
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+resultCode"></a>
-
-#### accountTransactionsResult.resultCode : <code>number</code>
-Represents the result of the operation. A value of 0 represents that the operation succeeded. Any other value indicates the operation failed. See the result code section for more details.
-
-**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+listAccountTransactionsResponse"></a>
-
-#### accountTransactionsResult.listAccountTransactionsResponse : <code>ListAccountTransactionsResponse</code>
-An object of type ListAccountTransactionsResponse representing the list of transactions along with metadata. This value is null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+response"></a>
-
-#### accountTransactionsResult.response : <code>Object</code>
-An object of representing the raw Response returned by the service. For details, see https://developer.mozilla.org/en-US/docs/Web/API/Response. This value can be null if the value of resultCode is not 0.
-
-**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+requestId"></a>
-
-#### accountTransactionsResult.requestId : <code>string</code>
-An unique id to represent the request. This can be null if request failed before it could be sent.
-
-**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
-**Access**: public  
-<a name="module_quantum-coin-js-sdk..AccountTransactionsResult+err"></a>
-
-#### accountTransactionsResult.err : <code>Error</code>
-An error object if the operation resulted in an error and there was no response. This property is defined only if the resultCode is -10000.
-
-**Kind**: instance property of [<code>AccountTransactionsResult</code>](#module_quantum-coin-js-sdk..AccountTransactionsResult)  
 **Access**: public  
 <a name="module_quantum-coin-js-sdk..TransactionSigningRequest"></a>
 
@@ -1306,74 +656,6 @@ The deserializeWallet function creates a Wallet object from a JSON string.
 | --- | --- | --- |
 | walletJson | <code>string</code> | A JSON string representing the wallet to deserialize. |
 
-<a name="module_quantum-coin-js-sdk..postTransaction"></a>
-
-### quantum-coin-js-sdk~postTransaction(txnData) ⇒ <code>Promise.&lt;SendResult&gt;</code>
-The postTransaction function posts a signed transaction to the blockchain. 
-This method can be used in conjunction with the signSendCoinTransaction method to submit a transaction that was signed using a cold wallet (offline or disconnected or air-gapped wallet).
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult. txnHash will be null in SendResult.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| txnData | <code>string</code> | A signed transaction string returned by the signSendCoinTransaction function. |
-
-<a name="module_quantum-coin-js-sdk..getLatestBlockDetails"></a>
-
-### quantum-coin-js-sdk~getLatestBlockDetails() ⇒ <code>Promise.&lt;LatestBlockDetailsResult&gt;</code>
-The getLatestBlockDetails function returns details of the latest block of the blockchain.
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;LatestBlockDetailsResult&gt;</code> - Returns a promise of an object of type LatestBlockDetailsResult.  
-<a name="module_quantum-coin-js-sdk..getAccountDetails"></a>
-
-### quantum-coin-js-sdk~getAccountDetails(address) ⇒ <code>Promise.&lt;AccountDetailsResult&gt;</code>
-The getAccountDetails function returns details of an account corresponding to the address.
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;AccountDetailsResult&gt;</code> - Returns a promise of type AccountDetailsResult.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| address | <code>string</code> | The address of the account of which the details have to be retrieved. |
-
-<a name="module_quantum-coin-js-sdk..getTransactionDetails"></a>
-
-### quantum-coin-js-sdk~getTransactionDetails(txnHash) ⇒ <code>Promise.&lt;TransactionDetailsResult&gt;</code>
-The getTransactionDetails function returns details of a transaction posted to the blockchain. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for reading.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the getTransactionDetails function. 
-You should consider the transaction as succeeded only if the status field of the transactionReceipt object is 0x1 (success). 
-The transactionReceipt field can be null unless the transaction is registered with the blockchain.
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;TransactionDetailsResult&gt;</code> - Returns a promise of type TransactionDetailsResult.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| txnHash | <code>string</code> | The hash of the transaction to retrieve. |
-
-<a name="module_quantum-coin-js-sdk..listAccountTransactions"></a>
-
-### quantum-coin-js-sdk~listAccountTransactions(address, pageNumber) ⇒ <code>Promise.&lt;AccountTransactionsResult&gt;</code>
-The listAccountTransactions function returns a list of transactions for a specific account. 
-Transactions may take a while to get registered in the blockchain. After a transaction is submitted, it may take a while before it is available for listing.
-Some transactions that have lower balance than the minimum required for gas fees may be discarded. 
-In these cases, the transactions may not be returned when invoking the listAccountTransactions function. 
-You should consider the transaction as succeeded only if the status field of the AccountTransactionCompact object is 0x1 (success).
-Both transactions from and transactions to the address will be returned in the list.
-Use the getTransactionDetails function, passing the hash of the transaction to get detailed information about the transaction.
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;AccountTransactionsResult&gt;</code> - Returns a promise of type AccountTransactionsResult.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| address | <code>string</code> | The address for which the transactions have to be listed. |
-| pageNumber | <code>number</code> | The page number for which the transactions has to be listed for the account. Pass 0 to list the latest page. Pass 1 to list the oldest page. A maximum of 20 transactions are returned in each page. The response of this API includes a field that shows the pageCount (total number of pages available). You can pass any number between 1 to pageCount to get the corresponding page. |
-
 <a name="module_quantum-coin-js-sdk..signSendCoinTransaction"></a>
 
 ### ~~quantum-coin-js-sdk~signSendCoinTransaction(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SignResult&gt;</code>~~
@@ -1381,8 +663,8 @@ Use the getTransactionDetails function, passing the hash of the transaction to g
 
 The signSendCoinTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
 Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.  
@@ -1392,7 +674,7 @@ Another usecase for this function is when you want to first store a signed trans
 | wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
 | coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
-| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+| nonce | <code>number</code> | A monotonically increasing number representing the nonce of the account. You have to carefully manage the state of the nonce to avoid sending the coins multiple times, such as when retrying after an error. |
 
 <a name="module_quantum-coin-js-sdk..signTransaction"></a>
 
@@ -1401,8 +683,8 @@ Another usecase for this function is when you want to first store a signed trans
 
 The signTransaction function returns a signed transaction. The chainId used for signing should be provided in the initialize() function.
 Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Promise.&lt;SignResult&gt;</code> - Returns a promise of type SignResult.  
@@ -1412,7 +694,7 @@ Another usecase for this function is when you want to first store a signed trans
 | wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
 | toAddress | <code>string</code> | The address to which the coins should be sent. |
 | coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
-| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
+| nonce | <code>number</code> | A monotonically increasing number representing the nonce of the account. You have to carefully manage the state of the nonce to avoid sending the coins multiple times, such as when retrying after an error. |
 | data | <code>string</code> | Ignored. This parameter is accepted but not used. Use signRawTransaction to pass contract data. |
 
 <a name="module_quantum-coin-js-sdk..hexStringToUint8Array"></a>
@@ -1434,8 +716,8 @@ The signRawTransaction function returns a signed transaction. The chainId used f
 With this function, you can set the gasLimit explicitly compared to signTransaction.
 You can also pass data to be signed, such as when creating or invoking a smart contract.
 Since the gas fee is fixed at 1000 coins for 21000 units of gas, there is no option to set the gas fee explicitly.
-This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then use the postTransaction function to post it on a connected device.
-Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally submit the transaction by calling the postTransaction function.
+This function is useful for offline (cold storage) wallets, where you can sign a transaction offline and then broadcast it from a connected device (for example, via a relay or RPC endpoint).
+Another usecase for this function is when you want to first store a signed transaction to a database, then queue it and finally broadcast the transaction from a connected device.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>SignResult</code> - Returns a promise of type SignResult.  
@@ -1485,26 +767,6 @@ Verify a signature over a message with a public key. Algorithm is determined by 
 | signature | <code>Array.&lt;number&gt;</code> \| <code>Uint8Array</code> | Signature bytes from sign(); first byte selects verify function (1-5). |
 | message | <code>Array.&lt;number&gt;</code> \| <code>Uint8Array</code> | Message bytes (same as passed to sign). |
 
-<a name="module_quantum-coin-js-sdk..sendCoins"></a>
-
-### ~~quantum-coin-js-sdk~sendCoins(wallet, toAddress, coins, nonce) ⇒ <code>Promise.&lt;SendResult&gt;</code>~~
-***Use signRawTransaction and postTransaction instead.***
-
-The sendCoins function posts a send-coin transaction to the blockchain. The chainId used for signing should be provided in the initialize() function.
-Since the gas fee for sending coins is fixed at 1000 coins, there is no option to set the gas fee explicitly.
-It may take many seconds after submitting a transaction before the transaction is returned by the getTransactionDetails function. 
-Transactions are usually committed in less than 30 seconds.
-
-**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Promise.&lt;SendResult&gt;</code> - Returns a promise of type SendResult.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| wallet | <code>Wallet</code> | A Wallet object from which the transaction has to be sent. The address corresponding to the Wallet should have enough coins to cover gas fees as well. A minimum of 1000 coins (1000000000000000000000 wei) are required for gas fees. |
-| toAddress | <code>string</code> | The address to which the coins should be sent. |
-| coins | <code>string</code> | The string representing the number of coins (in ether) to send. To convert between ethers and wei, see https://docs.ethers.org/v4/api-utils.html#ether-strings-and-wei |
-| nonce | <code>number</code> | The nonce of the account retrieved by invoking the getAccountDetails function. You have to carefully manage state of the nonce to avoid sending the coins multiple times, such as when retrying sendCoins after a network error. |
-
 <a name="module_quantum-coin-js-sdk..publicKeyFromSignature"></a>
 
 ### quantum-coin-js-sdk~publicKeyFromSignature(digest, signature) ⇒ <code>string</code>
@@ -1547,19 +809,85 @@ The addressFromPublicKey returns the address corresponding to the public key.
 ### quantum-coin-js-sdk~scryptDeriveKey(secret, salt, N, r, p, dkLen) ⇒ <code>Array.&lt;number&gt;</code>
 The scryptDeriveKey function derives a key from a secret and salt using the scrypt KDF.
 
-Note: Only the specific scrypt parameter set N=262144, r=8, p=1, dkLen=32 is supported currently. Passing any other values returns null.
+Arbitrary scrypt parameters are supported. The classic set N=262144, r=8, p=1, dkLen=32 remains fully supported and byte-for-byte compatible with previous versions.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
-**Returns**: <code>Array.&lt;number&gt;</code> - - Returns the 32-byte derived key as a byte array. Returns null if the operation failed or the parameters are unsupported.  
+**Returns**: <code>Array.&lt;number&gt;</code> - - Returns the derived key as a byte array. Returns -1000 before initialize(), or null if the operation failed or the parameters are invalid.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| secret | <code>string</code> | The secret/passphrase to derive the key from. |
+| secret | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The secret/passphrase. A string is encoded as UTF-8 bytes. |
 | salt | <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The salt as a byte array. |
-| N | <code>number</code> | The scrypt CPU/memory cost parameter. Must be 262144. |
-| r | <code>number</code> | The scrypt block size parameter. Must be 8. |
-| p | <code>number</code> | The scrypt parallelization parameter. Must be 1. |
-| dkLen | <code>number</code> | The derived key length in bytes. Must be 32. |
+| N | <code>number</code> | The scrypt CPU/memory cost parameter (power of two, > 1). |
+| r | <code>number</code> | The scrypt block size parameter. |
+| p | <code>number</code> | The scrypt parallelization parameter. |
+| dkLen | <code>number</code> | The derived key length in bytes. |
+
+<a name="module_quantum-coin-js-sdk..sha256"></a>
+
+### quantum-coin-js-sdk~sha256(data) ⇒ <code>Array.&lt;number&gt;</code>
+The sha256 function computes the SHA-256 digest of the input.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The 32-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The data to hash (string -> UTF-8 bytes). |
+
+<a name="module_quantum-coin-js-sdk..sha512"></a>
+
+### quantum-coin-js-sdk~sha512(data) ⇒ <code>Array.&lt;number&gt;</code>
+The sha512 function computes the SHA-512 digest of the input.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The 64-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The data to hash (string -> UTF-8 bytes). |
+
+<a name="module_quantum-coin-js-sdk..ripemd160"></a>
+
+### quantum-coin-js-sdk~ripemd160(data) ⇒ <code>Array.&lt;number&gt;</code>
+The ripemd160 function computes the RIPEMD-160 digest of the input.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The 20-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The data to hash (string -> UTF-8 bytes). |
+
+<a name="module_quantum-coin-js-sdk..computeHmac"></a>
+
+### quantum-coin-js-sdk~computeHmac(algorithm, key, data) ⇒ <code>Array.&lt;number&gt;</code>
+The computeHmac function computes an HMAC over the data using the given key.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The HMAC as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| algorithm | <code>string</code> | The hash algorithm: "sha256" or "sha512". |
+| key | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The HMAC key (string -> UTF-8 bytes). |
+| data | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The data to authenticate (string -> UTF-8 bytes). |
+
+<a name="module_quantum-coin-js-sdk..pbkdf2"></a>
+
+### quantum-coin-js-sdk~pbkdf2(password, salt, iterations, keylen, algorithm) ⇒ <code>Array.&lt;number&gt;</code>
+The pbkdf2 function derives a key using PBKDF2.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The derived key as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| password | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The password (string -> UTF-8 bytes). |
+| salt | <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The salt as a byte array. |
+| iterations | <code>number</code> | The iteration count (positive integer). |
+| keylen | <code>number</code> | The derived key length in bytes (positive integer). |
+| algorithm | <code>string</code> | The PRF hash algorithm: "sha256" or "sha512". |
 
 <a name="module_quantum-coin-js-sdk..combinePublicKeySignature"></a>
 
