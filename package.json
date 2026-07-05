@@ -1,6 +1,6 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,9 @@
     "test:browser": "node scripts/build-browser-tests.js && node tests/browser/run-browser.js",
     "test:all": "npm test && npm run test:browser",
     "build": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly",
-    "build:wasm": "node scripts/build-wasm.js"
+    "build:wasm": "node scripts/build-wasm.js --local",
+    "build:wasm:file": "node scripts/build-wasm.js --base64-file",
+    "build:wasm:url": "node scripts/build-wasm.js --base64-url"
   },
   "repository": {
     "type": "git",
@@ -32,7 +34,7 @@
   },
   "homepage": "https://github.com/quantumcoinproject/quantum-coin-js-sdk#readme",
   "dependencies": {
-    "seed-words": "1.0.3"
+    "seed-words": "1.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

@@ -234,6 +234,15 @@ export function sha256(data: string | Uint8Array | number[]): number[];
  */
 export function sha512(data: string | Uint8Array | number[]): number[];
 /**
+ * The keccak256 function computes the Keccak-256 digest of the input.
+ * This is the Ethereum-style Keccak-256 (legacy padding), not SHA3-256.
+ *
+ * @function keccak256
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 32-byte digest as a byte array. Returns null on invalid input.
+ */
+export function keccak256(data: string | Uint8Array | number[]): number[];
+/**
  * The ripemd160 function computes the RIPEMD-160 digest of the input.
  *
  * @function ripemd160

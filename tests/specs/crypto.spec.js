@@ -13,6 +13,9 @@ const SHA256_EMPTY = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b78
 const SHA512_ABC =
     'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a' +
     '2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f';
+// Ethereum-style Keccak-256 (legacy padding), not SHA3-256.
+const KECCAK_ABC = '4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45';
+const KECCAK_EMPTY = 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470';
 const RIPEMD_ABC = '8eb208f7e05d987a9b044a8e98c6b087f15a0bfc';
 const RIPEMD_EMPTY = '9c1185a5c5e9fc54612808977ee8f548b2258d31';
 const HMAC256 = '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843';
@@ -37,6 +40,15 @@ async function run(qcsdk, assert) {
     // ---- SHA-512 ----
     assert.equal(bytesToHex(qcsdk.sha512('abc')), SHA512_ABC, 'sha512(abc)');
     assert.equal(qcsdk.sha512(null), null, 'sha512 rejects null');
+
+    // ---- Keccak-256 ----
+    assert.equal(bytesToHex(qcsdk.keccak256('abc')), KECCAK_ABC, 'keccak256(abc)');
+    assert.equal(bytesToHex(qcsdk.keccak256('')), KECCAK_EMPTY, 'keccak256("")');
+    assert.deepEqual(qcsdk.keccak256('abc'), qcsdk.keccak256('abc'), 'keccak256 deterministic');
+    assert.deepEqual(qcsdk.keccak256('abc'), qcsdk.keccak256(utf8ToBytes('abc')), 'keccak256 string==bytes');
+    assert.deepEqual(qcsdk.keccak256(new Uint8Array(utf8ToBytes('abc'))), qcsdk.keccak256('abc'), 'keccak256 Uint8Array==string');
+    assert.equal(qcsdk.keccak256('abc').length, 32, 'keccak256 is 32 bytes');
+    assert.equal(qcsdk.keccak256(12345), null, 'keccak256 rejects non-bytes');
 
     // ---- RIPEMD-160 ----
     assert.equal(bytesToHex(qcsdk.ripemd160('abc')), RIPEMD_ABC, 'ripemd160(abc)');

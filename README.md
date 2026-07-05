@@ -99,6 +99,7 @@ The SDK runs in modern browsers as well as Node.js (Node 16+ / a browser with We
     * [~scryptDeriveKey(secret, salt, N, r, p, dkLen)](#module_quantum-coin-js-sdk..scryptDeriveKey) ⇒ <code>Array.&lt;number&gt;</code>
     * [~sha256(data)](#module_quantum-coin-js-sdk..sha256) ⇒ <code>Array.&lt;number&gt;</code>
     * [~sha512(data)](#module_quantum-coin-js-sdk..sha512) ⇒ <code>Array.&lt;number&gt;</code>
+    * [~keccak256(data)](#module_quantum-coin-js-sdk..keccak256) ⇒ <code>Array.&lt;number&gt;</code>
     * [~ripemd160(data)](#module_quantum-coin-js-sdk..ripemd160) ⇒ <code>Array.&lt;number&gt;</code>
     * [~computeHmac(algorithm, key, data)](#module_quantum-coin-js-sdk..computeHmac) ⇒ <code>Array.&lt;number&gt;</code>
     * [~pbkdf2(password, salt, iterations, keylen, algorithm)](#module_quantum-coin-js-sdk..pbkdf2) ⇒ <code>Array.&lt;number&gt;</code>
@@ -842,6 +843,18 @@ The sha512 function computes the SHA-512 digest of the input.
 
 **Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
 **Returns**: <code>Array.&lt;number&gt;</code> - - The 64-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | <code>string</code> \| <code>Uint8Array</code> \| <code>Array.&lt;number&gt;</code> | The data to hash (string -> UTF-8 bytes). |
+
+<a name="module_quantum-coin-js-sdk..keccak256"></a>
+
+### quantum-coin-js-sdk~keccak256(data) ⇒ <code>Array.&lt;number&gt;</code>
+The keccak256 function computes the Keccak-256 digest of the input. This is the Ethereum-style Keccak-256 (legacy padding), not SHA3-256.
+
+**Kind**: inner method of [<code>quantum-coin-js-sdk</code>](#module_quantum-coin-js-sdk)  
+**Returns**: <code>Array.&lt;number&gt;</code> - - The 32-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.  
 
 | Param | Type | Description |
 | --- | --- | --- |

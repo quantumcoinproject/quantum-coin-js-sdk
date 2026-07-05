@@ -65,7 +65,7 @@ const SCRYPT_SUPPORTED_P = 1;
 const SCRYPT_SUPPORTED_DKLEN = 32;
 const INVALID_KEY_TYPE = -1001;
 const CIRCL_CRYPTO_FAILURE = -1002;
-const EXPECTED_WASM_SHA256 = "8902a254d13930a8c82aa256468f7a72d613888b9032afb47e9430223886a052";
+const EXPECTED_WASM_SHA256 = "e2d721ae6dd7c1b855623a54050892892c1161ef9d49c76f77d106d37ec0b555";
 
 /**
  * @class
@@ -330,6 +330,26 @@ function getGlobalObject() {
     return (typeof globalThis !== 'undefined' ? globalThis : typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this);
 }
 
+function base64ToBytesFast(b64) {
+    if (typeof Buffer !== 'undefined' && typeof Buffer.from === 'function') {
+        return new Uint8Array(Buffer.from(b64, 'base64'));
+    }
+    if (typeof Uint8Array.fromBase64 === 'function') {
+        return Uint8Array.fromBase64(b64);
+    }
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+}
+
+async function gunzipToUint8Array(compressed) {
+    const ds = new DecompressionStream('gzip');
+    const stream = new Response(compressed).body.pipeThrough(ds);
+    const buf = await new Response(stream).arrayBuffer();
+    return new Uint8Array(buf);
+}
+
 async function InitAccountsWebAssembly() {
     const GoCtor = getGlobalObject().Go;
     if (typeof GoCtor !== 'function') {
@@ -339,11 +359,11 @@ async function InitAccountsWebAssembly() {
     let mod, inst;
     var base64wasm = wasmBase64.getBase64Wasm();
 
-    const base64bytes = atob(base64wasm);
-    if (base64bytes === null || base64bytes === undefined || base64bytes.length === 0) {
+    const compressed = base64ToBytesFast(base64wasm);
+    if (compressed === null || compressed === undefined || compressed.length === 0) {
         throw new Error("Error parsing base64");
     }
-    const wasmBytes = Uint8Array.from(atob(base64wasm), c => c.charCodeAt(0));
+    const wasmBytes = await gunzipToUint8Array(compressed);
 
     // Platform-agnostic integrity check via the Web Crypto API (available in
     // browsers and Node 16+ as globalThis.crypto.subtle). Runs before the WASM
@@ -1742,6 +1762,18 @@ function sha512(data) {
 }
 
 /**
+ * The keccak256 function computes the Keccak-256 digest of the input.
+ * This is the Ethereum-style Keccak-256 (legacy padding), not SHA3-256.
+ *
+ * @function keccak256
+ * @param {string|Uint8Array|number[]} data - The data to hash (string -> UTF-8 bytes).
+ * @return {number[]} - The 32-byte digest as a byte array. Returns -1000 before initialize(), or null on invalid input.
+ */
+function keccak256(data) {
+    return _digest((b64) => Keccak256(b64), data);
+}
+
+/**
  * The ripemd160 function computes the RIPEMD-160 digest of the input.
  *
  * @function ripemd160
@@ -2303,6 +2335,7 @@ module.exports = {
     scryptDeriveKey,
     sha256,
     sha512,
+    keccak256,
     ripemd160,
     computeHmac,
     pbkdf2,
