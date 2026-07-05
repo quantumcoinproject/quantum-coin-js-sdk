@@ -1,6 +1,6 @@
 {
   "name": "quantum-coin-js-sdk",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Quantum Coin - Q SDK in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,13 @@
     "url": "git+https://github.com/quantumcoinproject/quantum-coin-js-sdk.git"
   },
   "files": [
-    "**"
+    "index.js",
+    "index.d.ts",
+    "wasm_exec.js",
+    "wasm_exec.d.ts",
+    "wasmBase64.js",
+    "wasmBase64.d.ts",
+    "LICENSE-wasm_exec.js.txt"
   ],
   "keywords": [
     "pqc",
@@ -34,7 +40,7 @@
   },
   "homepage": "https://github.com/quantumcoinproject/quantum-coin-js-sdk#readme",
   "dependencies": {
-    "seed-words": "1.1.0"
+    "seed-words": "1.1.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
