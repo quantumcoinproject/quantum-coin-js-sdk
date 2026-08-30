@@ -10,7 +10,7 @@ const readline = require('readline');
  * STEPS TO COMPILE THE SOLIDITY CONTRACT:
  * 
  * 1. Download the Solidity compiler (solc.exe) from:
- *    https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.12
+ *    https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.14
  * 
  * 2. Save the Solidity contract code below to a file (e.g., SimpleStorage.sol)
  * 
@@ -57,7 +57,7 @@ const readline = require('readline');
 // ============================================
 // COMPILATION INSTRUCTIONS:
 // ============================================
-// 1. Download solc.exe from: https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.12
+// 1. Download solc.exe from: https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.14
 // 2. Save the Solidity code above to SimpleStorage.sol
 // 3. Run: c:\gethbuild\solc.exe --bin SimpleStorage.sol
 // 4. Copy the bytecode from the "Binary:" section
@@ -253,7 +253,7 @@ qcsdk.initialize(clientConfigVal).then(async (initResult) => {
             console.error("\n❌ ERROR: CONTRACT_BYTECODE has not been set!");
             console.error("Please compile the Solidity contract and update CONTRACT_BYTECODE with the actual bytecode.");
             console.error("Steps:");
-            console.error("1. Download solc.exe from: https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.12");
+            console.error("1. Download solc.exe from: https://github.com/quantumcoinproject/Solidity/releases/tag/v32b.8.14");
             console.error("2. Save the Solidity code from the comments above to SimpleStorage.sol");
             console.error("3. Run: c:\\gethbuild\\solc.exe --bin SimpleStorage.sol");
             console.error("4. Copy the bytecode from the 'Binary:' section");
